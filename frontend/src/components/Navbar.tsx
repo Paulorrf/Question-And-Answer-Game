@@ -3,9 +3,13 @@ import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 const Navbar = () => {
+  const path = usePathname();
+
+  console.log(path);
+
   return (
     <div>
-      <ul className="flex justify-between px-16 pt-2">
+      <ul className="flex justify-between uppercase text-xl px-16 pt-4">
         <li className="hover:underline">
           <Link href="/">Home</Link>
         </li>
