@@ -1,19 +1,11 @@
 export class CreatePerguntaDto {
   body: string;
-  theme: string;
+  theme?: string;
   level: "easy" | "normal" | "hard" | "very_hard" | "expert";
   answer: [
     {
       body: string;
-    },
-    {
-      body: string;
-    },
-    {
-      body: string;
-    },
-    {
-      body: string;
+      is_correct: boolean;
     }
   ];
   tags: {

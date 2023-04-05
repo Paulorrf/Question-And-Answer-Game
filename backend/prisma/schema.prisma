@@ -18,6 +18,7 @@ model user_info {
   name          String     @db.VarChar(255)
   email         String     @db.VarChar(255)
   password      String     @db.VarChar(255)
+  is_admin      Boolean    @default(false)
   character_id  Int
   refresh_token String?    @db.VarChar(255)
   question      question[]
@@ -28,7 +29,7 @@ model answer {
   id          Int      @id @default(autoincrement())
   body        String
   question_id Int
-  is_correct  Boolean
+  is_correct  Boolean  @default(false)
   description String?
   question    question @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -62,6 +63,11 @@ model character {
   luck         Int?        @default(0)
   level        Decimal?    @default(1) @db.Decimal
   user_info    user_info[]
+}
+
+model teste {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255)
 }
 
 enum difficulty {

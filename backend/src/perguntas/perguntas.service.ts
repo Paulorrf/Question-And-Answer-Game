@@ -9,6 +9,23 @@ export class PerguntasService {
 
   async create(createPerguntaDto: CreatePerguntaDto) {
     try {
+      //Verifica se pelo menos uma das perguntas está como correta
+      const result = createPerguntaDto.answer.filter((item) => item.is_correct);
+
+      //se nenhuma ou mais de uma resposta estiver como correta
+      if (result.length !== 1) {
+        return "Selecione uma resposta como correta";
+      }
+
+      //Caso venha 5 respostas ou mais
+      if (createPerguntaDto.answer.length > 4) {
+        return "Coloque somente 4 respostas";
+      }
+
+      if (createPerguntaDto.answer.length < 4) {
+        return "Coloque pelo menos 4 respostas";
+      }
+
       const savedQuestion = await this.prisma.question.create({
         data: {
           difficulty: createPerguntaDto.level,
@@ -17,19 +34,18 @@ export class PerguntasService {
             create: [
               {
                 body: createPerguntaDto.answer[0].body,
-                is_correct: true,
               },
               {
+                //@ts-ignore
                 body: createPerguntaDto.answer[1].body,
-                is_correct: false,
               },
               {
+                //@ts-ignore
                 body: createPerguntaDto.answer[2].body,
-                is_correct: false,
               },
               {
+                //@ts-ignore
                 body: createPerguntaDto.answer[3].body,
-                is_correct: false,
               },
             ],
           },
@@ -40,6 +56,12 @@ export class PerguntasService {
               },
               {
                 tags_id: createPerguntaDto.tags[1].id,
+              },
+              {
+                tags_id: createPerguntaDto.tags[2].id,
+              },
+              {
+                tags_id: createPerguntaDto.tags[3].id,
               },
             ],
           },
@@ -68,9 +90,6 @@ export class PerguntasService {
           answer: {
             where: {
               question_id: id,
-            },
-            select: {
-              body: true,
             },
           },
           question_tags: {
