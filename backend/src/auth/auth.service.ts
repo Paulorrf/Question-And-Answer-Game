@@ -55,8 +55,7 @@ export class AuthService {
           id: Number(userId),
         },
         data: {
-          refresh_token: refreshToken,
-          
+          // refresh_token: refreshToken,
         },
       });
 

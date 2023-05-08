@@ -9,6 +9,124 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      {/* <div className="flex bg-slate-800 p-8 child:ml-4 absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4">
+        <div className="text-center">
+          <h3 className="text-white">BIOLOGIA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-white">FÍSICA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-white">ARTES</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-white">MATEMÁTICA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-white">QUÍMICA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56 overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      </div> */}
+
+      <div className="flex bg-slate-800 p-8 child:ml-4 absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4">
+        <div className="text-center">
+          <h3 className="text-white">FISIOLOGIA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-white">GENÉTICA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-white">ZOOLOGIA</h3>
+          <div className="border border-2 border-black rounded-full w-56 h-56  overflow-hidden">
+            <iframe
+              src="https://giphy.com/embed/KhYDafDhijeepPirrd"
+              width="100%"
+              height="100%"
+              // style="position:absolute"
+              frameBorder="0"
+              // className="giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

@@ -20,9 +20,9 @@ export class PerguntasController {
     return this.perguntasService.create(createPerguntaDto);
   }
 
-  @Get()
-  findAll() {
-    return this.perguntasService.findAll();
+  @Get(":start")
+  findMany(@Param("start") start: string) {
+    return this.perguntasService.findMany(+start);
   }
 
   @Get(":id")

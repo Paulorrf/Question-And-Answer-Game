@@ -85,7 +85,7 @@ const CreateQuestion = () => {
   }
 
   return (
-    <div className="absolute top-1/4 left-2/4 mt-12 -translate-y-1/4 -translate-x-2/4">
+    <div className="absolute top-1/4 left-2/4 mt-12 -translate-y-1/4 mb-4 -translate-x-2/4">
       <h2 className="mb-8 text-center text-2xl font-bold">Criar Pergunta</h2>
 
       <h3 className="mb-4 text-center font-bold">Dificuldade</h3>
@@ -127,7 +127,7 @@ const CreateQuestion = () => {
 
         <div>
           <p>
-            Adicionar uma descrição para a resposta correta?{" "}
+            Adicionar uma descrição para a resposta correta{" "}
             <span onClick={() => setShowDescrip((prev) => !prev)}>+</span>
           </p>
           {showDescrip && (
@@ -144,7 +144,7 @@ const CreateQuestion = () => {
           )}
         </div>
 
-        <div>
+        <div className="mt-2">
           <p>Selecione até 5 tags</p>
           <input
             onChange={(e: any) => setTag(e.target.value)}
@@ -171,7 +171,7 @@ const CreateQuestion = () => {
           </ul>
         </div>
 
-        <button className="btn-primary">Criar Pergunta</button>
+        <button className="btn-primary mb-8">Criar Pergunta</button>
       </form>
     </div>
   );

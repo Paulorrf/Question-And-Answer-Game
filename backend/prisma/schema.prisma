@@ -14,35 +14,39 @@ model tags {
 }
 
 model user_info {
-  id            Int        @id @default(autoincrement())
-  name          String     @db.VarChar(255)
-  email         String     @db.VarChar(255)
-  password      String     @db.VarChar(255)
-  is_admin      Boolean    @default(false)
-  character_id  Int
-  refresh_token String?    @db.VarChar(255)
-  question      question[]
-  character     character  @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(255)
+  email              String               @db.VarChar(255)
+  is_admin           Boolean?             @default(false)
+  password           String               @db.VarChar(255)
+  character_id       Int
+  question           question[]
+  character          character            @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_info_question user_info_question[]
 }
 
 model answer {
-  id          Int      @id @default(autoincrement())
-  body        String
-  question_id Int
-  is_correct  Boolean  @default(false)
-  description String?
-  question    question @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                 Int                  @id @default(autoincrement())
+  body               String
+  question_id        Int
+  is_correct         Boolean              @default(false)
+  description        String?
+  question           question             @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_info_question user_info_question[]
 }
 
 model question {
-  id            Int             @id @default(autoincrement())
-  body          String
-  rating        Decimal?        @default(0) @db.Decimal
-  difficulty    difficulty
-  user_id       Int
-  answer        answer[]
-  user_info     user_info       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  question_tags question_tags[]
+  id                 Int                  @id @default(autoincrement())
+  body               String
+  rating             Decimal?             @default(0) @db.Decimal
+  difficulty         difficulty
+  user_id            Int
+  question_set_id    Int
+  answer             answer[]
+  question_set       question_set         @relation(fields: [question_set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_info          user_info            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question_tags      question_tags[]
+  user_info_question user_info_question[]
 }
 
 model question_tags {
@@ -65,9 +69,21 @@ model character {
   user_info    user_info[]
 }
 
-model teste {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(255)
+model user_info_question {
+  user_info_id    Int
+  question_id     Int
+  answer_id       Int
+  answer_is_right Boolean
+  answer          answer    @relation(fields: [answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question        question  @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_info       user_info @relation(fields: [user_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([question_id, user_info_id])
+}
+
+model question_set {
+  id       Int        @id @default(autoincrement())
+  question question[]
 }
 
 enum difficulty {
