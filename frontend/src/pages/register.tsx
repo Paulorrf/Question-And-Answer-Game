@@ -1,47 +1,79 @@
-import React, { SyntheticEvent, useState } from "react";
+import { createUserFn } from "@/api/register";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { SyntheticEvent, useState, useEffect } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+interface IRegister {
+  email: String;
+  password: String;
+  name: String;
+}
 
 const Register = () => {
   const [showPass, setShowPass] = useState(false);
 
-  function createAccount(event: SyntheticEvent) {
-    event.preventDefault();
-    const nome = (event.target as any).nome.value;
-    const email = (event?.target as any).email.value;
-    const password = (event?.target as any).senha.value;
+  const { register, handleSubmit } = useForm<IRegister>();
+  const onSubmit: SubmitHandler<IRegister> = (data) => {
+    mutation.mutate({
+      email: data.email,
+      password: data.password,
+      name: data.name,
+    });
+  };
 
-    console.log(nome, email, password);
-  }
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createUserFn,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["register"] });
+    },
+  });
+
+  useEffect(() => {
+    localStorage.setItem("user", mutation.data?.accessToken);
+  }, [mutation.data]);
+
+  console.log(mutation.data);
 
   return (
-    <div className="absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4">
+    <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-white">
       <h2 className="mb-4 text-center text-2xl font-bold">CRIAR CONTA</h2>
-      <form className="flex flex-col" onSubmit={createAccount}>
+      <form
+        className="flex flex-col text-black"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <input
-          className="input-primary"
+          className="mb-4 rounded border p-2"
+          placeholder="name"
           type="text"
-          placeholder="nome"
-          name="nome"
+          {...register("name")}
         />
         <input
-          className="input-primary"
-          type="text"
+          className="mb-4 rounded border p-2"
           placeholder="email"
-          name="email"
+          type="email"
+          {...register("email")}
         />
         <input
-          className="input-primary"
-          type={showPass ? "text" : "password"}
+          className="rounded border p-2"
           placeholder="senha"
-          name="senha"
+          type={showPass ? "text" : "password"}
+          {...register("password")}
         />
-
-        <div className="mb-2 flex items-center">
+        <div className="mb-2 flex items-center text-white">
           <input className="mr-2" type="checkbox" id="pass" name="pass" />
           <label htmlFor="pass" onClick={() => setShowPass((prev) => !prev)}>
             Mostrar Senha
           </label>
         </div>
-        <button className="btn-primary">Criar Conta</button>
+
+        <input
+          className="btn-primary mt-2 text-white"
+          value="Entrar"
+          type="submit"
+        />
       </form>
     </div>
   );

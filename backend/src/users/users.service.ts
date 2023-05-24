@@ -10,7 +10,7 @@ export class UsersService {
   private readonly salt = 10;
 
   async create(createTagDto: any) {
-    // console.log(createTagDto.body);
+    console.log(createTagDto.body);
     try {
       const hashedPass = await bcrypt.hash(
         createTagDto.body.password,

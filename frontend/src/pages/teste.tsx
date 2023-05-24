@@ -1,36 +1,43 @@
-import { createRoot } from "react-dom/client";
-import React, { useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import React from "react";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 
-function Box(props: any) {
-  // This reference gives us direct access to the THREE.Mesh object
-  const ref: any = useRef();
-  // Hold state for hovered and clicked events
-  const [hovered, hover] = useState(false);
-  const [clicked, click] = useState(false);
-  // Subscribe this component to the render-loop, rotate the mesh every frame
-  useFrame((state, delta) => (ref.current.rotation.x += delta));
-  // Return the view, these are regular Threejs elements expressed in JSX
+function FieldArray() {
+  const { register, control, handleSubmit, reset, trigger, setError } = useForm(
+    {
+      // defaultValues: {}; you can populate the fields by this attribute
+    }
+  );
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "test",
+  });
+
   return (
-    <mesh
-      {...props}
-      ref={ref}
-      scale={clicked ? 1.5 : 1}
-      onClick={(event) => click(!clicked)}
-      onPointerOver={(event) => hover(true)}
-      onPointerOut={(event) => hover(false)}
-    >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
-    </mesh>
+    <form onSubmit={handleSubmit((data) => console.log(data))}>
+      <ul>
+        {fields.map((item, index) => (
+          <li key={item.id}>
+            <input {...register(`test.${index}.firstName`)} />
+            <Controller
+              render={({ field }) => <input {...field} />}
+              name={`test.${index}.lastName`}
+              control={control}
+            />
+            <button type="button" onClick={() => remove(index)}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        onClick={() => append({ firstName: "bill", lastName: "luo" })}
+      >
+        append
+      </button>
+      <input type="submit" />
+    </form>
   );
 }
 
-createRoot(document.getElementById("root")!).render(
-  <Canvas>
-    <ambientLight />
-    <pointLight position={[10, 10, 10]} />
-    <Box position={[-1.2, 0, 0]} />
-    <Box position={[1.2, 0, 0]} />
-  </Canvas>
-);
+export default FieldArray;

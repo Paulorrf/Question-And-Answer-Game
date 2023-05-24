@@ -8,7 +8,9 @@ export class PerguntasService {
   constructor(private prisma: PrismaService) {}
 
   async create(createPerguntaDto: CreatePerguntaDto) {
+    console.log("question body front");
     console.log(createPerguntaDto);
+    console.log("question body front");
     try {
       // //Verifica se pelo menos uma das perguntas está como correta
       // const result = createPerguntaDto.answer.filter((item) => item.is_correct);
@@ -36,61 +38,58 @@ export class PerguntasService {
       console.log(newSetOfQuestions);
 
       const teste = createPerguntaDto.data.map(async (question: any) => {
+        console.log("question");
+        console.log(question);
         const saved2 = await this.prisma.question.create({
           data: {
             //faz com que as perguntas pertençam ao novo set
             question_set_id: Number(newSetOfQuestions.id),
-            difficulty: question.level,
-            body: question.body,
+            difficulty: question.difficulty,
+            body: question.question,
             answer: {
               create: [
                 {
-                  body: question.answer[0].body,
-                  is_correct: question.answer[0].is_correct,
-                  description: question.answer[0].description,
+                  body: question.answer1,
+                  is_correct: question.answer === 1,
+                  // description: question.answer[0].description,
                 },
                 {
+                  body: question.answer2,
+                  is_correct: question.answer === 2,
                   //@ts-ignore
-                  body: question.answer[1].body,
-                  //@ts-ignore
-                  is_correct: question.answer[1].is_correct,
-                  //@ts-ignore
-                  description: question.answer[1].description,
+                  // description: question.answer[1].description,
                 },
                 {
+                  body: question.answer3,
+                  is_correct: question.answer === 3,
                   //@ts-ignore
-                  body: question.answer[2].body,
-                  //@ts-ignore
-                  is_correct: question.answer[2].is_correct,
-                  //@ts-ignore
-                  description: question.answer[2].description,
+                  // description: question.answer[2].description,
                 },
                 {
+                  body: question.answer4,
+                  is_correct: question.answer === 4,
                   //@ts-ignore
-                  body: question.answer[3].body,
-                  //@ts-ignore
-                  is_correct: question.answer[3].is_correct,
-                  //@ts-ignore
-                  description: question.answer[3].description,
+                  // description: question.answer[3].description,
                 },
               ],
             },
             question_tags: {
               create: [
                 {
-                  tags_id: question.tags[0].id,
+                  tags_id: 1,
                 },
                 {
-                  tags_id: question.tags[1].id,
+                  tags_id: 2,
                 },
                 {
-                  tags_id: question.tags[2].id,
+                  tags_id: 3,
                 },
                 {
-                  tags_id: question.tags[3].id,
+                  tags_id: 4,
                 },
               ],
             },
+            //colocar no futuro
             user_id: question.user_id,
           },
         });
@@ -103,7 +102,19 @@ export class PerguntasService {
     }
   }
 
-  async findMany(start: number) {
+  async getAll(start: number) {
+    try {
+      const questions = await this.prisma.question.findMany({
+        skip: 0,
+      });
+
+      return questions;
+    } catch (error) {
+      return "erro get all";
+    }
+  }
+
+  async findSome(start: number) {
     try {
       const tenQuestions = await this.prisma.question.findMany({
         skip: start === 10 ? 0 : start,
@@ -123,6 +134,9 @@ export class PerguntasService {
 
   async findQuestion(id: number) {
     try {
+      console.log("id");
+      console.log(id);
+      console.log("id");
       const question = await this.prisma.question.findFirst({
         where: {
           id,
@@ -150,7 +164,7 @@ export class PerguntasService {
       return question;
     } catch (error) {
       console.log(error);
-      return error;
+      return undefined;
     }
   }
 

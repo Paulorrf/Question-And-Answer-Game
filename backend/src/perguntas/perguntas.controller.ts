@@ -22,14 +22,19 @@ export class PerguntasController {
 
   @Get(":start")
   findMany(@Param("start") start: string) {
-    return this.perguntasService.findMany(+start);
+    return this.perguntasService.findSome(+start);
   }
 
-  @Get(":id")
+  @Get("one/:id")
   findPergunta(@Param("id") id: string) {
     return this.perguntasService.findQuestion(+id);
   }
 
+  @Get("all/:start")
+  getAll(@Param("start") start: string) {
+    return this.perguntasService.getAll(+start);
+  }
+  //
   @Patch(":id")
   update(
     @Param("id") id: string,

@@ -17,9 +17,15 @@ export default function Document() {
             </mesh>
           </Canvas>
         </div> */}
-        <Navbar />
-        <Main />
-        <NextScript />
+        <div className="z-0 h-[900px] min-h-screen bg-bg-image-primary bg-cover bg-scroll bg-center bg-no-repeat">
+          <div className="absolute inset-0 h-[900px] min-h-screen bg-black bg-opacity-50">
+            <div className="z-50">
+              <Navbar />
+            </div>
+            <Main />
+            <NextScript />
+          </div>
+        </div>
       </body>
     </Html>
   );
