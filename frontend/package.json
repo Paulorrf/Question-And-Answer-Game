@@ -28,7 +28,8 @@
     "react-hook-form": "^7.43.9",
     "react-icons": "^4.8.0",
     "three": "^0.151.3",
-    "typescript": "5.0.2"
+    "typescript": "5.0.2",
+    "zustand": "https://pkg.csb.dev/pmndrs/zustand/commit/773e2e29/zustand"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
