@@ -78,9 +78,10 @@ model history_answered_set_question {
 }
 
 model portal {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(255)
-  portal_spec portal_spec[]
+  id                  Int                   @id @default(autoincrement())
+  name                String                @db.VarChar(255)
+  portal_spec         portal_spec[]
+  portal_spec_primary portal_spec_primary[]
 }
 
 model portal_spec {
@@ -89,17 +90,8 @@ model portal_spec {
   portal_id                 Int
   history_answered_question history_answered_question[]
   portal                    portal                      @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  portal_spec_tag           portal_spec_tag[]
+  portal_spec_primary       portal_spec_primary[]
   user_right_answer         user_right_answer[]
-}
-
-model portal_spec_tag {
-  portal_spec_id Int
-  tag_id         Int
-  portal_spec    portal_spec @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tag            tag         @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([portal_spec_id, tag_id])
 }
 
 model question_set_tag {
@@ -123,7 +115,6 @@ model status {
 model tag {
   id               Int                @id @default(autoincrement())
   name             String             @unique @db.VarChar(255)
-  portal_spec_tag  portal_spec_tag[]
   question_set_tag question_set_tag[]
 }
 
@@ -159,6 +150,15 @@ model user_right_answer {
   user_data      user_data   @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_data_id, portal_spec_id])
+}
+
+model portal_spec_primary {
+  portal_spec_id Int
+  portal_id      Int
+  portal         portal      @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portal_spec    portal_spec @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([portal_spec_id, portal_id])
 }
 
 enum difficulty {

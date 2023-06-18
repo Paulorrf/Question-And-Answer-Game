@@ -30,14 +30,41 @@ export class QuestionsService {
       const allQuestions = createQuestionDto.questions.map(
         (question_subj: CreateProps) => {
           return {
-            ...question_subj,
+            body: question_subj.body,
+            situation: question_subj.situation,
+            description_right_answer: question_subj.description_right_answer,
+            user_data_id: question_subj.user_data_id,
             question_set_id: new_question_set.id,
           };
         }
       );
 
-      const createQuestions = await this.prisma.question.createMany({
-        data: allQuestions,
+      //array of ids
+      const createQuestions = await this.prisma.$transaction(
+        allQuestions.map((question) =>
+          this.prisma.question.create({ data: question })
+        )
+      );
+
+      let answersArr = [];
+
+      for (let i = 0; i < createQuestions.length; i++) {
+        for (
+          let x = 0;
+          x < createQuestionDto.questions[i].answers.length;
+          x++
+        ) {
+          answersArr.push({
+            body: createQuestionDto.questions[i].answers[x].body,
+            is_correct: createQuestionDto.questions[i].answers[x].is_correct,
+            question_id: createQuestions[i].id,
+          });
+        }
+      }
+
+      //save answer to each specific question
+      const createsQuestions2 = await this.prisma.answer.createMany({
+        data: answersArr,
       });
 
       const upsertedNames = await this.prisma.$transaction(
@@ -74,66 +101,89 @@ export class QuestionsService {
         },
       });
 
+      // const newPortalsId = portalsId.map(value => value)
+
       /**
        * precisa testar se vai criar varias tags_spec com
        * o id dos portais primarios, testar com dois portais primarios
        */
-      const upsertedPortals = await this.prisma.$transaction(
-        createQuestionDto.tags_spec.map((name) =>
-          this.prisma.portal_spec.upsert({
-            where: {
-              name: name,
-            },
-            create: {
-              name: name,
-              portal_id: Number(
-                portalsId.map((portal: { id: number }) => portal.id)
-              ),
-              // portal_id: Number(portalsId[0].id),
-            },
-            update: {},
-            select: {
-              id: true,
-            },
-          })
-        )
-      );
+      // const upsertedPortals = await this.prisma.$transaction(
+      //   createQuestionDto.tags_spec.map((name) =>
+      //     this.prisma.portal_spec.upsert({
+      //       where: {
+      //         name: name,
+      //       },
+
+      //       create: {
+      //         name: name,
+      //         portal_id: Number(
+      //           portalsId.map((portal: { id: number }) => portal.id)
+      //         ),
+      //       },
+      //       update: {},
+      //       select: {
+      //         id: true,
+      //       },
+      //     })
+      //   )
+      // );
 
       const newValues: Array<{
         portal_spec_id: number;
-        tag_id: number;
+        portal_id: number;
       }> = [];
 
-      for (let i = 0; i < upsertedPortals.length; i++) {
+      for (let i = 0; i < upsertedNames.length; i++) {
         for (let x = 0; x < portalsId.length; x++) {
           newValues.push({
-            tag_id: upsertedPortals[i].id,
-            portal_spec_id: portalsId[x].id,
+            portal_spec_id: upsertedNames[i].id,
+            portal_id: portalsId[x].id,
           });
         }
       }
 
-      const createddd = await this.prisma.$transaction(
-        newValues.map((name: any) =>
-          this.prisma.portal_spec_tag.upsert({
-            where: {
-              portal_spec_id_tag_id: {
-                portal_spec_id: name.portal_spec_id,
-                tag_id: name.tag_id,
-              },
-            },
-            create: {
-              portal_spec_id: name.portal_spec_id,
-              tag_id: name.tag_id,
-            },
-            update: {},
-          })
-        )
+      // const upsertedPortals = await this.prisma.portal_spec.createMany({
+      //   data: newValues,
+      //   skipDuplicates: true,
+      // });
+
+      const upsertedPortals2 = await this.prisma.portal_spec_primary.createMany(
+        {
+          data: newValues,
+          skipDuplicates: true,
+        }
       );
 
       console.log("11111111");
-      console.log(createddd);
+      console.log(newValues);
       console.log("11111111");
+
+      // for (let i = 0; i < upsertedPortals.length; i++) {
+      //   for (let x = 0; x < portalsId.length; x++) {
+      //     newValues.push({
+      //       tag_id: upsertedPortals[i].id,
+      //       portal_spec_id: portalsId[x].id,
+      //     });
+      //   }
+      // }
+
+      // const createddd = await this.prisma.$transaction(
+      //   newValues.map((name: any) =>
+      //     this.prisma.portal_spec_tag.upsert({
+      //       where: {
+      //         portal_spec_id_tag_id: {
+      //           portal_spec_id: name.portal_spec_id,
+      //           tag_id: name.tag_id,
+      //         },
+      //       },
+      //       create: {
+      //         portal_spec_id: name.portal_spec_id,
+      //         tag_id: name.tag_id,
+      //       },
+      //       update: {},
+      //     })
+      //   )
+      // );
 
       // console.log("222222");
       // console.log(portalsId);

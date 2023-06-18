@@ -13,6 +13,10 @@ export class CreateQuestionDto {
       situation: "active" | "inactive" | "deleted";
       description_right_answer: string;
       user_data_id: number;
+      answers: {
+        body: string;
+        is_correct: boolean;
+      }[];
     }
   ];
 
