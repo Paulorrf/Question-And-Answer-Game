@@ -9,7 +9,7 @@ export class TagsService {
 
   async create(createTagDto: CreateTagDto) {
     try {
-      const savedTag = await this.prisma.tags.create({
+      const savedTag = await this.prisma.tag.create({
         data: {
           name: createTagDto.name,
         },
@@ -24,7 +24,7 @@ export class TagsService {
 
   async findAll() {
     try {
-      const allTags = await this.prisma.tags.findMany({
+      const allTags = await this.prisma.tag.findMany({
         select: {
           name: true,
         },
@@ -39,7 +39,7 @@ export class TagsService {
 
   async findOne(id: number) {
     try {
-      const foundedTag = await this.prisma.tags.findFirst({
+      const foundedTag = await this.prisma.tag.findFirst({
         where: {
           id,
         },
@@ -57,7 +57,7 @@ export class TagsService {
 
   async update(id: number, updateTagDto: UpdateTagDto) {
     try {
-      const updatedTag = await this.prisma.tags.update({
+      const updatedTag = await this.prisma.tag.update({
         where: {
           id,
         },
@@ -75,7 +75,7 @@ export class TagsService {
 
   async remove(id: number) {
     try {
-      const removedTag = await this.prisma.tags.delete({
+      const removedTag = await this.prisma.tag.delete({
         where: {
           id,
         },

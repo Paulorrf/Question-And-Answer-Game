@@ -4,6 +4,7 @@ import { AppService } from "./app.service";
 import { AuthService } from "./auth/auth.service";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 import { LocalAuthGuard } from "./auth/local-auth.guard";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller()
 export class AppController {
@@ -20,7 +21,10 @@ export class AppController {
 
   @Post("auth/signin")
   async signin(@Request() req) {
-    return this.usersService.create(req);
+    // console.log("req");
+    // console.log(req.body);
+    // console.log("req");
+    return this.usersService.create(req.body);
   }
 
   @UseGuards(LocalAuthGuard)

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateTagDto } from "./dto/create-user-dto";
+import { CreateUserDto } from "./dto/create-user-dto";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
@@ -9,26 +9,32 @@ export class UsersService {
 
   private readonly salt = 10;
 
-  async create(createTagDto: any) {
-    console.log(createTagDto.body);
+  async create(createUserDto: CreateUserDto) {
+    console.log(createUserDto);
     try {
-      const hashedPass = await bcrypt.hash(
-        createTagDto.body.password,
-        this.salt
-      );
-      const savedUser = await this.prisma.user_info.create({
+      const hashedPass = await bcrypt.hash(createUserDto.password, this.salt);
+
+      const savedUser = await this.prisma.user_data.create({
         data: {
-          email: createTagDto.body.email,
+          email: createUserDto.email,
           password: hashedPass,
-          name: createTagDto.body.name,
+          name: createUserDto.name,
+          token: {
+            create: {
+              access_tk: "",
+              referesh_tk: "",
+            },
+          },
           character: {
             create: {
-              dexterity: 1,
-              intelligence: 1,
-              luck: 1,
-              strenght: 1,
-              vitality: 1,
-              level: 1,
+              classes: {
+                create: {
+                  nome: createUserDto.classe,
+                },
+              },
+              status: {
+                create: {},
+              },
             },
           },
         },
@@ -43,7 +49,7 @@ export class UsersService {
 
   async findOne(email: string) {
     try {
-      const foundUser = await this.prisma.user_info.findFirst({
+      const foundUser = await this.prisma.user_data.findFirst({
         where: {
           email,
         },

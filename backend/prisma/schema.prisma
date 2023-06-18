@@ -7,83 +7,158 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model tags {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique @db.VarChar(255)
-  question_tags question_tags[]
-}
-
-model user_info {
-  id                 Int                  @id @default(autoincrement())
-  name               String               @db.VarChar(255)
-  email              String               @db.VarChar(255)
-  is_admin           Boolean?             @default(false)
-  password           String               @db.VarChar(255)
-  character_id       Int
-  question           question[]
-  character          character            @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_info_question user_info_question[]
-}
-
 model answer {
-  id                 Int                  @id @default(autoincrement())
-  body               String
-  question_id        Int
-  is_correct         Boolean              @default(false)
-  description        String?
-  question           question             @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_info_question user_info_question[]
+  id                        Int                         @id @default(autoincrement())
+  body                      String
+  question_id               Int
+  is_correct                Boolean                     @default(false)
+  question                  question                    @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  history_answered_question history_answered_question[]
 }
 
 model question {
-  id                 Int                  @id @default(autoincrement())
-  body               String
-  rating             Decimal?             @default(0) @db.Decimal
-  difficulty         difficulty
-  user_id            Int
-  question_set_id    Int
-  answer             answer[]
-  question_set       question_set         @relation(fields: [question_set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_info          user_info            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  question_tags      question_tags[]
-  user_info_question user_info_question[]
-}
-
-model question_tags {
-  question_id Int
-  tags_id     Int
-  question    question @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tags        tags     @relation(fields: [tags_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([question_id, tags_id])
+  id                        Int                         @id @default(autoincrement())
+  body                      String                      @db.VarChar(255)
+  description_right_answer  String                      @db.VarChar(255)
+  situation                 situation                   @default(active)
+  user_data_id              Int
+  question_set_id           Int
+  answer                    answer[]
+  history_answered_question history_answered_question[]
+  question_set              question_set                @relation(fields: [question_set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data                 user_data                   @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model character {
-  id           Int         @id @default(autoincrement())
-  strenght     Int?        @default(0)
-  intelligence Int?        @default(0)
-  dexterity    Int?        @default(0)
-  vitality     Int?        @default(0)
-  luck         Int?        @default(0)
-  level        Decimal?    @default(1) @db.Decimal
-  user_info    user_info[]
-}
-
-model user_info_question {
-  user_info_id    Int
-  question_id     Int
-  answer_id       Int
-  answer_is_right Boolean
-  answer          answer    @relation(fields: [answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  question        question  @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_info       user_info @relation(fields: [user_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([question_id, user_info_id])
+  id        Int         @id @default(autoincrement())
+  classe_id Int
+  status_id Int
+  classes   classes     @relation(fields: [classe_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status    status      @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data user_data[]
 }
 
 model question_set {
-  id       Int        @id @default(autoincrement())
-  question question[]
+  id                            Int                             @id @default(autoincrement())
+  answered_number               Int?                            @default(0)
+  title                         String                          @db.VarChar(255)
+  description                   String                          @db.VarChar(255)
+  rating                        Int?                            @default(1)
+  difficulty                    difficulty?
+  situation                     situation                       @default(active)
+  history_answered_set_question history_answered_set_question[]
+  question                      question[]
+  question_set_tag              question_set_tag[]
+}
+
+model classes {
+  id        Int         @id @default(autoincrement())
+  nome      races
+  character character[]
+}
+
+model history_answered_question {
+  id               Int         @id @default(autoincrement())
+  user_data_id     Int
+  question_id      Int
+  chosen_answer_id Int
+  portal_spec_id   Int
+  answer           answer      @relation(fields: [chosen_answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portal_spec      portal_spec @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question         question    @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data        user_data   @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model history_answered_set_question {
+  id              Int          @id @default(autoincrement())
+  user_data_id    Int
+  question_set_id Int
+  question_set    question_set @relation(fields: [question_set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data       user_data    @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model portal {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(255)
+  portal_spec portal_spec[]
+}
+
+model portal_spec {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @unique(map: "unique_name") @db.VarChar(255)
+  portal_id                 Int
+  history_answered_question history_answered_question[]
+  portal                    portal                      @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portal_spec_tag           portal_spec_tag[]
+  user_right_answer         user_right_answer[]
+}
+
+model portal_spec_tag {
+  portal_spec_id Int
+  tag_id         Int
+  portal_spec    portal_spec @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tag            tag         @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([portal_spec_id, tag_id])
+}
+
+model question_set_tag {
+  question_set_id Int
+  tag_id          Int
+  question_set    question_set @relation(fields: [question_set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tag             tag          @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "question_set_tag_tag_id_fkey1")
+
+  @@id([question_set_id, tag_id], map: "question_set_tag_pkey1")
+}
+
+model status {
+  id           Int         @id @default(autoincrement())
+  strength     Int         @default(1)
+  intelligence Int         @default(1)
+  agility      Int         @default(1)
+  luck         Int         @default(1)
+  character    character[]
+}
+
+model tag {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar(255)
+  portal_spec_tag  portal_spec_tag[]
+  question_set_tag question_set_tag[]
+}
+
+model token {
+  id          Int         @id @default(autoincrement())
+  access_tk   String?     @db.VarChar(255)
+  referesh_tk String?     @db.VarChar(255)
+  user_data   user_data[]
+}
+
+model user_data {
+  id                            Int                             @id @default(autoincrement())
+  name                          String                          @db.VarChar(255)
+  email                         String                          @unique(map: "user_data_username_key") @db.VarChar(255)
+  nivel                         Int                             @default(1)
+  character_id                  Int
+  tokens_id                     Int
+  display_name                  String?                         @db.VarChar(255)
+  password                      String?                         @db.VarChar(255)
+  history_answered_question     history_answered_question[]
+  history_answered_set_question history_answered_set_question[]
+  question                      question[]
+  character                     character                       @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  token                         token                           @relation(fields: [tokens_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_right_answer             user_right_answer[]
+}
+
+model user_right_answer {
+  count          Int?        @default(0)
+  user_data_id   Int
+  portal_spec_id Int
+  portal_spec    portal_spec @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data      user_data   @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_data_id, portal_spec_id])
 }
 
 enum difficulty {
@@ -92,4 +167,16 @@ enum difficulty {
   hard
   very_hard
   expert
+}
+
+enum situation {
+  active
+  inactive
+  deleted
+}
+
+enum races {
+  elfo
+  humano
+  orc
 }

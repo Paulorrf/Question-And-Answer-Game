@@ -30,7 +30,7 @@ export class AuthService {
   }
 
   async login(user: any) {
-    // console.log(user);
+    console.log(user);
     const payload = { email: user.email, sub: user.id };
     const tokens = await this.getTokens(user.id, user.email);
     const refreshTk = await this.updateRefreshToken(
@@ -50,7 +50,7 @@ export class AuthService {
     // });
 
     try {
-      const updatedUser = await this.prisma.user_info.update({
+      const updatedUser = await this.prisma.user_data.update({
         where: {
           id: Number(userId),
         },
