@@ -18,7 +18,6 @@ export class QuestionsController {
 
   @Post()
   create(@Body() createQuestionDto: CreateQuestionDto) {
-    console.log("entrou create");
     return this.questionsService.create(createQuestionDto);
   }
 

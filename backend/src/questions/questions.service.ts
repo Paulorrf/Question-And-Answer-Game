@@ -1,4 +1,4 @@
-import { Injectable, Session } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
 import { PrismaService } from "src/prisma/prisma.service";

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import useStore from "../store/store";
+import axios from "axios";
 
 interface DifficultyProp {
   name: string;
@@ -16,7 +17,7 @@ interface DifficultyProp {
   brName: string;
 }
 
-export function DifficultyOption(
+function difficultyOption(
   name: string,
   brName: string,
   changeDifficulty: any,
@@ -54,6 +55,11 @@ export function DifficultyOption(
 //@ts-ignore
 const QuestionOptions = () => {
   const [qntQuestoes, setQntQuestoes] = useState(10);
+  const [genericTags, setGenericTags] = useState<Array<string>>([]);
+  const [recommendations, setRecommendations] = useState([]);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
   //@ts-ignore
   const difficulty = useStore((state: string) => state.difficulty);
 
@@ -71,6 +77,38 @@ const QuestionOptions = () => {
     { name: "very_hard", brName: "Muito Díficil" },
     // { name: "expert", brName: "Expert" },
   ];
+
+  async function handleGenericChange(event: React.FormEvent<HTMLInputElement>) {
+    // console.log(event.currentTarget.value);
+    if (event.currentTarget.value !== "") {
+      const returnedValues = await axios.get(
+        `http://localhost:5000/portal/gletter/${event.currentTarget.value}`
+      );
+      console.log(returnedValues.data);
+      // axios.get(`http://localhost:5000/portal/sletter/${event.currentTarget.value}`)
+      setRecommendations(returnedValues.data);
+    } else {
+      setRecommendations([]);
+    }
+  }
+
+  function addGenericTag(name: string) {
+    setRecommendations([]);
+    setGenericTags((prev) => [...prev, name]);
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.focus();
+    }
+  }
+
+  console.log(genericTags);
+
+  // const handleButtonClick = () => {
+  //   if (inputRef.current) {
+  //     inputRef.current.value = '';
+  //     inputRef.current.focus();
+  //   }
+  // };
 
   return (
     <div>
@@ -102,17 +140,57 @@ const QuestionOptions = () => {
           <ul className="mb-4 flex justify-center text-white child:mr-4">
             {difficulties.map((difficultyItem: DifficultyProp) => {
               return (
-                <>
-                  {DifficultyOption(
+                <div key={difficultyItem.brName}>
+                  {difficultyOption(
                     difficultyItem.name,
                     difficultyItem.brName,
                     changeDifficulty,
                     difficulty
                   )}
-                </>
+                </div>
               );
             })}
           </ul>
+        </div>
+      </div>
+      <div className="flex flex-col items-center justify-center text-center">
+        <h3 className="mb-4 text-center font-bold">
+          {"Selecione uma das tags".toUpperCase()}
+        </h3>
+        <div>
+          <div>
+            <p>Generico</p>
+            <input
+              type="text"
+              className="w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              ref={inputRef}
+              onChange={handleGenericChange}
+              placeholder="ex: biologia"
+            />
+          </div>
+          <div className="w-48 bg-white text-center text-black ring-2 ring-zinc-600 ">
+            {recommendations.length > 0 && (
+              <ul className="flex justify-around p-2 child:mr-2">
+                {recommendations.map(
+                  (recommendation: { id: number; name: string }) => {
+                    return (
+                      <li
+                        key={recommendation.id}
+                        className="cursor-pointer underline underline-offset-1 hover:font-bold"
+                        onClick={() => addGenericTag(recommendation.name)}
+                      >
+                        {recommendation.name}
+                      </li>
+                    );
+                  }
+                )}
+              </ul>
+            )}
+          </div>
+          <div>
+            <p>Especifico</p>
+            <input type="text" placeholder="ex: zoologia" />
+          </div>
         </div>
       </div>
     </div>

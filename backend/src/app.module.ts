@@ -8,6 +8,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { QuestionsModule } from "./questions/questions.module";
 import { AnswerModule } from "./answer/answer.module";
+import { PortalModule } from './portal/portal.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AnswerModule } from "./answer/answer.module";
     AnswerModule,
     QuestionsModule,
     AnswerModule,
+    PortalModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
