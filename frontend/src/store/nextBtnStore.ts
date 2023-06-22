@@ -6,7 +6,7 @@ import tagsStore from "./tagsStore";
 
 interface NextBtnState {
   isActionEnabled: boolean;
-  performAction: (genericTags: string[], specificTags: string[]) => void;
+  performAction: (genericTags: any, specificTags: string[]) => void;
   setActionEnabled: (value: boolean) => void;
 }
 
@@ -16,8 +16,8 @@ const nextBtnStore = create<NextBtnState>((set, get) => ({
 
   // Action to be performed
   performAction: (genericTags, specificTags) => {
-    tagsStore.getState().changeGeneric(genericTags);
-    tagsStore.getState().changeSpecific(specificTags);
+    // tagsStore.getState().changeGeneric(genericTags);
+    // tagsStore.getState().changeSpecific(specificTags);
     // changeTagsGeneric(genericTags);
     // changeTagsSpec(specificTags);
     // Do something when the button is clicked

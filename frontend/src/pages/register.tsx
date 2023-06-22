@@ -31,11 +31,11 @@ const Register = () => {
     },
   });
 
-  useEffect(() => {
-    localStorage.setItem("user", mutation.data?.accessToken);
-  }, [mutation.data]);
+  // useEffect(() => {
+  //   localStorage.setItem("user", mutation.data);
+  // }, [mutation.data]);
 
-  console.log(mutation.data);
+  // console.log(mutation.data);
 
   return (
     <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-white">

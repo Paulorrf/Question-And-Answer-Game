@@ -40,7 +40,7 @@ export class AuthService {
     // return {
     //   access_token: tokens.accessToken
     // };
-    return tokens;
+    return tokens.accessToken;
   }
 
   async updateRefreshToken(userId: any, refreshToken: string) {
@@ -50,15 +50,14 @@ export class AuthService {
     // });
 
     try {
-      const updatedUser = await this.prisma.user_data.update({
-        where: {
-          id: Number(userId),
-        },
-        data: {
-          // refresh_token: refreshToken,
-        },
-      });
-
+      // const updatedUser = await this.prisma.user_data.update({
+      //   where: {
+      //     id: Number(userId),
+      //   },
+      //   data: {
+      //     // refresh_token: refreshToken,
+      //   },
+      // });
       // return updatedUser;
     } catch (error) {
       console.log(error);
@@ -75,7 +74,7 @@ export class AuthService {
         },
         {
           secret: "segredo",
-          expiresIn: "15m",
+          expiresIn: "7d",
         }
       ),
       this.jwtService.signAsync(

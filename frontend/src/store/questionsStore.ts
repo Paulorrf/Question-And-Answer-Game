@@ -18,10 +18,13 @@ interface QuestionState {
   addQuestion: (question: Questions, state: Questions) => void;
 }
 
-const questionStore = create<any>((set) => ({
+const questionStore = create<any>((set, get) => ({
   questions: [],
-  addQuestion: (question: Questions, state: any) =>
-    set((store: any) => ({ questions: [...store.questions, question] })),
+  addQuestion: (question: any, state: any) =>
+    // questionStore.getState()
+    set((state: any) => ({
+      questions: [...state.questions, question],
+    })),
 }));
 
 export default questionStore;

@@ -5,6 +5,7 @@ import { BsArrowRightSquareFill } from "react-icons/bs";
 import questionQuantityStore from "@/store/questionsQuantityStore";
 import tagsStore from "@/store/tagsStore";
 import nextBtnStore from "@/store/nextBtnStore";
+import setQuestionStore from "@/store/setQuestionStore";
 
 interface DifficultyProp {
   name: string;
@@ -50,8 +51,12 @@ const QuestionOptions = () => {
   const [idxGen, setIdxGen] = useState<number>(0);
   const [idxSpec, setIdxSpec] = useState<number>(0);
 
+  const quantityOptions = [1, 10, 15, 20];
+
   const inputRef = useRef<HTMLInputElement>(null);
   const inputRef2 = useRef<HTMLInputElement>(null);
+  const inputRefDesc = useRef<HTMLInputElement>(null);
+  const inputRefTitle = useRef<HTMLInputElement>(null);
 
   //zustand values
   const difficulty = useStore((state) => state.difficulty);
@@ -64,13 +69,16 @@ const QuestionOptions = () => {
   const changeQuantity = questionQuantityStore((state) => state.changeQuantity);
   const changeTagsGeneric = tagsStore((state) => state.changeGeneric);
   const changeTagsSpec = tagsStore((state) => state.changeSpecific);
+  const changeQuestionSet = setQuestionStore(
+    (state) => state.changeQuestionSet
+  );
 
   const isActionEnabled = nextBtnStore((state) => state.isActionEnabled);
   const performAction = nextBtnStore((state) => state.performAction);
 
-  // console.log("dificuldade");
-  // console.log(difficulty);
-  // console.log("dificuldade");
+  console.log("dificuldade");
+  console.log(tagsGeneric);
+  console.log("dificuldade");
 
   const difficulties = [
     { name: "easy", brName: "Fácil" },
@@ -105,6 +113,26 @@ const QuestionOptions = () => {
     }
   }
 
+  const handleTitleInput = () => {
+    if (inputRefTitle.current?.value !== null) {
+      changeQuestionSet({
+        title: inputRefTitle.current?.value!,
+        description: inputRefDesc.current?.value ?? "",
+      });
+      // setInputValue(inputRef.current.value);
+    }
+  };
+
+  const handleDescInput = () => {
+    if (inputRefDesc.current?.value !== null) {
+      changeQuestionSet({
+        title: inputRefTitle.current?.value! ?? "",
+        description: inputRefDesc.current?.value!,
+      });
+      // setInputValue(inputRef.current.value);
+    }
+  };
+
   async function handleSpecificChange(
     event: React.FormEvent<HTMLInputElement>
   ) {
@@ -129,6 +157,7 @@ const QuestionOptions = () => {
       let val = (prev ??= 0);
       return val + 1;
     });
+    changeTagsGeneric(name);
     setGenericTags((prev) => [...prev, name]);
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -138,6 +167,7 @@ const QuestionOptions = () => {
 
   function addSpecificTag(name: string) {
     setRecSpec([]);
+    changeTagsSpec(name);
     setSpecificTags((prev) => [...prev, name]);
     if (inputRef2.current) {
       inputRef2.current.value = "";
@@ -179,6 +209,7 @@ const QuestionOptions = () => {
 
     if (inputRef.current !== null && inputRef.current.value !== null) {
       let value = inputRef.current.value;
+      changeTagsGeneric(value);
       setGenericTags((prev) => [...prev, value]);
       inputRef.current.value = "";
     }
@@ -189,6 +220,7 @@ const QuestionOptions = () => {
 
     if (inputRef2.current !== null && inputRef2.current.value !== null) {
       let value = inputRef2.current.value;
+      changeTagsSpec(value);
       setSpecificTags((prev) => [...prev, value]);
       inputRef2.current.value = "";
     }
@@ -211,7 +243,7 @@ const QuestionOptions = () => {
           {"Escolha a quantidade de questões".toUpperCase()}
         </h3>
         <ul className="flex justify-between">
-          {[10, 15, 20].map((questionNr: number) => {
+          {quantityOptions.map((questionNr: number) => {
             return (
               <li
                 key={questionNr}
@@ -246,6 +278,34 @@ const QuestionOptions = () => {
               );
             })}
           </ul>
+        </div>
+      </div>
+      <div>
+        <h3 className="mb-4 text-center font-bold">
+          {"Adicione um titulo".toUpperCase()}
+        </h3>
+        <div>
+          <input
+            type="text"
+            className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            ref={inputRefTitle}
+            onChange={handleTitleInput}
+            placeholder="Título"
+          />
+        </div>
+      </div>
+      <div>
+        <h3 className="mb-4 text-center font-bold">
+          {"Adicione uma descrição".toUpperCase()}
+        </h3>
+        <div>
+          <input
+            type="text"
+            className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            ref={inputRefDesc}
+            onChange={handleDescInput}
+            placeholder="Descrição"
+          />
         </div>
       </div>
       <div className="flex flex-col items-center justify-center text-center">

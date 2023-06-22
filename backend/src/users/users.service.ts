@@ -29,7 +29,7 @@ export class UsersService {
             create: {
               classes: {
                 create: {
-                  nome: createUserDto.classe,
+                  nome: createUserDto.classe || "elfo",
                 },
               },
               status: {

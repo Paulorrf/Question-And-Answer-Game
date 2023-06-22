@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createQuestionFn } from "@/api/questions";
@@ -8,6 +8,9 @@ import { MdDelete } from "react-icons/md";
 import { decode } from "jsonwebtoken";
 import questionStore from "@/store/questionsStore";
 import useStore from "../store/store";
+import questionQuantityStore from "@/store/questionsQuantityStore";
+import tagsStore from "@/store/tagsStore";
+import setQuestionStore from "@/store/setQuestionStore";
 
 interface AnswerProp {
   body: string;
@@ -44,33 +47,75 @@ const CreateQuestionForm = () => {
   const [quantity, setQuantity] = useState(0);
   // const [questions, setQuestions] = useState<Questions[]>([]);
 
+  const totalQuantity = questionQuantityStore((state) => state.quantity);
+
+  const setTitle = setQuestionStore((state) => state.question_set.title);
+  const setDesc = setQuestionStore((state) => state.question_set.description);
+  const setDifficulty = setQuestionStore(
+    (state) => state.question_set.difficulty
+  );
+
   //@ts-ignore
   const addQuestion = questionStore((state) => state.addQuestion);
   const questions = questionStore((state) => state.questions);
 
+  const tags_primary = tagsStore((state) => state.genericTags);
+  const tags_spec = tagsStore((state) => state.specificTags);
+
   //@ts-ignore
-  const difficulty = useStore((state: string) => state.difficulty);
+  // const difficulty = useStore((state: string) => state.difficulty);
+
+  if (typeof window !== "undefined") {
+    //@ts-ignore
+    const user_id = decode(localStorage?.getItem("user")).sub;
+  }
 
   console.log("dificuldade");
-  console.log(questions);
+  console.log({ questions, tags_primary, tags_spec });
   console.log("dificuldade");
+
+  useEffect(() => {
+    if (questions.length === totalQuantity) {
+      mutation.mutate({
+        question_set: {
+          title: setTitle,
+          description: setDesc,
+          difficulty: setDifficulty,
+        },
+        questions,
+        tags_primary,
+        tags_spec,
+      });
+    }
+  }, [questions, totalQuantity]);
 
   const { control, register, handleSubmit, reset } = useForm();
   const onSubmit: SubmitHandler<IFormInput> = (data: IFormInput) => {
     // console.log(data);
 
     addQuestion({
-      question: data.question,
-      answer1: data.resposta1,
-      answer2: data.resposta2,
-      answer3: data.resposta3,
-      answer4: data.resposta4,
-      tags: data.tags,
-      answer,
-      difficulty: difficulty,
-      description: data.description,
+      body: data.question,
+      description_right_answer: data.description,
       //@ts-ignore
       user_id: Number(decode(localStorage?.getItem("user")).sub),
+      answers: [
+        {
+          body: data.resposta1,
+          is_correct: answer === 1 ? true : false,
+        },
+        {
+          body: data.resposta2,
+          is_correct: answer === 2 ? true : false,
+        },
+        {
+          body: data.resposta3,
+          is_correct: answer === 3 ? true : false,
+        },
+        {
+          body: data.resposta4,
+          is_correct: answer === 4 ? true : false,
+        },
+      ],
     });
 
     // setQuestions((prev: Questions[]) => [
@@ -96,7 +141,7 @@ const CreateQuestionForm = () => {
       console.log(questions);
       //
 
-      mutation.mutate(questions);
+      // mutation.mutate(questions);
       // mutation.mutate({
       //   question: data.question,
       //   answer1: data.resposta1,
@@ -118,10 +163,6 @@ const CreateQuestionForm = () => {
 
     reset();
   };
-  const { fields, append, remove } = useFieldArray({
-    name: "tags", // unique name for your Field Array
-    control,
-  });
 
   const queryClient = useQueryClient();
 
@@ -132,11 +173,6 @@ const CreateQuestionForm = () => {
       queryClient.invalidateQueries({ queryKey: ["question"] });
     },
   });
-
-  if (typeof window !== "undefined") {
-    //@ts-ignore
-    // console.log(decode(localStorage?.getItem("user")).sub);
-  }
 
   const difficulties = [
     { name: "easy", brName: "Fácil" },
@@ -183,7 +219,7 @@ const CreateQuestionForm = () => {
 
   return (
     <div key="123">
-      <h2 className="mb-2">{`Questão ${quantity} de 10`}</h2>
+      <h2 className="mb-2">{`Questão ${quantity} de ${totalQuantity}`}</h2>
       <form
         id="create-question-form"
         className="flex flex-col items-center"
@@ -230,7 +266,7 @@ const CreateQuestionForm = () => {
           />
         </div>
 
-        <div className="mt-2">
+        {/* <div className="mt-2">
           <p>Selecione até 5 tags</p>
 
           <ul className="flex flex-col items-center justify-center text-black">
@@ -251,11 +287,11 @@ const CreateQuestionForm = () => {
           <button type="button" onClick={() => append({ tag: "" })}>
             Novo
           </button>
-        </div>
+        </div> */}
 
         <div className="mb-8 mt-4 flex items-center justify-center">
           <button type="submit" className="btn-primary mr-4">
-            {quantity < 10 ? "Próximo" : "Criar Pergunta"}
+            {quantity < totalQuantity ? "Próximo" : "Criar Pergunta"}
           </button>
         </div>
       </form>

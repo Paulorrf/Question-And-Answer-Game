@@ -13,10 +13,10 @@ interface Question {
   user_id: Number | undefined;
 }
 
-export async function createQuestionFn(data: Question[]) {
+export async function createQuestionFn(data: any) {
   const questions = await axios({
     method: "post",
-    url: "http://localhost:5000/perguntas/create",
+    url: "http://localhost:5000/questions",
     data: {
       data,
     },

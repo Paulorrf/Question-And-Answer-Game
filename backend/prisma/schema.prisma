@@ -82,6 +82,8 @@ model portal {
   name                String                @db.VarChar(255)
   portal_spec         portal_spec[]
   portal_spec_primary portal_spec_primary[]
+
+  @@index([name], map: "portal_idx")
 }
 
 model portal_spec {
@@ -92,6 +94,8 @@ model portal_spec {
   portal                    portal                      @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   portal_spec_primary       portal_spec_primary[]
   user_right_answer         user_right_answer[]
+
+  @@index([name], map: "portal_spec_idx")
 }
 
 model question_set_tag {
@@ -155,10 +159,13 @@ model user_right_answer {
 model portal_spec_primary {
   portal_spec_id Int
   portal_id      Int
+  comp_key       Int         @unique
   portal         portal      @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   portal_spec    portal_spec @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([portal_spec_id, portal_id])
+  @@unique([portal_spec_id, portal_id], map: "unique_column_name")
+  @@index([comp_key], map: "comp_key_idx")
 }
 
 enum difficulty {

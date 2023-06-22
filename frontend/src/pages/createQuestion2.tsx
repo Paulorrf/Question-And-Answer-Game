@@ -25,16 +25,13 @@ function CreateQuestion2() {
 
   const setActionEnabled = nextBtnStore((state) => state.setActionEnabled);
 
-  const tagsGeneric = tagsStore((state) => state.genericTags);
-  const tagsSpec = tagsStore((state) => state.specificTags);
-
   function handleProximo() {
     setProximo((prev: number) => prev + 1);
     setActionEnabled(true);
   }
 
-  console.log(tagsGeneric);
-  console.log(tagsSpec);
+  // console.log(tagsGeneric);
+  // console.log(tagsSpec);
 
   return (
     <div className="absolute left-2/4 top-1/4 mb-4 mt-16 -translate-x-2/4 -translate-y-1/4 text-center text-white">

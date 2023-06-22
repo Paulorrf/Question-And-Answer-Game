@@ -30,7 +30,7 @@ const Login = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem("user", mutation.data?.accessToken);
+    localStorage.setItem("user", mutation.data);
   }, [mutation.data]);
 
   console.log(mutation.data);
