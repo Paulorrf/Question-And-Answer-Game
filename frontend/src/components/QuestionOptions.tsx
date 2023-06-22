@@ -1,6 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import useStore from "../store/store";
 import axios from "axios";
+import { BsArrowRightSquareFill } from "react-icons/bs";
+import questionQuantityStore from "@/store/questionsQuantityStore";
 
 interface DifficultyProp {
   name: string;
@@ -23,9 +25,6 @@ function difficultyOption(
   changeDifficulty: any,
   difficulty: string
 ) {
-  // className={`${
-  //   questionNr === qntQuestoes ? "bg-white text-black" : ""
-  // } cursor-pointer rounded border border-white px-4 py-2 font-bold`}
   return (
     <li
       key={name}
@@ -35,19 +34,6 @@ function difficultyOption(
       onClick={() => changeDifficulty(name)}
     >
       {brName}
-      {/* <label
-        htmlFor={name}
-        className={difficulty === name ? " rounded border border-white" : ""}
-      >
-        {brName}
-      </label>
-      <input
-        className="hidden"
-        type="checkbox"
-        id={name}
-        name={name}
-        onClick={() => setDifficulty(name)}
-      /> */}
     </li>
   );
 }
@@ -56,19 +42,28 @@ function difficultyOption(
 const QuestionOptions = () => {
   const [qntQuestoes, setQntQuestoes] = useState(10);
   const [genericTags, setGenericTags] = useState<Array<string>>([]);
+  const [specificTags, setSpecificTags] = useState<Array<string>>([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [recSpec, setRecSpec] = useState([]);
+  const [idxGen, setIdxGen] = useState<number>(0);
+  const [idxSpec, setIdxSpec] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef2 = useRef<HTMLInputElement>(null);
 
   //@ts-ignore
   const difficulty = useStore((state: string) => state.difficulty);
+  //@ts-ignore
+  const quantity = questionQuantityStore((state: number) => state.quantity);
 
   //@ts-ignore
   const changeDifficulty = useStore((state) => state.changeDifficulty);
+  //@ts-ignore
+  const changeQuantity = questionQuantityStore((state) => state.changeQuantity);
 
-  console.log("dificuldade");
-  console.log(difficulty);
-  console.log("dificuldade");
+  // console.log("dificuldade");
+  // console.log(difficulty);
+  // console.log("dificuldade");
 
   const difficulties = [
     { name: "easy", brName: "Fácil" },
@@ -78,22 +73,48 @@ const QuestionOptions = () => {
     // { name: "expert", brName: "Expert" },
   ];
 
+  useEffect(() => {
+    if (genericTags.length === 0) {
+      setSpecificTags([]);
+    }
+  }, [genericTags]);
+
   async function handleGenericChange(event: React.FormEvent<HTMLInputElement>) {
-    // console.log(event.currentTarget.value);
     if (event.currentTarget.value !== "") {
       const returnedValues = await axios.get(
         `http://localhost:5000/portal/gletter/${event.currentTarget.value}`
       );
       console.log(returnedValues.data);
-      // axios.get(`http://localhost:5000/portal/sletter/${event.currentTarget.value}`)
       setRecommendations(returnedValues.data);
     } else {
       setRecommendations([]);
     }
   }
 
-  function addGenericTag(name: string) {
+  async function handleSpecificChange(
+    event: React.FormEvent<HTMLInputElement>
+  ) {
+    if (event.currentTarget.value !== "" && genericTags.length > 0) {
+      const words = genericTags.join();
+      console.log(words);
+
+      const returnedValues = await axios.get(
+        `http://localhost:5000/portal/sletter/${event.currentTarget.value}/${words}`
+      );
+      console.log(returnedValues.data);
+      setRecSpec(returnedValues.data);
+    } else {
+      setRecSpec([]);
+    }
+  }
+
+  function addGenericTag(name: string, index: number) {
     setRecommendations([]);
+    //@ts-ignore
+    setIdxGen((prev) => {
+      let val = (prev ??= 0);
+      return val + 1;
+    });
     setGenericTags((prev) => [...prev, name]);
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -101,7 +122,66 @@ const QuestionOptions = () => {
     }
   }
 
-  console.log(genericTags);
+  function addSpecificTag(name: string) {
+    setRecSpec([]);
+    setSpecificTags((prev) => [...prev, name]);
+    if (inputRef2.current) {
+      inputRef2.current.value = "";
+      inputRef2.current.focus();
+    }
+  }
+
+  function handleGenericDelete() {
+    const genUpdated = [...genericTags];
+    if (idxGen) {
+      genUpdated.splice(idxGen - 1, 1);
+      setIdxGen((prev) => {
+        let val = (prev ??= 0);
+        return prev <= 0 ? 0 : val - 1;
+      });
+      setGenericTags(genUpdated);
+    }
+  }
+  function handleSpecificDelete() {
+    const specUpdated = [...specificTags];
+    if (idxGen) {
+      specUpdated.splice(idxGen - 1, 1);
+      setIdxSpec((prev) => {
+        let val = (prev ??= 0);
+        return prev <= 0 ? 0 : val - 1;
+      });
+      setSpecificTags(specUpdated);
+    }
+  }
+
+  // function handleSpecificDelete(index: number) {
+  //   const specUpdated = [...specificTags];
+  //   specUpdated.splice(index, 1);
+  //   setSpecificTags(specUpdated);
+  // }
+
+  function handleAddGeneric(event: React.SyntheticEvent) {
+    event.preventDefault();
+
+    if (inputRef.current !== null && inputRef.current.value !== null) {
+      let value = inputRef.current.value;
+      setGenericTags((prev) => [...prev, value]);
+      inputRef.current.value = "";
+    }
+  }
+
+  function handleAddSpecific(event: React.SyntheticEvent) {
+    event.preventDefault();
+
+    if (inputRef2.current !== null && inputRef2.current.value !== null) {
+      let value = inputRef2.current.value;
+      setSpecificTags((prev) => [...prev, value]);
+      inputRef2.current.value = "";
+    }
+  }
+
+  // console.log(specificTags);
+  // console.log(idxGen);
 
   // const handleButtonClick = () => {
   //   if (inputRef.current) {
@@ -122,9 +202,10 @@ const QuestionOptions = () => {
               <li
                 key={questionNr}
                 className={`${
-                  questionNr === qntQuestoes ? "bg-white text-black" : ""
+                  questionNr === quantity ? "bg-white text-black" : ""
                 } cursor-pointer rounded border border-white px-4 py-2 font-bold`}
-                onClick={() => setQntQuestoes(questionNr)}
+                // onClick={() => setQntQuestoes(questionNr)}
+                onClick={() => changeQuantity(questionNr)}
               >
                 {questionNr}
               </li>
@@ -160,24 +241,50 @@ const QuestionOptions = () => {
         <div>
           <div>
             <p>Generico</p>
-            <input
-              type="text"
-              className="w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              ref={inputRef}
-              onChange={handleGenericChange}
-              placeholder="ex: biologia"
-            />
+            <div className="flex">
+              <input
+                type="text"
+                className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                ref={inputRef}
+                onChange={handleGenericChange}
+                placeholder="ex: biologia"
+              />
+              <div className="-ml-1" onClick={handleAddGeneric}>
+                <BsArrowRightSquareFill size={32} />
+              </div>
+              <div>
+                {genericTags.length > 0 && (
+                  <ul className="flex">
+                    {genericTags.map((tag) => {
+                      return (
+                        <li key={tag}>
+                          {tag}{" "}
+                          <button onClick={() => handleGenericDelete()}>
+                            Delete
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="w-48 bg-white text-center text-black ring-2 ring-zinc-600 ">
+          <div className="w-48 bg-white text-center text-black ring-2 ring-zinc-600">
             {recommendations.length > 0 && (
               <ul className="flex justify-around p-2 child:mr-2">
                 {recommendations.map(
-                  (recommendation: { id: number; name: string }) => {
+                  (
+                    recommendation: { id: number; name: string },
+                    index: number
+                  ) => {
                     return (
                       <li
                         key={recommendation.id}
                         className="cursor-pointer underline underline-offset-1 hover:font-bold"
-                        onClick={() => addGenericTag(recommendation.name)}
+                        onClick={() =>
+                          addGenericTag(recommendation.name, index)
+                        }
                       >
                         {recommendation.name}
                       </li>
@@ -187,10 +294,59 @@ const QuestionOptions = () => {
               </ul>
             )}
           </div>
-          <div>
-            <p>Especifico</p>
-            <input type="text" placeholder="ex: zoologia" />
-          </div>
+          {genericTags.length > 0 && (
+            <div>
+              <div>
+                <p>Especifico</p>
+                <div className="flex">
+                  <input
+                    type="text"
+                    className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    ref={inputRef2}
+                    onChange={handleSpecificChange}
+                    placeholder="ex: zoologia"
+                  />
+                  <div className="-ml-1" onClick={handleAddSpecific}>
+                    <BsArrowRightSquareFill size={32} />
+                  </div>
+                </div>
+                <div className="flex">
+                  {specificTags.length > 0 && (
+                    <ul className="flex">
+                      {specificTags.map((tag) => {
+                        return (
+                          <li key={tag}>
+                            {tag}{" "}
+                            <button onClick={() => handleSpecificDelete()}>
+                              Delete
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
+
+              {recSpec.length > 0 && (
+                <div className="w-48 bg-white text-center text-black ring-2 ring-zinc-600">
+                  <ul className="grid grid-flow-col grid-rows-4 gap-4 p-2 child:mr-2">
+                    {recSpec.map((recSpec: { id: number; name: string }) => {
+                      return (
+                        <li
+                          key={recSpec.id}
+                          className="cursor-pointer underline underline-offset-1 hover:font-bold"
+                          onClick={() => addSpecificTag(recSpec.name)}
+                        >
+                          {recSpec.name}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

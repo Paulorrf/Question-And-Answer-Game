@@ -65,7 +65,7 @@ export class PortalService {
     try {
       const names = generic.split(",");
       const names2 = names.map((value) => value.toUpperCase());
-      console.log(names2);
+      // console.log(names2);
 
       const genericIds = await this.prisma.portal.findMany({
         where: {
@@ -78,7 +78,7 @@ export class PortalService {
         },
       });
 
-      console.log(genericIds);
+      // console.log(genericIds);
       const genericIds2 = genericIds.map((item) => item.id);
 
       const foundPortal = await this.prisma.portal_spec.findMany({
