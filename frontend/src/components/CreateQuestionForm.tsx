@@ -135,7 +135,7 @@ const CreateQuestionForm = () => {
 
   if (typeof window !== "undefined") {
     //@ts-ignore
-    console.log(decode(localStorage?.getItem("user")).sub);
+    // console.log(decode(localStorage?.getItem("user")).sub);
   }
 
   const difficulties = [

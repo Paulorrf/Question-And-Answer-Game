@@ -3,6 +3,8 @@ import useStore from "../store/store";
 import axios from "axios";
 import { BsArrowRightSquareFill } from "react-icons/bs";
 import questionQuantityStore from "@/store/questionsQuantityStore";
+import tagsStore from "@/store/tagsStore";
+import nextBtnStore from "@/store/nextBtnStore";
 
 interface DifficultyProp {
   name: string;
@@ -51,15 +53,20 @@ const QuestionOptions = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputRef2 = useRef<HTMLInputElement>(null);
 
-  //@ts-ignore
-  const difficulty = useStore((state: string) => state.difficulty);
-  //@ts-ignore
-  const quantity = questionQuantityStore((state: number) => state.quantity);
+  //zustand values
+  const difficulty = useStore((state) => state.difficulty);
+  const quantity = questionQuantityStore((state) => state.quantity);
+  const tagsGeneric = tagsStore((state) => state.genericTags);
+  const tagsSpec = tagsStore((state) => state.specificTags);
 
-  //@ts-ignore
+  //zustand functions
   const changeDifficulty = useStore((state) => state.changeDifficulty);
-  //@ts-ignore
   const changeQuantity = questionQuantityStore((state) => state.changeQuantity);
+  const changeTagsGeneric = tagsStore((state) => state.changeGeneric);
+  const changeTagsSpec = tagsStore((state) => state.changeSpecific);
+
+  const isActionEnabled = nextBtnStore((state) => state.isActionEnabled);
+  const performAction = nextBtnStore((state) => state.performAction);
 
   // console.log("dificuldade");
   // console.log(difficulty);
@@ -78,6 +85,13 @@ const QuestionOptions = () => {
       setSpecificTags([]);
     }
   }, [genericTags]);
+
+  useEffect(() => {
+    if (isActionEnabled) {
+      performAction(genericTags, specificTags);
+    }
+    // eslint-disable-next-line
+  }, [isActionEnabled, performAction]);
 
   async function handleGenericChange(event: React.FormEvent<HTMLInputElement>) {
     if (event.currentTarget.value !== "") {

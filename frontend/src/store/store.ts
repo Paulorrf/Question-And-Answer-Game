@@ -1,7 +1,7 @@
 import create from "zustand";
 
 interface DifficultyState {
-  difficulty: String;
+  difficulty: string;
   changeDifficulty: (difficulty: string) => void;
 }
 
