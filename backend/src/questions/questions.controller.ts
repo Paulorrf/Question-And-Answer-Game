@@ -21,14 +21,19 @@ export class QuestionsController {
     return this.questionsService.create(createQuestionDto);
   }
 
-  @Get()
-  findAll() {
-    return this.questionsService.findAll();
+  @Post("findTen")
+  findTenQuestions(@Body() tags: string[]) {
+    return this.questionsService.findTenQuestions(tags);
   }
 
   @Get("set/:id")
   findOneSetQuestion(@Param("id") id: string) {
     return this.questionsService.findOneSetQuestion(+id);
+  }
+
+  @Get("questions/:id")
+  findQuestions(@Param("id") id: string) {
+    return this.questionsService.findQuestions(+id);
   }
 
   @Get("question/:id")

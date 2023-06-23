@@ -11,6 +11,16 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     console.log(createUserDto);
+    let idRace: number;
+    if (createUserDto.race === "orc") {
+      idRace = 15;
+    } else if (createUserDto.race === "humano") {
+      idRace = 14;
+    } else {
+      idRace = 13;
+    }
+
+    //
     try {
       const hashedPass = await bcrypt.hash(createUserDto.password, this.salt);
 
@@ -19,6 +29,7 @@ export class UsersService {
           email: createUserDto.email,
           password: hashedPass,
           name: createUserDto.name,
+          display_name: createUserDto.name,
           token: {
             create: {
               access_tk: "",
@@ -26,14 +37,26 @@ export class UsersService {
             },
           },
           character: {
+            // create: {
+            //   classes: {
+            //     create: {
+            //       nome: createUserDto.race,
+            //     },
+            //   },
             create: {
               classes: {
-                create: {
-                  nome: createUserDto.classe || "elfo",
+                connect: {
+                  id: idRace,
                 },
               },
+
               status: {
-                create: {},
+                create: {
+                  agility: createUserDto.status.agility,
+                  intelligence: createUserDto.status.intelligence,
+                  luck: createUserDto.status.luck,
+                  strength: createUserDto.status.strength,
+                },
               },
             },
           },

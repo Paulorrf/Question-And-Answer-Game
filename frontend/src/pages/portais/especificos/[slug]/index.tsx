@@ -31,7 +31,7 @@ const Page = ({
           return (
             <div key={portal.id}>
               <p>{portal.name}</p>
-              <Link href={`/portais/especificos/${portal.name}`}>
+              <Link href={`/portais/especificos/questions/${portal.name}`}>
                 <div className="h-40 w-40 rounded-full border bg-red-600"></div>
               </Link>
             </div>

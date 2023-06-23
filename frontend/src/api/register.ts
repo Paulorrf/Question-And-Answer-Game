@@ -1,19 +1,37 @@
 import axios from "axios";
 
 interface IRegister {
-  email: String;
-  password: String;
-  name: String;
+  email: string;
+  password: string;
+  name: string;
 }
 
-export async function createUserFn({ email, password, name }: IRegister) {
+interface CharacterState {
+  race: string;
+  status: {
+    strength: number;
+    intelligence: number;
+    agility: number;
+    luck: number;
+  };
+}
+
+export async function createUserFn({
+  data,
+  character,
+}: {
+  data: IRegister;
+  character: CharacterState;
+}) {
   const user = await axios({
     method: "post",
     url: "http://localhost:5000/auth/signin",
     data: {
-      email,
-      password,
-      name,
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      status: character.status,
+      race: character.race,
     },
   });
   return user.data;

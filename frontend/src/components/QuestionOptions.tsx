@@ -51,7 +51,7 @@ const QuestionOptions = () => {
   const [idxGen, setIdxGen] = useState<number>(0);
   const [idxSpec, setIdxSpec] = useState<number>(0);
 
-  const quantityOptions = [1, 10, 15, 20];
+  const quantityOptions = [1, 3, 10, 15, 20];
 
   const inputRef = useRef<HTMLInputElement>(null);
   const inputRef2 = useRef<HTMLInputElement>(null);

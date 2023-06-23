@@ -1,15 +1,42 @@
 import React from "react";
-import { useRouter } from "next/router";
 import { BsStarFill, BsStarHalf, BsStar } from "react-icons/bs";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
-import { getQuestions } from "@/api/getQuestions";
+import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 
-function question(item: any) {
+type Repo = {
+  id: number;
+  answered_number: number;
+  title: string;
+  description: string;
+  rating: number;
+  difficulty: string;
+  situation: string;
+};
+
+export const getServerSideProps: GetServerSideProps<{
+  repo: Repo[];
+}> = async ({ query }) => {
+  console.log("query2222");
+  console.log(query);
+  const res = await axios({
+    method: "post",
+    url: `http://localhost:5000/questions/findTen`,
+    data: {
+      tags: query.items,
+    },
+  });
+
+  console.log(res.data);
+  const repo = await res.data;
+  return { props: { repo } };
+};
+
+function question(item: any, path: string) {
   return (
     <div key={item.id}>
-      <Link href={`/answer/${item.id}`}>
+      <Link href={`${path}/${item.id}`}>
         <div className="mt-2 px-2 leading-6">
           <div className="flex justify-between">
             <div>
@@ -40,34 +67,37 @@ function question(item: any) {
   );
 }
 
-const Page = () => {
+const Page = ({ repo }: any) => {
+  console.log(repo);
   const router = useRouter();
 
+  const path = router.asPath;
+
   // Access the client
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
-  // Queries
-  const { data, status } = useQuery({
-    queryKey: ["questions"],
-    queryFn: getQuestions,
-  });
+  // // Queries
+  // const { data, status } = useQuery({
+  //   queryKey: ["questions"],
+  //   queryFn: getQuestions,
+  // });
 
-  if (status === "loading") {
-    return;
-    // return <span>Loading...</span>;
-  }
+  // if (status === "loading") {
+  //   return;
+  //   // return <span>Loading...</span>;
+  // }
 
-  if (status === "error") {
-    return;
-    // return <span>deu ruim</span>;
-  }
+  // if (status === "error") {
+  //   return;
+  //   // return <span>deu ruim</span>;
+  // }
 
   return (
     <div className="mt-8 overflow-hidden text-white">
       <div className="fixed left-0 top-0 z-10 h-screen w-screen bg-slate-800"></div>
       <div className="relative z-20 mx-auto mt-16 max-h-screen w-3/4 overflow-y-auto px-8 child:mb-2">
-        {data.map((item: any) => {
-          return question(item);
+        {repo.map((item: any) => {
+          return question(item, path);
         })}
 
         {/* <div className="mt-2 leading-6">

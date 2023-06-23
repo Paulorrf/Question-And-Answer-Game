@@ -44,7 +44,7 @@ interface Questions {
 const CreateQuestionForm = () => {
   // const [difficulty, setDifficulty] = useState("easy");
   const [answer, setAnswer] = useState(1);
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   // const [questions, setQuestions] = useState<Questions[]>([]);
 
   const totalQuantity = questionQuantityStore((state) => state.quantity);
@@ -75,7 +75,8 @@ const CreateQuestionForm = () => {
   console.log("dificuldade");
 
   useEffect(() => {
-    if (questions.length === totalQuantity) {
+    //manda dados das questoes pro backend
+    if (quantity === totalQuantity) {
       mutation.mutate({
         question_set: {
           title: setTitle,
@@ -87,7 +88,8 @@ const CreateQuestionForm = () => {
         tags_spec,
       });
     }
-  }, [questions, totalQuantity]);
+    // eslint-disable-next-line
+  }, [quantity, totalQuantity]);
 
   const { control, register, handleSubmit, reset } = useForm();
   const onSubmit: SubmitHandler<IFormInput> = (data: IFormInput) => {
@@ -117,47 +119,6 @@ const CreateQuestionForm = () => {
         },
       ],
     });
-
-    // setQuestions((prev: Questions[]) => [
-    //   ...prev,
-    //   {
-    //     question: data.question,
-    //     answer1: data.resposta1,
-    //     answer2: data.resposta2,
-    //     answer3: data.resposta3,
-    //     answer4: data.resposta4,
-    //     tags: data.tags,
-    //     answer,
-    //
-    //     difficulty,
-    //     description: data.description,
-    //     //@ts-ignore
-    //     user_id: Number(decode(localStorage?.getItem("user")).sub),
-    //   },
-    // ]);
-
-    if (quantity === 2) {
-      console.log("questions");
-      console.log(questions);
-      //
-
-      // mutation.mutate(questions);
-      // mutation.mutate({
-      //   question: data.question,
-      //   answer1: data.resposta1,
-      //   answer2: data.resposta2,
-      //   answer3: data.resposta3,
-      //   answer4: data.resposta4,
-      //   tags: data.tags,
-      //   answer,
-      //   difficulty,
-      //   description: data.description,
-      //   //@ts-ignore
-      //   user_id: decode(localStorage?.getItem("user")).sub,
-      // });
-
-      console.log("salvou no bacno");
-    }
 
     setQuantity((prev: number) => prev + 1);
 

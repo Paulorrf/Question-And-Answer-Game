@@ -153,24 +153,24 @@ export class QuestionsService {
         }
       }
 
-      const upsertedPortals2 = await this.prisma.$transaction(
-        async (prisma) => {
-          for (const portalValues of newValues) {
-            const { portal_id, portal_spec_id } = portalValues;
-            const idValue = Number(
-              String(portal_spec_id).concat(String(portal_id))
-            );
+      // const upsertedPortals2 = await this.prisma.$transaction(
+      //   async (prisma) => {
+      //     for (const portalValues of newValues) {
+      //       const { portal_id, portal_spec_id } = portalValues;
+      //       const idValue = Number(
+      //         String(portal_spec_id).concat(String(portal_id))
+      //       );
 
-            await prisma.portal_spec_primary.upsert({
-              where: {
-                comp_key: idValue,
-              },
-              create: { comp_key: idValue, portal_id, portal_spec_id },
-              update: {},
-            });
-          }
-        }
-      );
+      //       await prisma.portal_spec_primary.upsert({
+      //         where: {
+      //           comp_key: idValue,
+      //         },
+      //         create: { comp_key: idValue, portal_id, portal_spec_id },
+      //         update: {},
+      //       });
+      //     }
+      //   }
+      // );
 
       // console.log("11111111");
       // console.log(upsertedPortals2);
@@ -194,8 +194,100 @@ export class QuestionsService {
     }
   }
 
-  findAll() {
-    return `This action returns all questions`;
+  async findTenQuestions(tags: any) {
+    console.log("tags");
+    console.log(tags);
+    console.log("tags");
+    try {
+      let arr = [];
+      if (tags.tags instanceof Array) {
+        arr = [...tags.tags];
+      } else {
+        arr.push(tags.tags);
+      }
+      // console.log(`meu arr ${arr}`);
+      const tags_ids = await this.prisma.tag.findMany({
+        where: {
+          name: {
+            in: arr,
+          },
+        },
+      });
+
+      //getting only the ids
+      let new_tags_ids = tags_ids.map((tag) => tag.id);
+
+      console.log(new_tags_ids);
+
+      const ten_questions_ids = await this.prisma.question_set_tag.findMany({
+        where: {
+          tag_id: {
+            in: new_tags_ids,
+          },
+        },
+        take: 10,
+      });
+
+      let set_tag_ids = ten_questions_ids.map(
+        (question) => question.question_set_id
+      );
+
+      console.log("teste");
+      console.log(set_tag_ids);
+
+      const ten_questions = await this.prisma.question_set.findMany({
+        where: {
+          id: {
+            in: set_tag_ids,
+          },
+        },
+      });
+      console.log(ten_questions);
+
+      return ten_questions;
+    } catch (error) {
+      console.log(error);
+      return "deu ruim ao procurar as 10 questoes";
+    }
+  }
+
+  async findQuestions(id: number) {
+    try {
+      const questions = await this.prisma.question.findMany({
+        where: {
+          question_set_id: id,
+        },
+      });
+
+      const questions_ids = questions.map((question) => question.id);
+
+      const answers = await this.prisma.answer.findMany({
+        where: {
+          question_id: {
+            in: questions_ids,
+          },
+        },
+      });
+
+      for (let i = 0; i < questions.length; i++) {
+        //@ts-ignore
+        questions[i].answers = [];
+      }
+
+      for (let i = 0; i < answers.length; i++) {
+        for (let x = 0; x < questions.length; x++) {
+          if (answers[i].question_id === questions[x].id) {
+            //@ts-ignore
+            questions[x].answers.push(answers[i]);
+          }
+        }
+      }
+
+      return questions;
+    } catch (error) {
+      console.log(error);
+      return "deu ruim ao achar as questoes";
+    }
   }
 
   async findOneSetQuestion(id: number) {
