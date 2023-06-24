@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 
 type Repo = {
   name: string;
@@ -23,6 +24,8 @@ const Page = ({
   repo,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   console.log(repo);
+  const router = useRouter();
+  console.log(router.query.slug);
   return (
     <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-center text-white">
       <h2 className="mb-8 text-xl font-bold">PORTAIS ESPECÍFICOS</h2>
@@ -31,7 +34,9 @@ const Page = ({
           return (
             <div key={portal.id}>
               <p>{portal.name}</p>
-              <Link href={`/portais/especificos/questions/${portal.name}`}>
+              <Link
+                href={`/portais/especificos/${router.query.slug}/${portal.name}`}
+              >
                 <div className="h-40 w-40 rounded-full border bg-red-600"></div>
               </Link>
             </div>

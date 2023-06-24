@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { decode } from "jsonwebtoken";
 
 const Result = ({ chosenAnswers, questions }: any) => {
   const [correctAnswers, setCorrectAnswers] = useState<any>([]);
@@ -18,20 +19,35 @@ const Result = ({ chosenAnswers, questions }: any) => {
   // console.log("chosenAnswers");
 
   console.log("answers");
-  console.log(answers);
+  //@ts-ignore
+  console.log(Number(decode(localStorage?.getItem("user")).sub));
   console.log("answers");
 
   useEffect(() => {
-    // const cancelTokenSource = axios.CancelToken.source();
+    const cancelTokenSource = axios.CancelToken.source();
 
     const fetchData = async () => {
       try {
         const response = await axios({
           method: "post",
           url: `http://localhost:5000/questions/rightAnswers`,
-          data: chosenAnswers,
-          //   cancelToken: cancelTokenSource.token,
+          data: {
+            chosenAnswers,
+            //@ts-ignore
+            userId: Number(decode(localStorage?.getItem("user")).sub),
+          },
+          cancelToken: cancelTokenSource.token,
         });
+
+        // const response = await axios.post(
+        //   "http://localhost:5000/questions/rightAnswers",
+        //   {
+        //     chosenAnswers,
+        //     //@ts-ignore
+        //     userId: Number(decode(localStorage?.getItem("user")).sub),
+        //     cancelToken: cancelTokenSource.token,
+        //   }
+        // );
 
         // console.log("response");
         // console.log(response.data);
@@ -58,10 +74,10 @@ const Result = ({ chosenAnswers, questions }: any) => {
 
     fetchData();
 
-    // return () => {
-    //   // Cancel the request when the component unmounts
-    //   cancelTokenSource.cancel("Request canceled due to component unmount.");
-    // };
+    return () => {
+      // Cancel the request when the component unmounts
+      cancelTokenSource.cancel("Request canceled due to component unmount.");
+    };
   }, []);
 
   function displayAnswers(

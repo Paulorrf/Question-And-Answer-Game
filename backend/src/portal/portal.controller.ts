@@ -46,6 +46,19 @@ export class PortalController {
     return this.portalService.findSpecificByLetter(word, generic);
   }
 
+  @Get("requirement/:portal")
+  getPortalStatusRequirement(@Param("portal") portal: string) {
+    return this.portalService.getPortalStatusRequirement(portal);
+  }
+
+  @Post("requirements")
+  availableDifficulties(
+    @Body()
+    status: any
+  ) {
+    return this.portalService.availableDifficulties(status);
+  }
+
   @Patch(":id")
   update(@Param("id") id: string, @Body() updatePortalDto: UpdatePortalDto) {
     return this.portalService.update(+id, updatePortalDto);

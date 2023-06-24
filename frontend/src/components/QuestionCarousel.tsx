@@ -46,6 +46,11 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   const [chosenAnswers, setChosenAnswers] = useState<ChosenAnswer[]>([]);
   const [showResults, setShowResults] = useState(false);
 
+  console.log("question");
+  console.log("question");
+  console.log(questions);
+  console.log("question");
+
   const handleAnswerClick = (questionId: number, answerId: number) => {
     setChosenAnswers((prevAnswers) => {
       // Remove any previously chosen answer for the same question

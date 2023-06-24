@@ -101,6 +101,51 @@ export class PortalService {
     }
   }
 
+  async getPortalStatusRequirement(portal: string) {
+    //portal = BIOLOGIA
+
+    try {
+      const portalStatus = await this.prisma.portal_requirements.findMany({
+        where: {
+          portal_name: portal,
+        },
+      });
+
+      return portalStatus;
+    } catch (error) {}
+  }
+
+  async availableDifficulties(status: any) {
+    console.log("status");
+    console.log(status);
+    console.log("status");
+    try {
+      const portalStatus = await this.getPortalStatusRequirement(
+        status.portal_name
+      );
+
+      //arr_availables = ['easy', 'normal']
+
+      let arr_availables: string[] = [];
+
+      portalStatus.map((portal) => {
+        if (
+          status.userStatus.strength >= portal.strength_required &&
+          status.userStatus.agility >= portal.agility_required &&
+          status.userStatus.luck >= portal.luck_required &&
+          status.userStatus.intelligence >= portal.intelligence_required
+        ) {
+          arr_availables.push(portal.difficulty);
+        }
+      });
+
+      return arr_availables;
+    } catch (error) {
+      console.log(error);
+      return "errou";
+    }
+  }
+
   update(id: number, updatePortalDto: UpdatePortalDto) {
     return `This action updates a #${id} portal`;
   }

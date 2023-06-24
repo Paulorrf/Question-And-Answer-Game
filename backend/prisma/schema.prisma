@@ -53,8 +53,10 @@ model question_set {
 
 model classes {
   id        Int         @id @default(autoincrement())
-  nome      races
+  nome      races       @unique(map: "nome_classe")
+  status_id Int?
   character character[]
+  status    status?     @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model history_answered_question {
@@ -114,6 +116,7 @@ model status {
   agility      Int         @default(1)
   luck         Int         @default(1)
   character    character[]
+  classes      classes[]
 }
 
 model tag {
@@ -138,6 +141,8 @@ model user_data {
   tokens_id                     Int
   display_name                  String?                         @db.VarChar(255)
   password                      String?                         @db.VarChar(255)
+  experience                    Int                             @default(0)
+  status_point_remain           Int?                            @default(0)
   history_answered_question     history_answered_question[]
   history_answered_set_question history_answered_set_question[]
   question                      question[]
@@ -168,6 +173,16 @@ model portal_spec_primary {
   @@index([comp_key], map: "comp_key_idx")
 }
 
+model portal_requirements {
+  id                    Int    @id @default(autoincrement())
+  portal_name           String @db.VarChar(255)
+  difficulty            String @db.VarChar(50)
+  intelligence_required Int
+  strength_required     Int
+  luck_required         Int
+  agility_required      Int
+}
+
 enum difficulty {
   easy
   normal
@@ -186,4 +201,10 @@ enum races {
   elfo
   humano
   orc
+}
+
+enum classe_opt {
+  orc
+  elfo
+  humano
 }

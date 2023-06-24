@@ -305,20 +305,42 @@ export class QuestionsService {
   }
 
   async findRightAnswers(answers: any) {
-    // console.log(answers);
-
-    const questionIds = answers.map((question: any) => {
-      return question.questionId;
-    });
-
-    const answerIds = answers.map((answer: any) => {
-      return answer.answerId;
-    });
-
-    // console.log("teste");
-    // console.log(teste);
-
+    console.log(answers);
     try {
+      const questionIds = answers.chosenAnswers.map((question: any) => {
+        return question.questionId;
+      });
+
+      const answerIds = answers.chosenAnswers.map((answer: any) => {
+        return answer.answerId;
+      });
+
+      //answers[0].questionId
+      const set_data = await this.prisma.question.findFirst({
+        where: {
+          id: answers.chosenAnswers[0].questionId,
+        },
+        select: {
+          question_set_id: true,
+          question_set: {
+            select: {
+              difficulty: true,
+            },
+          },
+        },
+      });
+
+      const saveAnsweredSet =
+        await this.prisma.history_answered_set_question.create({
+          data: {
+            user_data_id: answers.userId,
+            question_set_id: set_data.question_set_id,
+          },
+        });
+
+      // console.log("teste");
+      // console.log(teste);
+
       const answersReturned = await this.prisma.answer.findMany({
         where: {
           question_id: {
@@ -332,13 +354,138 @@ export class QuestionsService {
         (answer, index) => answer.id === answerIds[index]
       );
 
+      const userData = await this.prisma.user_data.findUnique({
+        where: {
+          id: answers.userId,
+        },
+        select: {
+          nivel: true,
+          experience: true,
+          status_point_remain: true,
+        },
+      });
+
+      const easy = 3;
+      const normal = 6;
+      const hard = 10;
+      const very_hard = 16;
+
+      function calculateLevel(
+        experiencePoints: number,
+        experienceThreshold: number
+      ) {
+        const level = Math.floor(experiencePoints / experienceThreshold) + 1;
+        const remainingExperience =
+          experienceThreshold - (experiencePoints % experienceThreshold);
+        const experienceTowardsNextLevel =
+          experiencePoints % experienceThreshold;
+
+        return {
+          level: level,
+          remainingExperience: remainingExperience,
+          experienceTowardsNextLevel: experienceTowardsNextLevel,
+        };
+      }
+
+      function calculateExperienceThreshold(level: number) {
+        // increase the threshold by 50 for each level
+        return 100 + (level - 1) * 50;
+      }
+
+      const experienceThreshold = calculateExperienceThreshold(userData.nivel);
+      let totalExp = 0;
+
+      switch (set_data.question_set.difficulty) {
+        case "easy":
+          totalExp = answersReturned.length * easy;
+          break;
+        case "normal":
+          totalExp = answersReturned.length * normal;
+          break;
+        case "hard":
+          totalExp = answersReturned.length * hard;
+          break;
+        case "very_hard":
+          totalExp = answersReturned.length * very_hard;
+          break;
+        default:
+          totalExp = 0;
+      }
+
+      // const currentLevel = calculateLevel(totalExp, experienceThreshold);
+      const newExperience = userData.experience + totalExp;
+      const currentLevel = calculateLevel(newExperience, experienceThreshold);
+
+      // const updatedUser = await this.prisma.user_data.update({
+      //   where: {
+      //     id: answers.userId,
+      //   },
+      //   data: {
+      //     nivel: currentLevel.level,
+      //     experience:
+      //       currentLevel.experienceTowardsNextLevel + userData.experience,
+      //   },
+      // });
+      let updatedUser = {};
+
+      if (newExperience >= experienceThreshold) {
+        const remainingExperience = newExperience - experienceThreshold;
+        const nextLevelThreshold = calculateExperienceThreshold(
+          currentLevel.level + 1
+        );
+
+        if (remainingExperience >= nextLevelThreshold) {
+          const nextLevel = calculateLevel(
+            remainingExperience,
+            nextLevelThreshold
+          );
+
+          updatedUser = await this.prisma.user_data.update({
+            where: {
+              id: answers.userId,
+            },
+            data: {
+              nivel: nextLevel.level,
+              experience: nextLevel.experienceTowardsNextLevel,
+              status_point_remain: userData.status_point_remain + 2,
+            },
+          });
+        } else {
+          updatedUser = await this.prisma.user_data.update({
+            where: {
+              id: answers.userId,
+            },
+            data: {
+              nivel: currentLevel.level,
+              experience: remainingExperience,
+            },
+          });
+        }
+      } else {
+        updatedUser = await this.prisma.user_data.update({
+          where: {
+            id: answers.userId,
+          },
+          data: {
+            nivel: currentLevel.level,
+            experience: newExperience,
+          },
+        });
+      }
+
+      // console.log("updatedUser");
+      // console.log(updatedUser);
+
       // console.log(answersReturned);
       // console.log(answerIds);
 
-      console.log("questoes acertadas");
-      console.log(result);
+      // console.log("questoes acertadas");
+      // console.log(result);
       return result;
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+      return "deu ruim em findRightAnswers";
+    }
   }
 
   async findOneQuestion(id: number) {

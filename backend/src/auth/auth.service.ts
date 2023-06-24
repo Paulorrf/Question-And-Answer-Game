@@ -66,11 +66,31 @@ export class AuthService {
   }
 
   async getTokens(userId: string, email: string) {
+    const userStatus = await this.prisma.user_data.findFirst({
+      where: {
+        email,
+      },
+      select: {
+        character: {
+          select: {
+            status: {
+              select: {
+                agility: true,
+                intelligence: true,
+                luck: true,
+                strength: true,
+              },
+            },
+          },
+        },
+      },
+    });
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           email,
+          status: userStatus.character.status,
         },
         {
           secret: "segredo",
