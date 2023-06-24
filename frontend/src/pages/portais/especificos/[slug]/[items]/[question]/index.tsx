@@ -1,15 +1,23 @@
 import axios from "axios";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import React from "react";
+import QuestionCarousel from "../../../../../../components/QuestionCarousel";
+
+interface Answer {
+  id: number;
+  body: string;
+  question_id: number;
+  is_correct: boolean;
+}
 
 type Repo = {
   id: number;
-  answered_number: number;
-  title: string;
-  description: string;
-  rating: number;
-  difficulty: string;
-  situation: string;
+  description_right_answer: number;
+  body: string;
+  question_set_id: number;
+  situation: "active";
+  user_data_id: number;
+  answers: Answer[];
 };
 
 export const getServerSideProps: GetServerSideProps<{
@@ -24,9 +32,48 @@ export const getServerSideProps: GetServerSideProps<{
   return { props: { repo } };
 };
 
-const index = ({ repo }: any) => {
+// const data = [
+//   {
+//     id: 1,
+//     question: "What is your favorite color?",
+//     answers: [
+//       { body: "Red" },
+//       { body: "Blue" },
+//       { body: "Green" },
+//       { body: "Yellow" },
+//     ],
+//   },
+//   {
+//     id: 2,
+//     question: "What is your favorite animal?",
+//     answers: [
+//       { body: "Dog" },
+//       { body: "Cat" },
+//       { body: "Elephant" },
+//       { body: "Lion" },
+//     ],
+//   },
+//   {
+//     id: 3,
+//     question: "What is your favorite food?",
+//     answers: [
+//       { body: "Pizza" },
+//       { body: "Burger" },
+//       { body: "Sushi" },
+//       { body: "Pasta" },
+//     ],
+//   },
+// ];
+
+const index = ({
+  repo,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   console.log(repo);
-  return <div></div>;
+  return (
+    <div>
+      <QuestionCarousel questions={repo} />
+    </div>
+  );
 };
 
 export default index;

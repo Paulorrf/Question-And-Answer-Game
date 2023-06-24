@@ -26,6 +26,11 @@ export class QuestionsController {
     return this.questionsService.findTenQuestions(tags);
   }
 
+  @Post("rightAnswers")
+  findRightAnswers(@Body() answers: any) {
+    return this.questionsService.findRightAnswers(answers);
+  }
+
   @Get("set/:id")
   findOneSetQuestion(@Param("id") id: string) {
     return this.questionsService.findOneSetQuestion(+id);

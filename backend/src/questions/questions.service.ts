@@ -304,6 +304,43 @@ export class QuestionsService {
     }
   }
 
+  async findRightAnswers(answers: any) {
+    // console.log(answers);
+
+    const questionIds = answers.map((question: any) => {
+      return question.questionId;
+    });
+
+    const answerIds = answers.map((answer: any) => {
+      return answer.answerId;
+    });
+
+    // console.log("teste");
+    // console.log(teste);
+
+    try {
+      const answersReturned = await this.prisma.answer.findMany({
+        where: {
+          question_id: {
+            in: questionIds,
+          },
+          is_correct: true,
+        },
+      });
+
+      const result = answersReturned.filter(
+        (answer, index) => answer.id === answerIds[index]
+      );
+
+      // console.log(answersReturned);
+      // console.log(answerIds);
+
+      console.log("questoes acertadas");
+      console.log(result);
+      return result;
+    } catch (error) {}
+  }
+
   async findOneQuestion(id: number) {
     try {
       const question = await this.prisma.question.findFirst({
