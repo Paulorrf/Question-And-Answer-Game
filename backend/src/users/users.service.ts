@@ -13,11 +13,11 @@ export class UsersService {
     console.log(createUserDto);
     let idRace: number;
     if (createUserDto.race === "orc") {
-      idRace = 15;
+      idRace = 2;
     } else if (createUserDto.race === "humano") {
-      idRace = 14;
+      idRace = 4;
     } else {
-      idRace = 13;
+      idRace = 3;
     }
 
     //
