@@ -158,7 +158,7 @@ const CreateQuestionForm = () => {
         cols={80}
         placeholder={name}
         key={name}
-        {...register(name)}
+        {...(register(name), { required: true })}
         className={
           answerNr === answer ? "border-4 border-green-600" : "border-black"
         }
@@ -193,7 +193,7 @@ const CreateQuestionForm = () => {
           maxLength={200}
           rows={3}
           cols={80}
-          {...register("question")}
+          {...register("question", { required: true })}
           required
         />
 
@@ -222,7 +222,7 @@ const CreateQuestionForm = () => {
             maxLength={200}
             rows={3}
             cols={80}
-            {...register("description")}
+            {...register("description", { required: true })}
             required
           />
         </div>

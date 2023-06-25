@@ -46,6 +46,7 @@ model question_set {
   rating                        Int?                            @default(1)
   difficulty                    difficulty?
   situation                     situation                       @default(active)
+  question_number               Int?
   history_answered_set_question history_answered_set_question[]
   question                      question[]
   question_set_tag              question_set_tag[]

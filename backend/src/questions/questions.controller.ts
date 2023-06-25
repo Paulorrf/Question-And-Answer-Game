@@ -46,6 +46,15 @@ export class QuestionsController {
     return this.questionsService.findOneQuestion(+id);
   }
 
+  @Patch("rating/:id/rating")
+  async updateRating(@Param("id") id: number, @Body("rating") rating: number) {
+    const updatedQuestionSet = await this.questionsService.updateRating(
+      id,
+      rating
+    );
+    return updatedQuestionSet;
+  }
+
   @Patch(":id")
   update(
     @Param("id") id: string,

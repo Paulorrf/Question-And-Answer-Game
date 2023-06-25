@@ -1,5 +1,5 @@
-import Navbar from "@/components/Navbar";
-import { Canvas } from "@react-three/fiber";
+// import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 import { Html, Head, Main, NextScript } from "next/document";
 
 export default function Document() {
@@ -19,11 +19,13 @@ export default function Document() {
         </div> */}
         <div className="z-0 h-[900px] min-h-screen bg-bg-image-primary bg-cover bg-scroll bg-center bg-no-repeat">
           <div className="absolute inset-0 h-[900px] min-h-screen bg-black bg-opacity-50">
-            <div className="z-50">
+            <div>
+              {/* <div className="z-50">
               <Navbar />
+            </div> */}
+              <Main />
+              <NextScript />
             </div>
-            <Main />
-            <NextScript />
           </div>
         </div>
       </body>

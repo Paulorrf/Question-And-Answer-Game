@@ -55,6 +55,17 @@ export class QuestionsService {
         )
       );
 
+      //updates the set with the number of created questions
+      //ex. 5, 10, 15, 20
+      await this.prisma.question_set.update({
+        where: {
+          id: new_question_set.id,
+        },
+        data: {
+          question_number: createQuestions.length,
+        },
+      });
+
       let answersArr = [];
 
       for (let i = 0; i < createQuestions.length; i++) {
@@ -501,6 +512,35 @@ export class QuestionsService {
       console.log(error);
       return "erro ao achar set de questões";
     }
+  }
+
+  async updateRating(questionSetId: number, newRating: number) {
+    console.log("questionSetId");
+    console.log(questionSetId);
+    console.log("newRating");
+    console.log(newRating);
+
+    const questionSet = await this.prisma.question_set.findFirst({
+      where: { id: Number(questionSetId) },
+      select: { id: true, rating: true },
+      //
+    });
+
+    if (!questionSet) {
+      throw new Error("Question set not found");
+    }
+
+    const existingRating = questionSet.rating ?? 0; // Use 0 if rating is null
+
+    // Calculate the updated rating by averaging the existing and new ratings
+    const updatedRating = (existingRating + newRating) / 2;
+
+    const updatedQuestionSet = await this.prisma.question_set.update({
+      where: { id: Number(questionSetId) },
+      data: { rating: updatedRating },
+    });
+
+    return updatedQuestionSet;
   }
 
   async update(id: number, updateQuestionDto: UpdateQuestionDto) {

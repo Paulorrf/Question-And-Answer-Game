@@ -1,14 +1,18 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { decode } from "jsonwebtoken";
+import { BsStarFill } from "react-icons/bs";
 
 const Result = ({ chosenAnswers, questions }: any) => {
   const [correctAnswers, setCorrectAnswers] = useState<any>([]);
   const [answers, setAnswers] = useState<any>([]);
+  const [rating, setRating] = useState(-1);
+  const [hoveredRating, setHoveredRating] = useState(-1);
+  const [hasRated, SetHasRated] = useState(false);
   //   const [showResult, setShowResult] = useState(false);
-  // console.log("questions");
-  // console.log(questions);
-  // console.log("questions");
+  console.log("questions");
+  console.log(questions);
+  console.log("questions");
 
   // console.log("correctAnswers");
   // console.log(correctAnswers);
@@ -88,7 +92,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
     return (
       <div
         key={answerID}
-        className={`mb-4 rounded border border-4 bg-white p-4 ${
+        className={`rounded border border-4 bg-white p-4 ${
           is_correct ? "border-green-600" : "border-red-600"
         } `}
       >
@@ -113,6 +117,42 @@ const Result = ({ chosenAnswers, questions }: any) => {
     );
   }
 
+  async function handleSaveRating() {
+    console.log("questions");
+    console.log(questions);
+
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/questions/rating/${questions[0].question_set_id}/rating`,
+        { rating }
+      );
+      SetHasRated(true);
+      // console.log("Rating updated successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      // console.error("Error updating rating:", error);
+      throw error;
+    }
+  }
+
+  const handleStarHover = (index: number) => {
+    if (rating === -1) {
+      setHoveredRating(index);
+    }
+  };
+
+  const handleStarLeave = () => {
+    if (rating === -1) {
+      setHoveredRating(-1);
+    }
+  };
+
+  const handleStarClick = (index: number) => {
+    setRating(index);
+  };
+
+  console.log(rating);
+
   return (
     <div className="mx-auto mt-16 w-96 text-center">
       <h3 className="mb-4 font-bold text-white">RESPOSTAS SELECIONADAS</h3>
@@ -122,13 +162,52 @@ const Result = ({ chosenAnswers, questions }: any) => {
           ? `${correctAnswers.length} RESPOSTA`
           : `${correctAnswers.length} RESPOSTAS`}
       </p>
-      {answers.map((answerID: number, index: number) => {
-        if (correctAnswers.includes(answerID)) {
-          return displayAnswers(answerID, index, true);
-        } else {
-          return displayAnswers(answerID, index, false);
-        }
-      })}
+      <div className="mb-4">
+        <div>
+          {hasRated ? (
+            <div>
+              <p>Obrigado por avaliar a questão.</p>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center">
+              <div className="flex space-x-2">
+                {[1, 2, 3, 4, 5].map((index) => (
+                  <BsStarFill
+                    key={index}
+                    className={`star text-gray-400 transition-colors ${
+                      (hoveredRating >= index || rating >= index) &&
+                      "text-yellow-500"
+                    }`}
+                    onMouseEnter={() => handleStarHover(index)}
+                    onMouseLeave={handleStarLeave}
+                    onClick={() => handleStarClick(index)}
+                  />
+                ))}
+              </div>
+              <div>
+                <button
+                  className={`ml-8 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 ${
+                    rating === -1 ? "cursor-not-allowed opacity-50" : ""
+                  }`}
+                  disabled={rating === -1}
+                  onClick={handleSaveRating}
+                >
+                  AVALIAR
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex h-[600px] flex-col gap-2 overflow-y-auto pr-2">
+        {answers.map((answerID: number, index: number) => {
+          if (correctAnswers.includes(answerID)) {
+            return displayAnswers(answerID, index, true);
+          } else {
+            return displayAnswers(answerID, index, false);
+          }
+        })}
+      </div>
     </div>
   );
 };

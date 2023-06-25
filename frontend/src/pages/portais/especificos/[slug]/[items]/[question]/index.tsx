@@ -2,6 +2,7 @@ import axios from "axios";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import React from "react";
 import QuestionCarousel from "../../../../../../components/QuestionCarousel";
+import Layout from "@/components/Layout";
 
 interface Answer {
   id: number;
@@ -37,9 +38,11 @@ const index = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   console.log(repo);
   return (
-    <div>
-      <QuestionCarousel questions={repo} />
-    </div>
+    <Layout>
+      <div>
+        <QuestionCarousel questions={repo} />
+      </div>
+    </Layout>
   );
 };
 

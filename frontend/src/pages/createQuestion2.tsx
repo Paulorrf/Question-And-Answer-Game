@@ -6,6 +6,7 @@ import CreateQuestionForm from "@/components/CreateQuestionForm";
 import questionStore from "@/store/questionsStore";
 import nextBtnStore from "@/store/nextBtnStore";
 import tagsStore from "@/store/tagsStore";
+import Layout from "@/components/Layout";
 
 function CreateQuestion2() {
   const [proximo, setProximo] = useState(0);
@@ -34,17 +35,19 @@ function CreateQuestion2() {
   // console.log(tagsSpec);
 
   return (
-    <div className="absolute left-2/4 top-1/4 mb-4 mt-16 -translate-x-2/4 -translate-y-1/4 text-center text-white">
-      <h2 className="mb-8 text-center text-2xl font-bold">Criar Pergunta</h2>
+    <Layout>
+      <div className="absolute left-2/4 top-1/4 mb-4 mt-16 -translate-x-2/4 -translate-y-1/4 text-center text-white">
+        <h2 className="mb-8 text-center text-2xl font-bold">Criar Pergunta</h2>
 
-      {proximo === 0 ? arr2[proximo] : arr2[proximo]}
+        {proximo === 0 ? arr2[proximo] : arr2[proximo]}
 
-      {proximo === 0 && (
-        <button className="btn-primary mt-8" onClick={handleProximo}>
-          Proximo
-        </button>
-      )}
-    </div>
+        {proximo === 0 && (
+          <button className="btn-primary mt-8" onClick={handleProximo}>
+            Proximo
+          </button>
+        )}
+      </div>
+    </Layout>
   );
 }
 

@@ -6,6 +6,7 @@ import Orc from "../assets/orc.png";
 import Human from "../assets/human.jpg";
 import signInStore from "@/store/signInStore";
 import { createUserFn } from "@/api/register";
+import { useRouter } from "next/router";
 
 const races = [
   {
@@ -42,6 +43,8 @@ const races = [
 const Slideshow = () => {
   const [focusedIndex, setFocusedIndex] = useState(0);
 
+  const router = useRouter();
+
   const dataStore = signInStore((state) => state.data);
 
   const changeFocus = (index: number) => {
@@ -65,6 +68,7 @@ const Slideshow = () => {
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["register"] });
+      router.push("/login");
     },
   });
 
@@ -136,7 +140,10 @@ const Slideshow = () => {
           </div>
         ))}
       </div>
-      <button className="mt-20" onClick={handleCreateAccount}>
+      <button
+        className="btn-primary mx-auto mt-8 text-center text-white"
+        onClick={handleCreateAccount}
+      >
         Criar conta
       </button>
     </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { decode } from "jsonwebtoken";
+import Layout from "@/components/Layout";
 
 type Repo = {
   id: number;
@@ -34,6 +35,35 @@ export const getServerSideProps: GetServerSideProps<{
   return { props: { repo } };
 };
 
+const RatingDisplay = ({ rating }: { rating: number }) => {
+  const fullStars = Math.floor(rating); // Get the integer part of the rating
+  const decimalPart = rating % 1; // Get the decimal part of the rating
+
+  const renderStars = () => {
+    const stars = [];
+
+    // Render full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<BsStarFill key={`star-${i}`} />);
+    }
+
+    // Render half star if applicable
+    if (decimalPart >= 0.25 && decimalPart <= 0.75) {
+      stars.push(<BsStarHalf key="half-star" />);
+    }
+
+    // Render empty stars
+    const emptyStars = 5 - Math.ceil(rating); // Calculate the number of empty stars
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<BsStar key={`empty-star-${i}`} />);
+    }
+
+    return stars;
+  };
+
+  return <div className="flex gap-2">{renderStars()}</div>;
+};
+
 function question(item: any, path: any, data: any) {
   const condition = data.includes(
     item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1)
@@ -41,6 +71,7 @@ function question(item: any, path: any, data: any) {
     ? true
     : false;
 
+  console.log(item);
   return (
     <div key={item.id}>
       {condition ? (
@@ -61,15 +92,18 @@ function question(item: any, path: any, data: any) {
             <p>{item.body}</p>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-bold">Quantidade de perguntas: 10</h2>
+                <h2 className="font-bold">
+                  Quantidade de perguntas: {item.question_number}
+                </h2>
               </div>
               <div className="flex items-center">
+                {/* <BsStarFill />
                 <BsStarFill />
                 <BsStarFill />
                 <BsStarFill />
-                <BsStarFill />
-                <BsStarFill />
-                <p className="ml-2">5.0</p>
+                <BsStarFill /> */}
+                <RatingDisplay rating={item.rating} />
+                <p className="ml-2">{item.rating}</p>
               </div>
             </div>
           </div>
@@ -91,15 +125,19 @@ function question(item: any, path: any, data: any) {
             <p>{item.body}</p>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-bold">Quantidade de perguntas: 10</h2>
+                <h2 className="font-bold">
+                  Quantidade de perguntas: {item.question_number}
+                </h2>
               </div>
               <div className="flex items-center">
+                {/* <BsStarFill />
                 <BsStarFill />
                 <BsStarFill />
                 <BsStarFill />
                 <BsStarFill />
-                <BsStarFill />
-                <p className="ml-2">5.0</p>
+                <p className="ml-2">{item.rating}</p> */}
+                <RatingDisplay rating={item.rating} />
+                <p className="ml-2">{item.rating}</p>
               </div>
             </div>
           </div>
@@ -140,39 +178,11 @@ const Page = ({ repo }: any) => {
           data: {
             userStatus,
             portal_name: router.query.slug,
-
-            // chosenAnswers,
-            //@ts-ignore
-            // userId: Number(decode(localStorage?.getItem("user")).sub),
           },
           cancelToken: cancelTokenSource.token,
         });
 
-        // setData(response.data);
         setData(response.data);
-
-        // const response = await axios.post(
-        //   "http://localhost:5000/questions/rightAnswers",
-        //   {
-        //     chosenAnswers,
-        //     //@ts-ignore
-        //     userId: Number(decode(localStorage?.getItem("user")).sub),
-        //     cancelToken: cancelTokenSource.token,
-        //   }
-        // );
-
-        // console.log("response");
-        // console.log(response.data);
-        // console.log("response");
-
-        // setShowResult(true);
-
-        // const resp = response.data.map((item: any) => item.id);
-        // const ans = chosenAnswers.map((item: any) => item.answerId);
-
-        // setAnswers(ans);
-
-        // setCorrectAnswers(resp);
 
         // Process the response
       } catch (error) {
@@ -190,114 +200,21 @@ const Page = ({ repo }: any) => {
       // Cancel the request when the component unmounts
       cancelTokenSource.cancel("Request canceled due to component unmount.");
     };
+    // eslint-disable-next-line
   }, []);
 
-  // Access the client
-  // const queryClient = useQueryClient();
-
-  // // Queries
-  // const { data, status } = useQuery({
-  //   queryKey: ["questions"],
-  //   queryFn: getQuestions,
-  // });
-
-  // if (status === "loading") {
-  //   return;
-  //   // return <span>Loading...</span>;
-  // }
-
-  // if (status === "error") {
-  //   return;
-  //   // return <span>deu ruim</span>;
-  // }
-
-  // console.log(data);
-
   return (
-    <div className="mt-8 overflow-hidden text-white">
-      <div className="fixed left-0 top-0 z-10 h-screen w-screen bg-slate-800"></div>
-      <div className="relative z-20 mx-auto mt-16 max-h-screen w-3/4 overflow-y-auto px-8 child:mb-2">
-        {data &&
-          repo.map((item: any) => {
-            return question(item, path, data);
-          })}
-
-        {/* <div className="mt-2 leading-6">
-          <div className="flex justify-between">
-            <div>
-              <h2>Questão 2</h2>
-            </div>
-            <div>
-              <h2 className="text-cyan-500">Normal</h2>
-            </div>
-          </div>
-          <p>descrição geral sobre as perguntas</p>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold">Quantidade de perguntas: 12</h2>
-            </div>
-            <div className="flex items-center">
-              <BsStarFill />
-              <BsStarFill />
-              <BsStarFill />
-              <BsStarFill />
-              <BsStar />
-              <p className="ml-2">4.0</p>
-            </div>
-          </div>
+    <Layout>
+      <div className="mt-8 overflow-hidden text-white">
+        <div className="fixed left-0 top-0 z-10 h-screen w-screen bg-slate-800"></div>
+        <div className="relative z-20 mx-auto mt-16 max-h-screen w-3/4 overflow-y-auto px-8 child:mb-2">
+          {data &&
+            repo.map((item: any) => {
+              return question(item, path, data);
+            })}
         </div>
-        <hr />
-        <div className="mt-2 leading-6">
-          <div className="flex justify-between">
-            <div>
-              <h2>Questão 3</h2>
-            </div>
-            <div>
-              <h2 className="text-amber-500">Díficil</h2>
-            </div>
-          </div>
-          <p>descrição geral sobre as perguntas</p>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold">Quantidade de perguntas: 16</h2>
-            </div>
-            <div className="flex items-center">
-              <BsStarFill />
-              <BsStarFill />
-              <BsStarFill />
-              <BsStarHalf />
-              <BsStar />
-              <p className="ml-2">3.5</p>
-            </div>
-          </div>
-        </div>
-        <hr />
-        <div className="mt-2 leading-6">
-          <div className="flex justify-between">
-            <div>
-              <h2>Questão 4</h2>
-            </div>
-            <div>
-              <h2 className="text-red-700">Muito Díficil</h2>
-            </div>
-          </div>
-          <p>descrição geral sobre as perguntas</p>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold">Quantidade de perguntas: 20</h2>
-            </div>
-            <div className="flex items-center">
-              <BsStarFill />
-              <BsStarFill />
-              <BsStar />
-              <BsStar />
-              <BsStar />
-              <p className="ml-2">2.0</p>
-            </div>
-          </div>
-        </div> */}
       </div>
-    </div>
+    </Layout>
   );
 };
 
