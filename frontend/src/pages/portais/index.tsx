@@ -6,7 +6,9 @@ import Layout from "@/components/Layout";
 export const getStaticProps: GetStaticProps<{
   portais: Array<{ id: number; name: string }>;
 }> = async () => {
-  const res = await fetch("http://localhost:5000/portal/generic");
+  const res = await fetch(
+    "https://question-and-answer-game-production.up.railway.app/portal/generic"
+  );
   const portais = await res.json();
   return { props: { portais } };
 };

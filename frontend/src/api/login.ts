@@ -8,7 +8,7 @@ interface Login {
 export async function loginUserFn({ email, password }: Login) {
   const user = await axios({
     method: "post",
-    url: "http://localhost:5000/auth/login",
+    url: "https://question-and-answer-game-production.up.railway.app/auth/login",
     data: {
       email,
       password,

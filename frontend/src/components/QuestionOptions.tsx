@@ -104,7 +104,7 @@ const QuestionOptions = () => {
   async function handleGenericChange(event: React.FormEvent<HTMLInputElement>) {
     if (event.currentTarget.value !== "") {
       const returnedValues = await axios.get(
-        `http://localhost:5000/portal/gletter/${event.currentTarget.value}`
+        `https://question-and-answer-game-production.up.railway.app/portal/gletter/${event.currentTarget.value}`
       );
       console.log(returnedValues.data);
       setRecommendations(returnedValues.data);
@@ -141,7 +141,7 @@ const QuestionOptions = () => {
       console.log(words);
 
       const returnedValues = await axios.get(
-        `http://localhost:5000/portal/sletter/${event.currentTarget.value}/${words}`
+        `https://question-and-answer-game-production.up.railway.app/portal/sletter/${event.currentTarget.value}/${words}`
       );
       console.log(returnedValues.data);
       setRecSpec(returnedValues.data);

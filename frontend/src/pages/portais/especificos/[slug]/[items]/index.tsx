@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps<{
   console.log(query);
   const res = await axios({
     method: "post",
-    url: `http://localhost:5000/questions/findTen`,
+    url: `https://question-and-answer-game-production.up.railway.app/questions/findTen`,
     data: {
       tags: query.items,
     },
@@ -174,7 +174,7 @@ const Page = ({ repo }: any) => {
       try {
         const response = await axios({
           method: "post",
-          url: `http://localhost:5000/portal/requirements`,
+          url: `https://question-and-answer-game-production.up.railway.app/portal/requirements`,
           data: {
             userStatus,
             portal_name: router.query.slug,

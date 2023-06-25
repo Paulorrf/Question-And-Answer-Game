@@ -34,7 +34,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
       try {
         const response = await axios({
           method: "post",
-          url: `http://localhost:5000/questions/rightAnswers`,
+          url: `https://question-and-answer-game-production.up.railway.app/questions/rightAnswers`,
           data: {
             chosenAnswers,
             //@ts-ignore
@@ -44,7 +44,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
         });
 
         // const response = await axios.post(
-        //   "http://localhost:5000/questions/rightAnswers",
+        //   "https://question-and-answer-game-production.up.railway.app/questions/rightAnswers",
         //   {
         //     chosenAnswers,
         //     //@ts-ignore
@@ -123,7 +123,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:5000/questions/rating/${questions[0].question_set_id}/rating`,
+        `https://question-and-answer-game-production.up.railway.app/questions/rating/${questions[0].question_set_id}/rating`,
         { rating }
       );
       SetHasRated(true);

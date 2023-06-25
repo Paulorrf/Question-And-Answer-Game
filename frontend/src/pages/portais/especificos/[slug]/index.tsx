@@ -15,7 +15,7 @@ export const getServerSideProps: GetServerSideProps<{
   console.log("query");
   console.log(query);
   const res = await fetch(
-    `http://localhost:5000/portal/specific/${query.slug}`
+    `https://question-and-answer-game-production.up.railway.app/portal/specific/${query.slug}`
   );
   const repo = await res.json();
   return { props: { repo } };

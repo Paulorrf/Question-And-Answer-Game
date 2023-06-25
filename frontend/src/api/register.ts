@@ -25,7 +25,7 @@ export async function createUserFn({
 }) {
   const user = await axios({
     method: "post",
-    url: "http://localhost:5000/auth/signin",
+    url: "https://question-and-answer-game-production.up.railway.app/auth/signin",
     data: {
       email: data.email,
       password: data.password,
