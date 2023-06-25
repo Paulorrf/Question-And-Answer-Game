@@ -8,7 +8,11 @@ async function bootstrap() {
   // app.enableCors({
   //   origin: "http://localhost:3000",
   // });
-  app.enableCors();
+  const corsOptions: any = {
+    origin: "*",
+    // You can set other CORS options here
+  };
+  app.enableCors(corsOptions);
   await app.listen(5000);
 }
 bootstrap();
