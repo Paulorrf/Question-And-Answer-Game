@@ -1,26 +1,6 @@
 import React, { useState } from "react";
 import Result from "./Result";
 
-// type Answer = {
-//   body: string;
-//   id: number;
-// };
-
-// type Question = {
-//   id: number;
-//   body: string;
-//   answers: Answer[];
-// };
-
-// type CarouselProps = {
-//   questions: Question[];
-// };
-
-// type ChosenAnswer = {
-//   questionId: number;
-//   answerId: number;
-// };
-
 type Answer = {
   body: string;
   id: number;
@@ -29,6 +9,7 @@ type Answer = {
 type Question = {
   id: number;
   question: string;
+  body: string;
   answers: Answer[];
 };
 
@@ -78,7 +59,8 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   };
 
   const renderQuestion = (question: Question) => {
-    const { id, question: questionText, answers } = question;
+    const { id, question: body, answers } = question;
+    console.log(body);
 
     const isSelected = (questionId: number, answerId: number) =>
       chosenAnswers.some(
@@ -89,11 +71,13 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
 
     return (
       <div key={id} className="flex flex-col items-center">
-        <h2 className="mb-4 text-xl font-bold">{questionText}</h2>
+        <h2 className="mb-8 border border-black bg-gray-800 p-4 text-xl font-bold text-white">
+          {question.body}
+        </h2>
         {answers.map((answer) => (
           <div
             key={answer.id}
-            className={`mb-4 flex items-center p-4 ${
+            className={`mb-4 flex w-96 items-center p-4 ${
               isSelected(id, answer.id)
                 ? "bg-blue-500 text-white"
                 : "bg-gray-200"
@@ -143,7 +127,7 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   //   console.log(chosenAnswers);
 
   return (
-    <div className="container mx-auto mt-12">
+    <div className="container mx-auto mt-24">
       {!showResults ? (
         <>
           {renderQuestion(questions[currentQuestion])}
