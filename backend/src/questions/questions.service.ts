@@ -9,6 +9,7 @@ interface CreateProps {
   description_right_answer: string;
   user_id: number;
 }
+//
 
 @Injectable()
 export class QuestionsService {
@@ -48,6 +49,10 @@ export class QuestionsService {
         }
       );
 
+      console.log(`allQuestions`);
+      console.log(allQuestions);
+      console.log(`allQuestions`);
+
       //array of ids
       const createQuestions = await this.prisma.$transaction(
         allQuestions.map((question) =>
@@ -82,6 +87,10 @@ export class QuestionsService {
           });
         }
       }
+
+      console.log("answersArr");
+      console.log(answersArr);
+      console.log("answersArr");
 
       //save answer to each specific question
       const createsQuestions2 = await this.prisma.answer.createMany({

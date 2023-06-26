@@ -11,6 +11,7 @@ import useStore from "../store/store";
 import questionQuantityStore from "@/store/questionsQuantityStore";
 import tagsStore from "@/store/tagsStore";
 import setQuestionStore from "@/store/setQuestionStore";
+import { useRouter } from "next/router";
 
 interface AnswerProp {
   body: string;
@@ -44,7 +45,9 @@ interface Questions {
 const CreateQuestionForm = () => {
   // const [difficulty, setDifficulty] = useState("easy");
   const [answer, setAnswer] = useState(1);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
+
+  const router = useRouter();
   // const [questions, setQuestions] = useState<Questions[]>([]);
 
   const totalQuantity = questionQuantityStore((state) => state.quantity);
@@ -70,8 +73,12 @@ const CreateQuestionForm = () => {
     const user_id = decode(localStorage?.getItem("user")).sub;
   }
 
+  // console.log("dificuldade");
+  // console.log(totalQuantity);
+  // console.log(quantity);
+  // console.log("dificuldade");
   console.log("dificuldade");
-  console.log({ questions, tags_primary, tags_spec });
+  console.log(questions);
   console.log("dificuldade");
 
   useEffect(() => {
@@ -87,13 +94,15 @@ const CreateQuestionForm = () => {
         tags_primary,
         tags_spec,
       });
+
+      router.push("/");
     }
     // eslint-disable-next-line
   }, [quantity, totalQuantity]);
 
   const { control, register, handleSubmit, reset } = useForm();
   const onSubmit: SubmitHandler<IFormInput> = (data: IFormInput) => {
-    // console.log(data);
+    console.log(data);
 
     addQuestion({
       body: data.question,
@@ -158,7 +167,7 @@ const CreateQuestionForm = () => {
         cols={80}
         placeholder={name}
         key={name}
-        {...(register(name), { required: true })}
+        {...register(name as keyof IFormInput, { required: true })}
         className={
           answerNr === answer ? "border-4 border-green-600" : "border-black"
         }
@@ -178,7 +187,9 @@ const CreateQuestionForm = () => {
     );
   }
 
-  return (
+  return quantity === totalQuantity ? (
+    <p>Criando o questionário...</p>
+  ) : (
     <div key="123">
       <h2 className="mb-2">{`Questão ${quantity} de ${totalQuantity}`}</h2>
       <form
@@ -252,7 +263,7 @@ const CreateQuestionForm = () => {
 
         <div className="mb-8 mt-4 flex items-center justify-center">
           <button type="submit" className="btn-primary mr-4">
-            {quantity < totalQuantity ? "Próximo" : "Criar Pergunta"}
+            {quantity === totalQuantity ? "Próximo" : "Criar Pergunta"}
           </button>
         </div>
       </form>
