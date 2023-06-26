@@ -143,7 +143,7 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   //   console.log(chosenAnswers);
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto mt-12">
       {!showResults ? (
         <>
           {renderQuestion(questions[currentQuestion])}
