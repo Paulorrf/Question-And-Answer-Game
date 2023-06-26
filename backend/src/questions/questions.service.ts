@@ -41,7 +41,7 @@ export class QuestionsService {
         (question_subj: any) => {
           return {
             body: question_subj.body,
-            // situation: question_subj.situation,
+            situation: "active",
             description_right_answer: question_subj.description_right_answer,
             user_data_id: question_subj.user_id,
             question_set_id: new_question_set.id,
@@ -56,6 +56,7 @@ export class QuestionsService {
       //array of ids
       const createQuestions = await this.prisma.$transaction(
         allQuestions.map((question) =>
+          //@ts-ignore
           this.prisma.question.create({ data: question })
         )
       );
@@ -560,7 +561,7 @@ export class QuestionsService {
         },
         data: {
           body: updateQuestionDto.body || undefined,
-          situation: updateQuestionDto.situation || undefined,
+          // situation: updateQuestionDto.situation || undefined,
           description_right_answer:
             updateQuestionDto.description_right_answer || undefined,
           user_data_id: updateQuestionDto.user_data_id || undefined,
