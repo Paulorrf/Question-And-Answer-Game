@@ -71,6 +71,7 @@ export class AuthService {
         email,
       },
       select: {
+        name: true,
         character: {
           select: {
             status: {

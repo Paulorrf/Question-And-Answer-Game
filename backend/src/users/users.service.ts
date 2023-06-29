@@ -8,6 +8,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   private readonly salt = 10;
+  //
 
   async create(createUserDto: CreateUserDto) {
     console.log(createUserDto);
@@ -75,6 +76,45 @@ export class UsersService {
       const foundUser = await this.prisma.user_data.findFirst({
         where: {
           email,
+        },
+      });
+
+      return foundUser;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async findOneById(id: number) {
+    try {
+      const foundUser = await this.prisma.user_data.findFirst({
+        where: {
+          id,
+        },
+        select: {
+          experience: true,
+          email: true,
+          name: true,
+          nivel: true,
+          status_point_remain: true,
+          character: {
+            include: {
+              classes: {
+                select: {
+                  nome: true,
+                },
+              },
+              status: {
+                select: {
+                  agility: true,
+                  intelligence: true,
+                  luck: true,
+                  strength: true,
+                },
+              },
+            },
+          },
         },
       });
 

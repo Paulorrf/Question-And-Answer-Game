@@ -36,8 +36,8 @@ export const getServerSideProps: GetServerSideProps<{
 };
 
 const RatingDisplay = ({ rating }: { rating: number }) => {
-  const fullStars = Math.floor(rating); // Get the integer part of the rating
-  const decimalPart = rating % 1; // Get the decimal part of the rating
+  const fullStars = Math.floor(5); // Get the integer part of the rating
+  const decimalPart = 5 % 1; // Get the decimal part of the rating
 
   const renderStars = () => {
     const stars = [];
@@ -53,7 +53,7 @@ const RatingDisplay = ({ rating }: { rating: number }) => {
     }
 
     // Render empty stars
-    const emptyStars = 5 - Math.ceil(rating); // Calculate the number of empty stars
+    const emptyStars = 5 - Math.ceil(5); // Calculate the number of empty stars
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<BsStar key={`empty-star-${i}`} />);
     }
@@ -65,6 +65,7 @@ const RatingDisplay = ({ rating }: { rating: number }) => {
 };
 
 function question(item: any, path: any, data: any) {
+  console.log(item);
   const condition = data.includes(
     item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1)
   )
@@ -83,7 +84,15 @@ function question(item: any, path: any, data: any) {
           <div className="mt-2 px-2 leading-6">
             <div className="flex justify-between">
               <div>
+                <h2>{item.title}</h2>
+              </div>
+              <div>
                 <h2>Questão {item.id}</h2>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <div>
+                <h2 className="text-green-600">{item.description}</h2>
               </div>
               <div>
                 <h2 className="text-green-600">{item.difficulty}</h2>
@@ -116,7 +125,15 @@ function question(item: any, path: any, data: any) {
           <div className="mt-2 px-2 leading-6">
             <div className="flex justify-between">
               <div>
+                <h2>{item.title}</h2>
+              </div>
+              <div>
                 <h2>Questão {item.id}</h2>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <div>
+                <h2 className="text-green-600">{item.description}</h2>
               </div>
               <div>
                 <h2 className="text-green-600">{item.difficulty}</h2>
@@ -143,7 +160,7 @@ function question(item: any, path: any, data: any) {
           </div>
         </div>
       )}
-      <hr />
+      <hr className="mb-4" />
     </div>
   );
 }

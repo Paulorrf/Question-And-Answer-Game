@@ -1,5 +1,12 @@
 import { UsersService } from "./users/users.service";
-import { Controller, Get, Post, Request, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+  Param,
+} from "@nestjs/common";
 import { AppService } from "./app.service";
 import { AuthService } from "./auth/auth.service";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
@@ -17,6 +24,11 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get("auth/:id")
+  findOneById(@Param("id") id: string) {
+    return this.usersService.findOneById(+id);
   }
 
   @Post("auth/signin")

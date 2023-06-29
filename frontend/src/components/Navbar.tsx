@@ -37,11 +37,11 @@ const Navbar = () => {
     router.push("/");
   }
 
-  console.log(userId.current);
+  // console.log(userId.current);
 
   return (
-    <div className="relative z-30">
-      <ul className="flex justify-between px-16 pt-4 text-xl font-bold uppercase text-white">
+    <div className="relative z-30 bg-slate-800">
+      <ul className="mx-16 flex justify-between py-4 text-xl font-bold uppercase text-white">
         <li className="group flex items-center hover:text-red-600 hover:underline">
           <div className="invisible z-40 mr-2 text-black group-hover:visible">
             <GiSpikedDragonHead color="red" size={20} />
