@@ -92,6 +92,7 @@ export class AuthService {
           sub: userId,
           email,
           status: userStatus.character.status,
+          name: userStatus.name,
         },
         {
           secret: "segredo",
