@@ -3,13 +3,28 @@ import React, { useEffect, useState, useRef } from "react";
 import { GiSpikedDragonHead } from "react-icons/gi";
 import { decode } from "jsonwebtoken";
 import { useRouter } from "next/router";
+import { MdLogout } from "react-icons/md";
+
+interface UserProp {
+  email: string;
+  exp: number;
+  iat: number;
+  name: string;
+  status: {
+    agility: number;
+    luck: number;
+    strength: number;
+    intelligence: number;
+  };
+  sub: number;
+}
 
 const Navbar = () => {
   const [accessTk, setAccessTk] = useState<String | null | undefined>();
   const [isUserIdReady, setIsUserIdReady] = useState(false);
   const router = useRouter();
 
-  const userId = useRef<number | undefined>(undefined);
+  const user = useRef<UserProp | undefined>(undefined);
 
   // console.log(localStorage?.getItem("user"));
   useEffect(() => {
@@ -24,7 +39,7 @@ const Navbar = () => {
       const decodedToken = decode(localStorage?.getItem("user"));
       if (decodedToken && decodedToken.sub) {
         //@ts-ignore
-        userId.current = decodedToken.sub;
+        user.current = decodedToken;
         setIsUserIdReady(true);
       }
     }
@@ -33,11 +48,11 @@ const Navbar = () => {
   function handleLogout() {
     localStorage.clear();
     setAccessTk(undefined);
-    userId.current = undefined;
+    user.current = undefined;
     router.push("/");
   }
 
-  // console.log(userId.current);
+  // console.log(user);
 
   return (
     <div className="relative z-30 bg-slate-800">
@@ -49,7 +64,7 @@ const Navbar = () => {
           <Link href="/">Início</Link>
         </li>
 
-        {userId.current && (
+        {user.current && (
           <li className="group flex items-center hover:text-red-600 hover:underline">
             <div className="invisible z-40 mr-2 text-black group-hover:visible">
               <GiSpikedDragonHead color="red" size={20} />
@@ -58,7 +73,7 @@ const Navbar = () => {
           </li>
         )}
 
-        {!userId.current && (
+        {!user.current && (
           <>
             <li className="group flex items-center hover:text-red-600 hover:underline">
               <div className="invisible z-40 mr-2 text-black group-hover:visible">
@@ -82,12 +97,24 @@ const Navbar = () => {
           <Link href="/portais">Portais</Link>
         </li>
 
-        {userId.current && (
-          <li className="group flex items-center hover:text-red-600 hover:underline">
-            <div className="invisible z-40 mr-2 text-black group-hover:visible">
-              <GiSpikedDragonHead color="red" size={20} />
+        {user.current && (
+          <li className="flex items-center ">
+            <Link href="/userPage">
+              <div className="group mr-4 flex cursor-pointer items-center">
+                <div className="invisible z-40 mr-2 text-black group-hover:visible">
+                  <GiSpikedDragonHead color="red" size={20} />
+                </div>
+                <p className="hover:text-red-600 hover:underline">
+                  {user.current.name}
+                </p>
+              </div>
+            </Link>
+
+            <div className="flex items-center text-white hover:scale-125 hover:text-red-600">
+              <button onClick={handleLogout}>
+                <MdLogout size={20} />
+              </button>
             </div>
-            <button onClick={handleLogout}>SAIR</button>
           </li>
         )}
       </ul>

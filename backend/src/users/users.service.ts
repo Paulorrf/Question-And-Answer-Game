@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateUserDto } from "./dto/create-user-dto";
 import * as bcrypt from "bcrypt";
+import { UpdateStatusDto } from "./dto/update-status-dto";
 
 @Injectable()
 export class UsersService {
@@ -66,6 +67,43 @@ export class UsersService {
 
       return savedUser;
     } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async updateStatus(updateStatusDto: UpdateStatusDto) {
+    console.log("status recebidos");
+    console.log(updateStatusDto);
+    console.log("status recebidos");
+
+    try {
+      const updatedStatus = await this.prisma.user_data.update({
+        where: {
+          email: updateStatusDto.email,
+        },
+        data: {
+          status_point_remain: updateStatusDto.remainingPoints,
+          character: {
+            update: {
+              status: {
+                update: {
+                  agility: updateStatusDto.agility,
+                  intelligence: updateStatusDto.intelligence,
+                  luck: updateStatusDto.luck,
+                  strength: updateStatusDto.strength,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      console.log(updatedStatus);
+
+      return updatedStatus;
+    } catch (error) {
+      console.log("deu ruim no update dos status");
       console.log(error);
       return null;
     }

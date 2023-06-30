@@ -69,7 +69,8 @@ const UserPage = () => {
       const userData = await axios({
         method: "get",
         //@ts-ignore
-        url: `http://localhost:5000/auth/${user.sub}`,
+        url: `https://question-and-answer-game-production.up.railway.app/auth/${user.sub}`,
+        // url: `https://question-and-answer-game-production.up.railway.app/auth/${user.sub}`,
       });
 
       //   userInfo.current = userData.data;
@@ -86,9 +87,14 @@ const UserPage = () => {
     }
   }, []);
 
+  console.log(user);
   console.log(userInfo);
 
-  return (
+  // userInfo === null ||
+
+  return userInfo === null ? (
+    <div>loading</div>
+  ) : (
     <Layout>
       <div className="mx-auto mt-16 w-[600px] p-4 text-white">
         <div className="mb-4 flex justify-center">
@@ -125,6 +131,7 @@ const UserPage = () => {
               <CharacterStatus
                 characterInfo={userInfo.character}
                 statusPointRemaining={userInfo.status_point_remain}
+                email={user.email}
               />
             </div>
           )}
