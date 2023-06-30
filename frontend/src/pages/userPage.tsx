@@ -69,8 +69,8 @@ const UserPage = () => {
       const userData = await axios({
         method: "get",
         //@ts-ignore
-        url: `https://question-and-answer-game-production.up.railway.app/auth/${user.sub}`,
         // url: `https://question-and-answer-game-production.up.railway.app/auth/${user.sub}`,
+        url: `http://localhost:5000/auth/${user.sub}`,
       });
 
       //   userInfo.current = userData.data;
@@ -106,7 +106,7 @@ const UserPage = () => {
             }`}
             onClick={() => handleTabClick("tab1")}
           >
-            Tab 1
+            Informações
           </button>
           <button
             className={`rounded px-4 py-2 ${
