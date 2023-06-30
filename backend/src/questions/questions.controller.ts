@@ -36,6 +36,11 @@ export class QuestionsController {
     return this.questionsService.findOneSetQuestion(+id);
   }
 
+  @Get("findbymail/:id")
+  findQuestionsByUserEmail(@Param("id") id: number) {
+    return this.questionsService.findQuestionsByUserEmail(+id);
+  }
+
   @Get("questions/:id")
   findQuestions(@Param("id") id: string) {
     return this.questionsService.findQuestions(+id);

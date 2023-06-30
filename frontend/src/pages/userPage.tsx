@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import { GetServerSideProps } from "next/types";
 import axios from "axios";
 import CharacterStatus from "@/components/CharacterStatus";
+import UserInfo from "@/components/UserInfo";
 
 interface User {
   sub: number;
@@ -17,21 +18,6 @@ interface User {
     intelligence: number;
   };
 }
-
-type Repo = {
-  name: string;
-  id: number;
-};
-
-// export const getServerSideProps: GetServerSideProps<{
-//   repo: Repo[];
-// }> = async ({ query }) => {
-//   console.log("query");
-//   console.log(query);
-//   const res = await fetch(`http://localhost:5000/auth/findOne`);
-//   const repo = await res.json();
-//   return { props: { repo } };
-// };
 
 const UserPage = () => {
   const userId = useRef<number | undefined>(undefined);
@@ -122,8 +108,7 @@ const UserPage = () => {
         <div className="rounded-lg bg-slate-800 p-4">
           {activeTab === "tab1" && (
             <div>
-              <h2 className="text-lg font-bold">Tab 1 Content</h2>
-              <p>Display some information related to Tab 1 here.</p>
+              <UserInfo userId={user.sub} />
             </div>
           )}
           {activeTab === "tab2" && (
@@ -132,6 +117,7 @@ const UserPage = () => {
                 characterInfo={userInfo.character}
                 statusPointRemaining={userInfo.status_point_remain}
                 email={user.email}
+                nivel={userInfo.nivel}
               />
             </div>
           )}

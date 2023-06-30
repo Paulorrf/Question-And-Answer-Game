@@ -215,6 +215,71 @@ export class QuestionsService {
     }
   }
 
+  async findQuestionsByUserEmail(userId: number) {
+    try {
+      const questions = await this.prisma.question_set.findMany({
+        where: {
+          question: {
+            some: {
+              user_data_id: userId,
+            },
+          },
+        },
+        select: {
+          description: true,
+          title: true,
+          id: true,
+          question: {
+            select: {
+              body: true,
+              description_right_answer: true,
+              situation: true,
+              answer: {
+                select: {
+                  body: true,
+                  is_correct: true,
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // const questions = await this.prisma.question.findMany({
+      //   where: {
+      //     user_data_id: userId,
+      //   },
+      //   select: {
+      //     body: true,
+      //     description_right_answer: true,
+      //     situation: true,
+      //     answer: {
+      //       select: {
+      //         body: true,
+      //         is_correct: true,
+      //       },
+      //     },
+      //     question_set: {
+      //       select: {
+      //         description: true,
+      //         title: true,
+      //         difficulty: true,
+      //       },
+      //     },
+      //   },
+
+      // });
+
+      console.log(questions);
+      return questions;
+    } catch (error) {
+      console.log(error);
+      console.log("deu ruim ao achar questions by email");
+      return null;
+    }
+  }
+
   async findTenQuestions(tags: any) {
     console.log("tags");
     console.log(tags);

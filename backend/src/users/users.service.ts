@@ -97,6 +97,21 @@ export class UsersService {
             },
           },
         },
+        select: {
+          status_point_remain: true,
+          character: {
+            select: {
+              status: {
+                select: {
+                  agility: true,
+                  intelligence: true,
+                  luck: true,
+                  strength: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       console.log(updatedStatus);

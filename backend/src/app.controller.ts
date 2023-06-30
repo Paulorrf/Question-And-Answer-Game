@@ -52,7 +52,7 @@ export class AppController {
   }
 
   @Post("auth/updateStatus")
-  create(@Body() updateStatusDto: UpdateStatusDto) {
+  updateStatus(@Body() updateStatusDto: UpdateStatusDto) {
     return this.usersService.updateStatus(updateStatusDto);
   }
 

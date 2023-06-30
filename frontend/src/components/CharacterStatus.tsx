@@ -25,10 +25,12 @@ const CharacterStatus = ({
   characterInfo,
   statusPointRemaining,
   email,
+  nivel,
 }: {
   characterInfo: CharacterProps | null;
   statusPointRemaining: number | null;
   email: string | null;
+  nivel: number | null;
 }) => {
   const [agilityPoints, setAgilityPoints] = useState<number>(
     characterInfo?.status?.agility ?? 0
@@ -149,6 +151,10 @@ const CharacterStatus = ({
         <p>
           <span className="font-bold">Classe escolhida:</span>{" "}
           {startStatus?.classes?.nome}
+        </p>
+        <p>
+          {" "}
+          <span className="font-bold"> Nível do personagem:</span> {nivel}
         </p>
       </div>
       <div>
