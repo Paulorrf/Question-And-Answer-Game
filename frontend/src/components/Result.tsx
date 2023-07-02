@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { decode } from "jsonwebtoken";
 import { BsStarFill } from "react-icons/bs";
+import { useRouter } from "next/router";
 
 const Result = ({ chosenAnswers, questions }: any) => {
   const [correctAnswers, setCorrectAnswers] = useState<any>([]);
@@ -11,8 +12,16 @@ const Result = ({ chosenAnswers, questions }: any) => {
   const [hasRated, SetHasRated] = useState(false);
   const [hasLeveledUp, setHasLeveledUp] = useState();
   //   const [showResult, setShowResult] = useState(false);
+
+  const router = useRouter();
+
+  const str = router.asPath;
+  const lastIndex = str.lastIndexOf("/");
+  const result = str.substring(0, lastIndex);
+
   console.log("questions");
-  console.log(questions);
+  // console.log(router.asPath);
+
   console.log("questions");
 
   // console.log("correctAnswers");
@@ -128,7 +137,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
 
     try {
       const response = await axios.patch(
-        `https://question-and-answer-game-production.up.railway.app/questions/rating/${questions[0].question_set_id}/rating`,
+        `http://localhost:5000/questions/rating/${questions[0].question_set_id}/rating`,
         { rating }
       );
       SetHasRated(true);
@@ -172,7 +181,12 @@ const Result = ({ chosenAnswers, questions }: any) => {
         <div>
           {hasRated ? (
             <div>
-              <p>Obrigado por avaliar a questão.</p>
+              <button
+                className="btn-primary"
+                onClick={() => router.push(result)}
+              >
+                Voltar
+              </button>
             </div>
           ) : (
             <div className="flex items-center justify-center">

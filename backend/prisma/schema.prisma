@@ -43,7 +43,7 @@ model question_set {
   answered_number               Int?                            @default(0)
   title                         String                          @db.VarChar(255)
   description                   String                          @db.VarChar(255)
-  rating                        Int?                            @default(1)
+  rating                        Float?                          @default(1)
   difficulty                    difficulty?
   situation                     situation                       @default(active)
   question_number               Int?

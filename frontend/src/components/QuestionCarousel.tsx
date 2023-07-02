@@ -94,6 +94,10 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   const renderNavigationButtons = () => {
     const isFirstQuestion = currentQuestion === 0;
     const isLastQuestion = currentQuestion === questions.length - 1;
+    const currentQuestionId = questions[currentQuestion].id;
+    const isNextDisabled = chosenAnswers.every(
+      (chosenAnswer) => chosenAnswer.questionId !== currentQuestionId
+    );
 
     return (
       <div className="mt-4 flex justify-center">
@@ -102,7 +106,7 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
             className="rounded bg-blue-500 px-4 py-2 text-white"
             onClick={handlePreviousQuestion}
           >
-            Previous
+            Anterior
           </button>
         )}
         {isLastQuestion ? (
@@ -110,14 +114,15 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
             className="ml-4 rounded bg-green-500 px-4 py-2 text-white"
             onClick={handleSend}
           >
-            Send
+            Enviar
           </button>
         ) : (
           <button
             className="ml-4 rounded bg-blue-500 px-4 py-2 text-white"
             onClick={handleNextQuestion}
+            disabled={isNextDisabled}
           >
-            Next
+            Próximo
           </button>
         )}
       </div>
@@ -141,119 +146,3 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
 };
 
 export default Carousel;
-
-// const Carousel: React.FC<CarouselProps> = ({ questions }) => {
-//   const [currentQuestion, setCurrentQuestion] = useState(0);
-//   const [chosenAnswers, setChosenAnswers] = useState<Record<number, number>>(
-//     {}
-//   );
-//   const [trueChosenAnswers, setTrueChosenAnswers] = useState<ChosenAnswer[]>(
-//     []
-//   );
-//   //   const [chosenAnswers, setChosenAnswers] = useState<Record<number, number>>(
-//   //     {}
-//   //   );
-//   const [showResults, setShowResults] = useState(false);
-
-//   const handleAnswerClick = (
-//     questionId: number,
-//     answerIndex: number,
-//     answerId: number
-//   ) => {
-//     setChosenAnswers((prevAnswers) => ({
-//       ...prevAnswers,
-//       [questionId]: answerIndex,
-//     }));
-
-//     setTrueChosenAnswers((prev: any) => [...prev, { questionId, answerId }]);
-//   };
-
-//   const handleNextQuestion = () => {
-//     setCurrentQuestion((prevQuestion) => prevQuestion + 1);
-//   };
-
-//   const handlePreviousQuestion = () => {
-//     setCurrentQuestion((prevQuestion) => prevQuestion - 1);
-//   };
-
-//   const handleSend = () => {
-//     // Use chosenAnswers object to send data to server or perform any desired action
-//     console.log("Chosen answers:", chosenAnswers);
-//     setShowResults(true);
-//   };
-
-//   console.log(trueChosenAnswers);
-
-//   const renderQuestion = (question: Question) => {
-//     const { id, body: questionText, answers } = question;
-//     const isSelected = (questionId: number, answerIndex: number) =>
-//       chosenAnswers[questionId] === answerIndex;
-
-//     return (
-//       <div key={id} className="flex flex-col items-center justify-center">
-//         <h2 className="mb-4 text-xl font-bold">{questionText}</h2>
-//         {answers.map((answer, answerIndex) => (
-//           <div
-//             key={answerIndex}
-//             className={`mb-4 flex w-[300px] cursor-pointer items-center p-4 ${
-//               isSelected(id, answerIndex)
-//                 ? "bg-blue-500 text-white"
-//                 : "bg-gray-200"
-//             }`}
-//             onClick={() => handleAnswerClick(id, answerIndex, answer.id)}
-//           >
-//             <p className="mx-auto">{answer.body}</p>
-//           </div>
-//         ))}
-//       </div>
-//     );
-//   };
-
-//   const renderNavigationButtons = () => {
-//     const isFirstQuestion = currentQuestion === 0;
-//     const isLastQuestion = currentQuestion === questions.length - 1;
-
-//     return (
-//       <div className="mt-4 flex justify-center">
-//         {!isFirstQuestion && (
-//           <button
-//             className="rounded bg-blue-500 px-4 py-2 text-white"
-//             onClick={handlePreviousQuestion}
-//           >
-//             Previous
-//           </button>
-//         )}
-//         {isLastQuestion ? (
-//           <button
-//             className="ml-4 rounded bg-green-500 px-4 py-2 text-white"
-//             onClick={handleSend}
-//           >
-//             Send
-//           </button>
-//         ) : (
-//           <button
-//             className="ml-4 rounded bg-blue-500 px-4 py-2 text-white"
-//             onClick={handleNextQuestion}
-//           >
-//             Next
-//           </button>
-//         )}
-//       </div>
-//     );
-//   };
-
-//   return (
-//     <div className="container mx-auto mt-36">
-//       {!showResults ? (
-//         <>
-//           {renderQuestion(questions[currentQuestion])}
-//           {renderNavigationButtons()}
-//         </>
-//       ) : (
-//         <Result chosenAnswers={trueChosenAnswers} />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default Carousel;

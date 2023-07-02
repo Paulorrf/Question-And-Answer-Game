@@ -76,14 +76,17 @@ function question(item: any, path: any, data: any) {
   console.log(item);
   const difficulty = difficultyMap[item.difficulty];
   const condition =
-    Array.isArray(data) &&
-    data.includes(
-      item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1)
-    )
-      ? true
-      : false;
+    Array.isArray(data.availables) &&
+    //@ts-ignore
+    data.availables.some(
+      (d: string) =>
+        d.toLowerCase().replace(/ /g, "_") === item.difficulty.toLowerCase()
+    );
+  // data.availables.some((d: string) => item.difficulty.includes(d));
 
-  console.log(item);
+  console.log(Array.isArray(data.availables));
+  console.log(data.availables);
+  console.log(item.difficulty);
   return (
     <div key={item.id}>
       {condition ? (
@@ -249,35 +252,33 @@ const Page = ({ repo }: any) => {
 
     const fetchData = async () => {
       try {
-        const [response1, response2] = await Promise.all([
-          axios({
-            method: "post",
-            url: `http://localhost:5000/portal/requirements`,
-            data: {
-              userStatus,
-              portal_name: router.query.slug,
-            },
-            cancelToken: cancelTokenSource.token,
-          }),
-          // Make the second API call here
-          // Example:
-          axios({
-            method: "get",
-            url: `http://localhost:5000/auth/${userId}`,
-          }),
-        ]);
+        const response2 = await axios({
+          method: "get",
+          url: `http://localhost:5000/auth/${userId}`,
+        });
 
-        const data1 = response1.data; // Data from the first API call
-        const data2 = response2.data; // Data from the second API call
+        const data2 = response2.data;
+
+        setNewStatus(data2.character.status);
+
+        const response1 = await axios({
+          method: "post",
+          url: `http://localhost:5000/portal/requirements`,
+          data: {
+            userStatus: data2.character.status,
+            portal_name: router.query.slug,
+          },
+          cancelToken: cancelTokenSource.token,
+        });
+
+        const data1 = response1.data;
 
         setData(data1);
-        setNewStatus(data2.character.status);
-        // Process the data as needed
 
-        // Process the response
+        // Process the responses as needed
       } catch (error) {
         if (axios.isCancel(error)) {
-          //   console.log("Request canceled:", error.message);
+          // console.log("Request canceled:", error.message);
         } else {
           // Handle other errors
         }
@@ -294,6 +295,7 @@ const Page = ({ repo }: any) => {
   }, []);
 
   console.log(newStatus);
+  console.log(repo);
   // console.log(router.query.slug);
 
   return (

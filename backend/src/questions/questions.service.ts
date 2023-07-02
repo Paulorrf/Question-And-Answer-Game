@@ -549,7 +549,7 @@ export class QuestionsService {
             data: {
               nivel: nextLevel.level,
               experience: remainingExperience,
-              status_point_remain: userData.status_point_remain + 2,
+              status_point_remain: userData.status_point_remain + 5,
             },
           });
 
@@ -624,6 +624,7 @@ export class QuestionsService {
     console.log(questionSetId);
     console.log("newRating");
     console.log(newRating);
+    //
 
     const questionSet = await this.prisma.question_set.findFirst({
       where: { id: Number(questionSetId) },
