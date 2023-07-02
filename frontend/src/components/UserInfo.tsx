@@ -15,9 +15,16 @@ interface QuestionSetProp {
       body: string;
       description_right_answer: string;
       situation: string;
+      answer: [
+        {
+          body: string;
+          id: number;
+          is_correct: boolean;
+        }
+      ];
     }
   ];
-  isOpen: boolean; // Added isOpen property
+  isOpen: boolean;
 }
 
 const UserInfo = ({ userId }: UserInfoProps) => {
@@ -92,7 +99,8 @@ const UserInfo = ({ userId }: UserInfoProps) => {
               <Modal
                 isOpen={questionSet.isOpen}
                 onClose={() => closeModal(questionSet.id)}
-                question_set={questionSet}
+                //@ts-ignore
+                questionSet={questionSet}
               />
             )}
             <hr className="mb-8"></hr>

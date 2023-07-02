@@ -116,9 +116,6 @@ export class PortalService {
   }
 
   async availableDifficulties(status: any) {
-    console.log("status");
-    console.log(status);
-    console.log("status");
     try {
       const portalStatus = await this.getPortalStatusRequirement(
         status.portal_name
@@ -139,7 +136,7 @@ export class PortalService {
         }
       });
 
-      return arr_availables;
+      return { availables: arr_availables, portalStatus };
     } catch (error) {
       console.log(error);
       return "errou";

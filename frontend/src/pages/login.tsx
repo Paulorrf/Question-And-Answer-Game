@@ -11,7 +11,11 @@ interface ILoginInput {
 }
 
 const Login = () => {
-  const { register, handleSubmit } = useForm<ILoginInput>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ILoginInput>();
   const onSubmit: SubmitHandler<ILoginInput> = (data) => {
     mutation.mutate({
       email: data.email,
@@ -44,6 +48,7 @@ const Login = () => {
     <Layout>
       <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-white">
         <h2 className="mb-4 text-center text-2xl font-bold">ENTRAR</h2>
+        {errors.email && <p>Conta não existe</p>}
         <form
           className="flex flex-col text-black"
           onSubmit={handleSubmit(onSubmit)}
@@ -68,7 +73,7 @@ const Login = () => {
           </div>
 
           <input
-            className="btn-primary mt-2 text-white"
+            className="btn-primary mt-2 cursor-pointer text-white"
             value="Entrar"
             type="submit"
           />

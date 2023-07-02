@@ -55,19 +55,19 @@ const Navbar = () => {
   // console.log(user);
 
   return (
-    <div className="relative z-30 bg-slate-800">
+    <div className="relative z-30 bg-black/75">
       <ul className="mx-16 flex justify-between py-4 text-xl font-bold uppercase text-white">
-        <li className="group flex items-center hover:text-red-600 hover:underline">
+        <li className="group flex items-center hover:underline">
           <div className="invisible z-40 mr-2 text-black group-hover:visible">
-            <GiSpikedDragonHead color="red" size={20} />
+            <GiSpikedDragonHead color="white" size={20} />
           </div>
           <Link href="/">Início</Link>
         </li>
 
         {user.current && (
-          <li className="group flex items-center hover:text-red-600 hover:underline">
+          <li className="group flex items-center  hover:underline">
             <div className="invisible z-40 mr-2 text-black group-hover:visible">
-              <GiSpikedDragonHead color="red" size={20} />
+              <GiSpikedDragonHead color="white" size={20} />
             </div>
             <Link href="/createQuestion2">Criar Questionário</Link>
           </li>
@@ -75,24 +75,24 @@ const Navbar = () => {
 
         {!user.current && (
           <>
-            <li className="group flex items-center hover:text-red-600 hover:underline">
+            <li className="group flex items-center  hover:underline">
               <div className="invisible z-40 mr-2 text-black group-hover:visible">
-                <GiSpikedDragonHead color="red" size={20} />
+                <GiSpikedDragonHead color="white" size={20} />
               </div>
               <Link href="/login">Login</Link>
             </li>
-            <li className="group flex items-center hover:text-red-600 hover:underline">
+            <li className="group flex items-center  hover:underline">
               <div className="invisible z-40 mr-2 text-black group-hover:visible">
-                <GiSpikedDragonHead color="red" size={20} />
+                <GiSpikedDragonHead color="white" size={20} />
               </div>
               <Link href="/register">Criar conta</Link>
             </li>
           </>
         )}
 
-        <li className="group flex items-center hover:text-red-600 hover:underline">
+        <li className="group flex items-center  hover:underline">
           <div className="invisible z-40 mr-2 text-black group-hover:visible">
-            <GiSpikedDragonHead color="red" size={20} />
+            <GiSpikedDragonHead color="white" size={20} />
           </div>
           <Link href="/portais">Portais</Link>
         </li>
@@ -102,15 +102,13 @@ const Navbar = () => {
             <Link href="/userPage">
               <div className="group mr-4 flex cursor-pointer items-center">
                 <div className="invisible z-40 mr-2 text-black group-hover:visible">
-                  <GiSpikedDragonHead color="red" size={20} />
+                  <GiSpikedDragonHead color="white" size={20} />
                 </div>
-                <p className="hover:text-red-600 hover:underline">
-                  {user.current.name}
-                </p>
+                <p className=" hover:underline">{user.current.name}</p>
               </div>
             </Link>
 
-            <div className="flex items-center text-white hover:scale-125 hover:text-red-600">
+            <div className="flex items-center text-white hover:scale-125 ">
               <button onClick={handleLogout}>
                 <MdLogout size={20} />
               </button>

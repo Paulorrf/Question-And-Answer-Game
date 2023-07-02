@@ -12,56 +12,43 @@ interface IRegister {
 }
 
 interface ChildComponentProps {
-  buttonRef: React.RefObject<HTMLButtonElement | null>;
+  buttonRef: React.RefObject<HTMLButtonElement> | null;
+  onFormSubmit: (data: IRegister) => void;
+  changeFormValidity: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SignIn: React.FC<ChildComponentProps> = ({ buttonRef }) => {
+const SignIn: React.FC<ChildComponentProps> = ({
+  buttonRef,
+  onFormSubmit,
+  changeFormValidity,
+}) => {
   const [showPass, setShowPass] = useState(false);
 
   const changeData = signInStore((state) => state.changeData);
   const dataStore = signInStore((state) => state.data);
-  // const registerErrorStore = registerErrorStore((state) => state.hasError);
-  // const changeError = registerErrorStore((state) => state.changeError);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<IRegister>();
+
   const onSubmit: SubmitHandler<IRegister> = (data) => {
     changeData(data);
-    //   mutation.mutate({
-    //     email: data.email,
-    //     password: data.password,
-    //     name: data.name,
-    //   });
+    onFormSubmit(data);
   };
 
-  console.log(dataStore);
-
-  // const handleClickButton = () => {
-  //   if (buttonRef.current) {
-  //     buttonRef.current.click();
-  //   }
-  // };
-
-  // const queryClient = useQueryClient();
-
-  // const mutation = useMutation({
-  //   mutationFn: createUserFn,
-  //   onSuccess: () => {
-  //     // Invalidate and refetch
-  //     queryClient.invalidateQueries({ queryKey: ["register"] });
-  //   },
-  // });
+  useEffect(() => {
+    changeFormValidity(Object.keys(errors).length === 0);
+  }, [errors, changeFormValidity]);
 
   return (
     <div className="">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex">
           <div className="flex flex-col text-black">
-            {(errors.name || errors.email || errors.password) && (
-              <p className="mb-2 text-yellow-400">Preencha todos os campos</p>
+            {errors.name && (
+              <p className="mb-2 text-yellow-400">Preencha o campo Nome</p>
             )}
             <input
               className="mb-4 rounded border p-2"
@@ -70,18 +57,26 @@ const SignIn: React.FC<ChildComponentProps> = ({ buttonRef }) => {
               {...register("name", { required: true })}
             />
 
+            {errors.email && (
+              <p className="mb-2 text-yellow-400">Preencha o campo Email</p>
+            )}
             <input
               className="mb-4 rounded border p-2"
               placeholder="Email"
               type="email"
               {...register("email", { required: true })}
             />
+
+            {errors.password && (
+              <p className="mb-2 text-yellow-400">Preencha o campo Senha</p>
+            )}
             <input
               className="rounded border p-2"
               placeholder="Senha"
               type={showPass ? "text" : "password"}
               {...register("password", { required: true })}
             />
+
             <div className="mb-2 flex items-center text-white">
               <input className="mr-2" type="checkbox" id="pass" name="pass" />
               <label
@@ -92,7 +87,6 @@ const SignIn: React.FC<ChildComponentProps> = ({ buttonRef }) => {
               </label>
             </div>
 
-            {/*@ts-ignore */}
             <button ref={buttonRef} style={{ display: "none" }} type="submit">
               Button 2
             </button>

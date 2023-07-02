@@ -51,6 +51,11 @@ export class AppController {
     return this.authService.login(req.user);
   }
 
+  @Get("auth/:id")
+  getStatus(@Param("id") id: string) {
+    return this.usersService.getStatus(+id);
+  }
+
   @Post("auth/updateStatus")
   updateStatus(@Body() updateStatusDto: UpdateStatusDto) {
     return this.usersService.updateStatus(updateStatusDto);

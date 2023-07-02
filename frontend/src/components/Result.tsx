@@ -9,6 +9,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
   const [rating, setRating] = useState(-1);
   const [hoveredRating, setHoveredRating] = useState(-1);
   const [hasRated, SetHasRated] = useState(false);
+  const [hasLeveledUp, setHasLeveledUp] = useState();
   //   const [showResult, setShowResult] = useState(false);
   console.log("questions");
   console.log(questions);
@@ -34,7 +35,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
       try {
         const response = await axios({
           method: "post",
-          url: `https://question-and-answer-game-production.up.railway.app/questions/rightAnswers`,
+          url: `http://localhost:5000/questions/rightAnswers`,
           data: {
             chosenAnswers,
             //@ts-ignore
@@ -59,8 +60,12 @@ const Result = ({ chosenAnswers, questions }: any) => {
 
         // setShowResult(true);
 
-        const resp = response.data.map((item: any) => item.id);
+        const resp = response.data.result.map((item: any) => item.id);
         const ans = chosenAnswers.map((item: any) => item.answerId);
+
+        console.log("resp.data");
+        console.log(response.data);
+        setHasLeveledUp(response.data);
 
         setAnswers(ans);
 
@@ -151,7 +156,8 @@ const Result = ({ chosenAnswers, questions }: any) => {
     setRating(index);
   };
 
-  console.log(rating);
+  //@ts-ignore
+  console.log(hasLeveledUp);
 
   return (
     <div className="mx-auto mt-16 w-96 text-center">

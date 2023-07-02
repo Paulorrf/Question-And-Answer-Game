@@ -3,6 +3,9 @@ import React from "react";
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout";
+import Portal from "../../../../assets/portal3.png";
+// import Portal from "../../../../assets/portal_img.png";
+import Image from "next/image";
 
 type Repo = {
   name: string;
@@ -39,7 +42,10 @@ const Page = ({
                 <Link
                   href={`/portais/especificos/${router.query.slug}/${portal.name}`}
                 >
-                  <div className="h-40 w-40 rounded-full border bg-red-600"></div>
+                  {/* <div className="h-40 w-40 rounded-full border bg-red-600"></div> */}
+                  <div className="relative">
+                    <Image src={Portal} alt="portal" width={200} />
+                  </div>
                 </Link>
               </div>
             );

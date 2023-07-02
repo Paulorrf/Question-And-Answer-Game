@@ -72,6 +72,29 @@ export class UsersService {
     }
   }
 
+  async getStatus(id: number) {
+    try {
+      const status = await this.prisma.user_data.findFirst({
+        where: {
+          id,
+        },
+        select: {
+          character: {
+            select: {
+              status: true,
+            },
+          },
+        },
+      });
+
+      return status;
+    } catch (error) {
+      console.log(error);
+      console.log("error");
+      return null;
+    }
+  }
+
   async updateStatus(updateStatusDto: UpdateStatusDto) {
     console.log("status recebidos");
     console.log(updateStatusDto);

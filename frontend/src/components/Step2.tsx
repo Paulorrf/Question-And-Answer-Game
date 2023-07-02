@@ -1,20 +1,16 @@
+// Step2.tsx
+
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
+
 import Elf from "../assets/elf_game.png";
 import Orc from "../assets/orc_game.png";
 import Human from "../assets/human_game.png";
-// import Elf from "../assets/elf.jpg";
-// import Orc from "../assets/orc.png";
-// import Human from "../assets/human.jpg";
-import signInStore from "@/store/signInStore";
-import { createUserFn } from "@/api/register";
-import { useRouter } from "next/router";
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import Image from "next/image";
 
-interface ChildComponentProps {
-  changeFormValidity: (isValid: boolean) => void;
-}
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { createUserFn } from "@/api/register";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 
 const races = [
   {
@@ -49,12 +45,36 @@ const races = [
   },
 ];
 
-const SlideShow: React.FC<ChildComponentProps> = ({ changeFormValidity }) => {
+const Step2 = ({
+  formData,
+  onChange,
+  onPrev,
+  onSubmit,
+}: {
+  formData: any;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  onPrev: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}) => {
+  // Slideshow logic and image state goes here
+  const [currentImage, setCurrentImage] = React.useState(0);
   const [focusedIndex, setFocusedIndex] = useState(0);
 
   const router = useRouter();
 
-  const dataStore = signInStore((state) => state.data);
+  const images = [Elf, Orc, Human];
+
+  const handlePrevImage = () => {
+    setCurrentImage(
+      (prevImage) => (prevImage - 1 + images.length) % images.length
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImage((prevImage) => (prevImage + 1) % images.length);
+  };
 
   const changeFocus = (index: number) => {
     setFocusedIndex(index);
@@ -90,10 +110,11 @@ const SlideShow: React.FC<ChildComponentProps> = ({ changeFormValidity }) => {
     // } else {
     //   race = "humano";
     // }
-
+    //
     // console.log(race);
+    //descomentar se quiser salvar no banco
     mutation.mutate({
-      data: dataStore,
+      data: formData,
       character: {
         race: races[focusedIndex].name,
         status: races[focusedIndex].status,
@@ -101,13 +122,13 @@ const SlideShow: React.FC<ChildComponentProps> = ({ changeFormValidity }) => {
     });
   }
 
-  console.log(dataStore);
+  console.log(formData);
 
   return (
-    <div className="relative">
-      <div className="flex h-64 w-full items-center justify-center">
+    <div className="">
+      <div className="">
         <div>
-          <h3 className="mt-8 text-center font-bold">ESCOLHA A SUA RAÇA</h3>
+          <h3 className="text-center font-bold">ESCOLHA A SUA RAÇA</h3>
           {races.map((race, index) => (
             <div key={index} className={index === focusedIndex ? "" : "hidden"}>
               <div className="flex items-center">
@@ -176,4 +197,4 @@ const SlideShow: React.FC<ChildComponentProps> = ({ changeFormValidity }) => {
   );
 };
 
-export default SlideShow;
+export default Step2;

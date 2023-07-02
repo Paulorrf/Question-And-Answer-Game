@@ -234,6 +234,7 @@ export class QuestionsService {
               body: true,
               description_right_answer: true,
               situation: true,
+              id: true,
               answer: {
                 select: {
                   body: true,
@@ -392,6 +393,7 @@ export class QuestionsService {
 
   async findRightAnswers(answers: any) {
     console.log(answers);
+
     try {
       const questionIds = answers.chosenAnswers.map((question: any) => {
         return question.questionId;
@@ -440,6 +442,9 @@ export class QuestionsService {
         (answer, index) => answer.id === answerIds[index]
       );
 
+      console.log("result");
+      console.log(result);
+
       const userData = await this.prisma.user_data.findUnique({
         where: {
           id: answers.userId,
@@ -451,16 +456,18 @@ export class QuestionsService {
         },
       });
 
-      const easy = 3;
-      const normal = 6;
-      const hard = 10;
-      const very_hard = 16;
+      const easy = 100;
+      const normal = 150;
+      const hard = 200;
+      const very_hard = 250;
 
       function calculateLevel(
         experiencePoints: number,
-        experienceThreshold: number
+        experienceThreshold: number,
+        currentLevel: number
       ) {
-        const level = Math.floor(experiencePoints / experienceThreshold) + 1;
+        const level =
+          currentLevel + Math.floor(experiencePoints / experienceThreshold);
         const remainingExperience =
           experienceThreshold - (experiencePoints % experienceThreshold);
         const experienceTowardsNextLevel =
@@ -483,16 +490,16 @@ export class QuestionsService {
 
       switch (set_data.question_set.difficulty) {
         case "easy":
-          totalExp = answersReturned.length * easy;
+          totalExp = result.length * easy;
           break;
         case "normal":
-          totalExp = answersReturned.length * normal;
+          totalExp = result.length * normal;
           break;
         case "hard":
-          totalExp = answersReturned.length * hard;
+          totalExp = result.length * hard;
           break;
         case "very_hard":
-          totalExp = answersReturned.length * very_hard;
+          totalExp = result.length * very_hard;
           break;
         default:
           totalExp = 0;
@@ -500,7 +507,14 @@ export class QuestionsService {
 
       // const currentLevel = calculateLevel(totalExp, experienceThreshold);
       const newExperience = userData.experience + totalExp;
-      const currentLevel = calculateLevel(newExperience, experienceThreshold);
+      const currentLevel = calculateLevel(
+        newExperience,
+        experienceThreshold,
+        userData.nivel
+      );
+
+      console.log("currentLevel");
+      console.log(currentLevel);
 
       // const updatedUser = await this.prisma.user_data.update({
       //   where: {
@@ -513,6 +527,7 @@ export class QuestionsService {
       //   },
       // });
       let updatedUser = {};
+      let hasLevelUp = false;
 
       if (newExperience >= experienceThreshold) {
         const remainingExperience = newExperience - experienceThreshold;
@@ -523,7 +538,8 @@ export class QuestionsService {
         if (remainingExperience >= nextLevelThreshold) {
           const nextLevel = calculateLevel(
             remainingExperience,
-            nextLevelThreshold
+            nextLevelThreshold,
+            currentLevel.level + 1
           );
 
           updatedUser = await this.prisma.user_data.update({
@@ -532,20 +548,28 @@ export class QuestionsService {
             },
             data: {
               nivel: nextLevel.level,
-              experience: nextLevel.experienceTowardsNextLevel,
+              experience: remainingExperience,
               status_point_remain: userData.status_point_remain + 2,
             },
           });
+
+          hasLevelUp = true;
         } else {
+          const updatedExperience =
+            currentLevel.experienceTowardsNextLevel + remainingExperience;
+
           updatedUser = await this.prisma.user_data.update({
             where: {
               id: answers.userId,
             },
             data: {
               nivel: currentLevel.level,
-              experience: remainingExperience,
+              experience: updatedExperience,
+              status_point_remain: userData.status_point_remain + 2,
             },
           });
+
+          hasLevelUp = true;
         }
       } else {
         updatedUser = await this.prisma.user_data.update({
@@ -567,7 +591,13 @@ export class QuestionsService {
 
       // console.log("questoes acertadas");
       // console.log(result);
-      return result;
+      // return { ...result, hasLevelUp };
+      //@ts-ignore
+      // return result;
+      return {
+        result,
+        hasLevelUp,
+      };
     } catch (error) {
       console.log(error);
       return "deu ruim em findRightAnswers";
