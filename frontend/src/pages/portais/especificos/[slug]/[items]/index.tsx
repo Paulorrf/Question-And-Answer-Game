@@ -51,17 +51,17 @@ const RatingDisplay = ({ rating }: { rating: number }) => {
     const stars = [];
 
     // Render full stars
-    for (let i = 0; i < fullStars; i++) {
+    for (let i = 0; i < Math.floor(rating); i++) {
       stars.push(<BsStarFill key={`star-${i}`} />);
     }
 
     // Render half star if applicable
-    if (decimalPart >= 0.25 && decimalPart <= 0.75) {
+    if (rating % 1 >= 0.25 && rating % 1 <= 0.75) {
       stars.push(<BsStarHalf key="half-star" />);
     }
 
     // Render empty stars
-    const emptyStars = 5 - fullStars; // Calculate the number of empty stars
+    const emptyStars = Math.max(5 - Math.ceil(rating), 0);
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<BsStar key={`empty-star-${i}`} />);
     }
