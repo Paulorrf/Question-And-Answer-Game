@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Result from "./Result";
+import DeathModal from "./DeathModal";
 
 type Answer = {
   body: string;
@@ -10,6 +11,9 @@ type Question = {
   id: number;
   question: string;
   body: string;
+  question_set: {
+    difficulty: string;
+  };
   answers: Answer[];
 };
 
@@ -26,10 +30,17 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [chosenAnswers, setChosenAnswers] = useState<ChosenAnswer[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [difficulty, setDifficulty] = useState(
+    questions[0].question_set.difficulty
+  );
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   console.log("question");
   console.log("question");
-  console.log(questions);
+  console.log(difficulty);
   console.log("question");
 
   const handleAnswerClick = (questionId: number, answerId: number) => {
@@ -71,9 +82,10 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
 
     return (
       <div key={id} className="flex flex-col items-center">
-        <h2 className="mb-8 border border-black bg-gray-800 p-4 text-xl font-bold text-white">
+        <h2 className="mb-8 border border-black bg-black bg-opacity-75 p-4 text-xl font-bold text-white">
           {question.body}
         </h2>
+
         {answers.map((answer) => (
           <div
             key={answer.id}
@@ -135,11 +147,17 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
     <div className="container mx-auto mt-24">
       {!showResults ? (
         <>
+          {isModalOpen && <DeathModal onClose={closeModal} />}
+
           {renderQuestion(questions[currentQuestion])}
           {renderNavigationButtons()}
         </>
       ) : (
-        <Result chosenAnswers={chosenAnswers} questions={questions} />
+        <Result
+          chosenAnswers={chosenAnswers}
+          questions={questions}
+          difficulty={difficulty}
+        />
       )}
     </div>
   );

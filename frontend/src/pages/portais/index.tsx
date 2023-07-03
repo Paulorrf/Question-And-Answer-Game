@@ -4,6 +4,7 @@ import type { InferGetStaticPropsType, GetStaticProps } from "next";
 import Layout from "@/components/Layout";
 import Portal from "../../assets/portal3.png";
 import Image from "next/image";
+import Slider from "react-slick";
 
 export const getStaticProps: GetStaticProps<{
   portais: Array<{ id: number; name: string }>;
@@ -18,62 +19,79 @@ export const getStaticProps: GetStaticProps<{
 const Portais = ({
   portais,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const slidesToShow = 5; // Number of slides to show at a time
+  console.log(portais);
 
-  const handleNextSlide = () => {
-    setCurrentSlide((prevSlide) => (prevSlide + 1) % portais.length);
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 5,
+    slidesToScroll: 1,
   };
-
-  const handlePrevSlide = () => {
-    setCurrentSlide((prevSlide) =>
-      prevSlide === 0 ? portais.length - 1 : prevSlide - 1
-    );
-  };
-
-  const translateX = `calc(-100% / ${slidesToShow} * ${currentSlide})`;
 
   return (
     <Layout>
-      <div className="relative">
-        <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-center text-white">
-          <div className="overflow-hidden">
-            <ul
-              className="flex transition-transform duration-300 ease-in-out"
-              style={{ transform: `translateX(${translateX})` }}
-            >
-              {portais.map((portal) => (
-                <li key={portal.id} className="w-56">
-                  <p>{portal.name}</p>
-                  <Link href={`/portais/especificos/${portal.name}`}>
-                    <Image src={Portal} alt="portal" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 transform">
-          {currentSlide !== 0 && (
-            <button
-              className="rounded-full bg-gray-500 p-2 text-white"
-              onClick={handlePrevSlide}
-            >
-              Prev
-            </button>
-          )}
-          {currentSlide !== portais.length - slidesToShow && (
-            <button
-              className="rounded-full bg-gray-500 p-2 text-white"
-              onClick={handleNextSlide}
-            >
-              Next
-            </button>
-          )}
-        </div>
+      <div className="mx-auto mt-36 w-[1200px] text-white">
+        <Slider {...settings}>
+          {portais.map((portal, index) => (
+            <div key={index} className="text-center">
+              <h3>{portal.name.toUpperCase()}</h3>
+
+              <Link href={`/portais/especificos/${portal.name}`}>
+                <Image
+                  src={Portal}
+                  className="h-[250px] w-[220px] object-cover"
+                  alt={`Image ${index + 1}`}
+                />
+              </Link>
+            </div>
+          ))}
+        </Slider>
       </div>
     </Layout>
   );
+
+  // return (
+  //   <Layout>
+  //     <div className="relative">
+  //       <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-center text-white">
+  //         <div className="overflow-hidden">
+  //           <ul
+  //             className="flex transition-transform duration-300 ease-in-out"
+  //             style={{ transform: `translateX(${translateX})` }}
+  //           >
+  //             {portais.map((portal) => (
+  //               <li key={portal.id} className="w-56">
+  //                 <p>{portal.name}</p>
+  //                 <Link href={`/portais/especificos/${portal.name}`}>
+  //                   <Image src={Portal} alt="portal" />
+  //                 </Link>
+  //               </li>
+  //             ))}
+  //           </ul>
+  //         </div>
+  //       </div>
+  //       <div className="absolute right-0 top-1/2 -translate-y-1/2 transform">
+  //         {currentSlide !== 0 && (
+  //           <button
+  //             className="rounded-full bg-gray-500 p-2 text-white"
+  //             onClick={handlePrevSlide}
+  //           >
+  //             Prev
+  //           </button>
+  //         )}
+  //         {currentSlide !== portais.length - slidesToShow && (
+  //           <button
+  //             className="rounded-full bg-gray-500 p-2 text-white"
+  //             onClick={handleNextSlide}
+  //           >
+  //             Next
+  //           </button>
+  //         )}
+  //       </div>
+  //     </div>
+  //   </Layout>
+  // );
 };
 
 export default Portais;

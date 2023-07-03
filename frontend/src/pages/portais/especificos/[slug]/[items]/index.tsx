@@ -25,11 +25,16 @@ const difficultyMap: Record<string, string> = {
   very_hard: "Muito Difícil",
 };
 
+const difficultyColorMap: Record<string, string> = {
+  easy: "text-green-600",
+  normal: "text-sky-400",
+  hard: "text-amber-600",
+  very_hard: "text-red-600",
+};
+
 export const getServerSideProps: GetServerSideProps<{
   repo: Repo[];
 }> = async ({ query }) => {
-  // console.log("query2222");
-  // console.log(query);
   const res = await axios({
     method: "post",
     url: `https://question-and-answer-game-production.up.railway.app/questions/findTen`,
@@ -38,7 +43,6 @@ export const getServerSideProps: GetServerSideProps<{
     },
   });
 
-  console.log(res.data);
   const repo = await res.data;
   return { props: { repo } };
 };
@@ -73,8 +77,8 @@ const RatingDisplay = ({ rating }: { rating: number }) => {
 };
 
 function question(item: any, path: any, data: any) {
-  console.log(item);
   const difficulty = difficultyMap[item.difficulty];
+  const difficultyColor = difficultyColorMap[item.difficulty]; // Get the color class based on the difficulty level
   const condition =
     Array.isArray(data.availables) &&
     //@ts-ignore
@@ -82,11 +86,7 @@ function question(item: any, path: any, data: any) {
       (d: string) =>
         d.toLowerCase().replace(/ /g, "_") === item.difficulty.toLowerCase()
     );
-  // data.availables.some((d: string) => item.difficulty.includes(d));
 
-  console.log(Array.isArray(data.availables));
-  console.log(data.availables);
-  console.log(item.difficulty);
   return (
     <div key={item.id}>
       {condition ? (
@@ -106,10 +106,10 @@ function question(item: any, path: any, data: any) {
             </div>
             <div className="flex justify-between">
               <div>
-                <h2 className="text-green-600">{item.description}</h2>
+                <h2 className={difficultyColor}>{item.description}</h2>
               </div>
               <div>
-                <h2 className="text-green-600">{difficulty}</h2>
+                <h2 className={difficultyColor}>{difficulty}</h2>
               </div>
             </div>
             <p>{item.body}</p>
@@ -120,11 +120,6 @@ function question(item: any, path: any, data: any) {
                 </h2>
               </div>
               <div className="flex items-center">
-                {/* <BsStarFill />
-                <BsStarFill />
-                <BsStarFill />
-                <BsStarFill />
-                <BsStarFill /> */}
                 <RatingDisplay rating={item.rating} />
                 <p className="ml-2">{item.rating}</p>
               </div>
@@ -147,10 +142,10 @@ function question(item: any, path: any, data: any) {
             </div>
             <div className="flex justify-between">
               <div>
-                <h2 className="text-green-600">{item.description}</h2>
+                <h2 className={difficultyColor}>{item.description}</h2>
               </div>
               <div>
-                <h2 className="text-green-600">{difficulty}</h2>
+                <h2 className={difficultyColor}>{difficulty}</h2>
               </div>
             </div>
             <p>{item.body}</p>
@@ -161,12 +156,6 @@ function question(item: any, path: any, data: any) {
                 </h2>
               </div>
               <div className="flex items-center">
-                {/* <BsStarFill />
-                <BsStarFill />
-                <BsStarFill />
-                <BsStarFill />
-                <BsStarFill />
-                <p className="ml-2">{item.rating}</p> */}
                 <RatingDisplay rating={item.rating} />
                 <p className="ml-2">{item.rating}</p>
               </div>
@@ -180,7 +169,6 @@ function question(item: any, path: any, data: any) {
 }
 
 const Page = ({ repo }: any) => {
-  // const [userStatus, setUserStatus] = useState();
   const [data, setData] = useState<any>();
   const [isOpen, setIsOpen] = useState(false);
   const [newStatus, setNewStatus] = useState<any>();
@@ -193,12 +181,9 @@ const Page = ({ repo }: any) => {
     setIsOpen(false);
   };
 
-  console.log(repo);
   const router = useRouter();
 
   const path = router.asPath;
-
-  console.log(router.query.slug);
 
   let userStatus: any;
   let userId: any;
@@ -208,44 +193,7 @@ const Page = ({ repo }: any) => {
     userStatus = decode(localStorage?.getItem("user")).status;
     //@ts-ignore
     userId = decode(localStorage?.getItem("user")).sub;
-    // setUserStatus(status);
   }
-
-  // useEffect(() => {
-  //   const cancelTokenSource = axios.CancelToken.source();
-
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await axios({
-  //         method: "post",
-  //         url: `http://localhost:5000/portal/requirements`,
-  //         data: {
-  //           userStatus,
-  //           portal_name: router.query.slug,
-  //         },
-  //         cancelToken: cancelTokenSource.token,
-  //       });
-
-  //       setData(response.data);
-
-  //       // Process the response
-  //     } catch (error) {
-  //       if (axios.isCancel(error)) {
-  //         //   console.log("Request canceled:", error.message);
-  //       } else {
-  //         // Handle other errors
-  //       }
-  //     }
-  //   };
-
-  //   fetchData();
-
-  //   return () => {
-  //     // Cancel the request when the component unmounts
-  //     cancelTokenSource.cancel("Request canceled due to component unmount.");
-  //   };
-  //   // eslint-disable-next-line
-  // }, []);
 
   useEffect(() => {
     const cancelTokenSource = axios.CancelToken.source();
@@ -274,11 +222,9 @@ const Page = ({ repo }: any) => {
         const data1 = response1.data;
 
         setData(data1);
-
-        // Process the responses as needed
       } catch (error) {
         if (axios.isCancel(error)) {
-          // console.log("Request canceled:", error.message);
+          console.log("Request canceled:", error.message);
         } else {
           // Handle other errors
         }
@@ -291,17 +237,12 @@ const Page = ({ repo }: any) => {
       // Cancel the request when the component unmounts
       cancelTokenSource.cancel("Request canceled due to component unmount.");
     };
-    // eslint-disable-next-line
   }, []);
-
-  console.log(newStatus);
-  console.log(repo);
-  // console.log(router.query.slug);
 
   return (
     <Layout>
       <div className="mt-8 overflow-hidden text-white">
-        <div className="fixed left-0 top-0 z-10 h-screen w-screen bg-slate-800"></div>
+        <div className="fixed left-0 top-0 z-10 h-screen w-screen"></div>
         <div className="relative z-20 mx-auto mt-16 max-h-screen w-3/4 overflow-y-auto px-8 child:mb-2">
           <button className="btn-primary" onClick={() => setIsOpen(true)}>
             Status Necessários Por Dificuldade

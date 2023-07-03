@@ -4,13 +4,14 @@ import { decode } from "jsonwebtoken";
 import { BsStarFill } from "react-icons/bs";
 import { useRouter } from "next/router";
 
-const Result = ({ chosenAnswers, questions }: any) => {
+const Result = ({ chosenAnswers, questions, difficulty }: any) => {
   const [correctAnswers, setCorrectAnswers] = useState<any>([]);
   const [answers, setAnswers] = useState<any>([]);
   const [rating, setRating] = useState(-1);
   const [hoveredRating, setHoveredRating] = useState(-1);
   const [hasRated, SetHasRated] = useState(false);
   const [hasLeveledUp, setHasLeveledUp] = useState();
+  const [wrongQuestionsCount, setWrongQuestionsCount] = useState(0);
   //   const [showResult, setShowResult] = useState(false);
 
   const router = useRouter();
@@ -79,6 +80,24 @@ const Result = ({ chosenAnswers, questions }: any) => {
         setAnswers(ans);
 
         setCorrectAnswers(resp);
+
+        const wrongCount = chosenAnswers.reduce(
+          (count: number, answer: any) =>
+            !resp.includes(answer.answerId) ? count + 1 : count,
+          0
+        );
+
+        const response2 = await axios({
+          method: "post",
+          url: `http://localhost:5000/auth/losestatus`,
+          data: {
+            quantityWrongAnswers: wrongCount,
+            //@ts-ignore
+            userId: Number(decode(localStorage?.getItem("user")).sub),
+          },
+          // cancelToken: cancelTokenSource.token,
+        });
+        setWrongQuestionsCount(response2.data);
 
         // Process the response
       } catch (error) {
@@ -166,7 +185,7 @@ const Result = ({ chosenAnswers, questions }: any) => {
   };
 
   //@ts-ignore
-  console.log(hasLeveledUp);
+  console.log(wrongQuestionsCount);
 
   return (
     <div className="mx-auto mt-16 w-96 text-center">
@@ -177,6 +196,11 @@ const Result = ({ chosenAnswers, questions }: any) => {
           ? `${correctAnswers.length} RESPOSTA`
           : `${correctAnswers.length} RESPOSTAS`}
       </p>
+      {difficulty === "very_hard" && (
+        <p className="mb-4 font-bold text-red-600">
+          VOCÊ PERDEU {wrongQuestionsCount} PONTOS DE STATUS.
+        </p>
+      )}
       <div className="mb-4">
         <div>
           {hasRated ? (

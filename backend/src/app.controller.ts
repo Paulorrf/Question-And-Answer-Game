@@ -14,6 +14,7 @@ import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 import { LocalAuthGuard } from "./auth/local-auth.guard";
 import { AuthGuard } from "@nestjs/passport";
 import { UpdateStatusDto } from "./users/dto/update-status-dto";
+import { LostStatus } from "./users/dto/lostStatus-user-dto";
 
 @Controller()
 export class AppController {
@@ -54,6 +55,11 @@ export class AppController {
   @Get("auth/:id")
   getStatus(@Param("id") id: string) {
     return this.usersService.getStatus(+id);
+  }
+
+  @Post("auth/losestatus")
+  lostStatusBasedOnWrongAnswers(@Body() lostStatus: LostStatus) {
+    return this.usersService.lostStatusBasedOnWrongAnswers(lostStatus);
   }
 
   @Post("auth/updateStatus")

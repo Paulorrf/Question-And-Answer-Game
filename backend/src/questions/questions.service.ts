@@ -344,7 +344,16 @@ export class QuestionsService {
         where: {
           question_set_id: id,
         },
+        include: {
+          question_set: {
+            select: {
+              difficulty: true,
+            },
+          },
+        },
       });
+
+      console.log(questions);
 
       const questions_ids = questions.map((question) => question.id);
 
@@ -371,6 +380,7 @@ export class QuestionsService {
       }
 
       return questions;
+      // return {questions, difficulty:questions.[0]};
     } catch (error) {
       console.log(error);
       return "deu ruim ao achar as questoes";

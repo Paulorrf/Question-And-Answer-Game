@@ -18,6 +18,7 @@ type Repo = {
   question_set_id: number;
   situation: "active";
   user_data_id: number;
+  difficulty: string;
   answers: Answer[];
 };
 
@@ -27,7 +28,7 @@ export const getServerSideProps: GetServerSideProps<{
   // console.log("query");
   // console.log(query);
   const res = await fetch(
-    `https://question-and-answer-game-production.up.railway.app/questions/questions/${query.question}`
+    `http://localhost:5000/questions/questions/${query.question}`
   );
   const repo = await res.json();
   return { props: { repo } };
