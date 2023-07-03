@@ -33,7 +33,9 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
   const [difficulty, setDifficulty] = useState(
     questions[0].question_set.difficulty
   );
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(
+    questions[0].question_set.difficulty === "very_hard"
+  );
   const closeModal = () => {
     setIsModalOpen(false);
   };

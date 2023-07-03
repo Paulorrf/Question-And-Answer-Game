@@ -281,30 +281,24 @@ const QuestionOptions = () => {
         </div>
       </div>
       <div>
-        <h3 className="mb-4 text-center font-bold">
-          {"Adicione um titulo".toUpperCase()}
-        </h3>
         <div>
           <input
             type="text"
-            className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="mb-2 h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
             ref={inputRefTitle}
             onChange={handleTitleInput}
-            placeholder="Título"
+            placeholder="Adicione um titulo"
           />
         </div>
       </div>
       <div>
-        <h3 className="mb-4 text-center font-bold">
-          {"Adicione uma descrição".toUpperCase()}
-        </h3>
         <div>
           <input
             type="text"
-            className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="mb-2 h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
             ref={inputRefDesc}
             onChange={handleDescInput}
-            placeholder="Descrição"
+            placeholder="Adicione uma descrição"
           />
         </div>
       </div>
@@ -323,9 +317,9 @@ const QuestionOptions = () => {
                 onChange={handleGenericChange}
                 placeholder="ex: biologia"
               />
-              <div className="-ml-1" onClick={handleAddGeneric}>
+              {/* <div className="-ml-1" onClick={handleAddGeneric}>
                 <BsArrowRightSquareFill size={32} />
-              </div>
+              </div> */}
               <div>
                 {genericTags.length > 0 && (
                   <ul className="flex">

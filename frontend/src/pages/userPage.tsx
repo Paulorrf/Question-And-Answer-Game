@@ -21,7 +21,7 @@ interface User {
 
 const UserPage = () => {
   const userId = useRef<number | undefined>(undefined);
-  const [activeTab, setActiveTab] = useState("tab1");
+  const [activeTab, setActiveTab] = useState("tab2");
   //   const userInfo = useRef<null | any>();
   const [userInfo, setUserInfo] = useState<any | null>(null);
 
@@ -84,17 +84,7 @@ const UserPage = () => {
     <Layout>
       <div className="mx-auto mt-16 w-[600px] p-4 text-white">
         <div className="mb-4 flex justify-center">
-          <button
-            className={`mr-4 rounded px-4 py-2 ${
-              activeTab === "tab1"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-black"
-            }`}
-            onClick={() => handleTabClick("tab1")}
-          >
-            Informações
-          </button>
-          <button
+          <div
             className={`rounded px-4 py-2 ${
               activeTab === "tab2"
                 ? "bg-blue-500 text-white"
@@ -102,25 +92,18 @@ const UserPage = () => {
             }`}
             onClick={() => handleTabClick("tab2")}
           >
-            Personagem
-          </button>
+            PERSONAGEM
+          </div>
         </div>
         <div className="rounded-lg bg-slate-800 p-4">
-          {activeTab === "tab1" && (
-            <div>
-              <UserInfo userId={user.sub} />
-            </div>
-          )}
-          {activeTab === "tab2" && (
-            <div>
-              <CharacterStatus
-                characterInfo={userInfo.character}
-                statusPointRemaining={userInfo.status_point_remain}
-                email={user.email}
-                nivel={userInfo.nivel}
-              />
-            </div>
-          )}
+          <div>
+            <CharacterStatus
+              characterInfo={userInfo.character}
+              statusPointRemaining={userInfo.status_point_remain}
+              email={user.email}
+              nivel={userInfo.nivel}
+            />
+          </div>
         </div>
       </div>
     </Layout>

@@ -17,10 +17,10 @@ const races = [
     name: "orc",
     img: Orc,
     status: {
-      strength: 4,
+      strength: 10,
       intelligence: 1,
-      agility: 3,
-      luck: 1,
+      agility: 7,
+      luck: 3,
     },
   },
   {
@@ -28,19 +28,19 @@ const races = [
     img: Elf,
     status: {
       strength: 2,
-      intelligence: 5,
-      agility: 2,
-      luck: 1,
+      intelligence: 2,
+      agility: 10,
+      luck: 2,
     },
   },
   {
     name: "humano",
     img: Human,
     status: {
-      strength: 3,
-      intelligence: 3,
-      agility: 3,
-      luck: 3,
+      strength: 4,
+      intelligence: 4,
+      agility: 4,
+      luck: 4,
     },
   },
 ];

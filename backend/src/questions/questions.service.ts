@@ -607,7 +607,7 @@ export class QuestionsService {
             data: {
               nivel: currentLevel.level,
               experience: updatedExperience,
-              status_point_remain: userData.status_point_remain + 2,
+              status_point_remain: userData.status_point_remain + 5,
             },
           });
 
