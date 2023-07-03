@@ -202,7 +202,7 @@ const Page = ({ repo }: any) => {
       try {
         const response2 = await axios({
           method: "get",
-          url: `http://localhost:5000/auth/${userId}`,
+          url: `https://question-and-answer-game-production.up.railway.app/auth/${userId}`,
         });
 
         const data2 = response2.data;
@@ -211,7 +211,7 @@ const Page = ({ repo }: any) => {
 
         const response1 = await axios({
           method: "post",
-          url: `http://localhost:5000/portal/requirements`,
+          url: `https://question-and-answer-game-production.up.railway.app/portal/requirements`,
           data: {
             userStatus: data2.character.status,
             portal_name: router.query.slug,

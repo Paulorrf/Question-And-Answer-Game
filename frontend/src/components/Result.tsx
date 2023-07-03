@@ -45,7 +45,7 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
       try {
         const response = await axios({
           method: "post",
-          url: `http://localhost:5000/questions/rightAnswers`,
+          url: `https://question-and-answer-game-production.up.railway.app/questions/rightAnswers`,
           data: {
             chosenAnswers,
             //@ts-ignore
@@ -89,7 +89,7 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
 
         const response2 = await axios({
           method: "post",
-          url: `http://localhost:5000/auth/losestatus`,
+          url: `https://question-and-answer-game-production.up.railway.app/auth/losestatus`,
           data: {
             quantityWrongAnswers: wrongCount,
             //@ts-ignore
@@ -156,7 +156,7 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:5000/questions/rating/${questions[0].question_set_id}/rating`,
+        `https://question-and-answer-game-production.up.railway.app/questions/rating/${questions[0].question_set_id}/rating`,
         { rating }
       );
       SetHasRated(true);

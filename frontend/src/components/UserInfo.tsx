@@ -64,7 +64,7 @@ const UserInfo = ({ userId }: UserInfoProps) => {
       try {
         if (userId) {
           const response = await axios.get(
-            `http://localhost:5000/questions/findbymail/${userId}`
+            `https://question-and-answer-game-production.up.railway.app/questions/findbymail/${userId}`
           );
           setQuestionSetInfo(response.data);
         }

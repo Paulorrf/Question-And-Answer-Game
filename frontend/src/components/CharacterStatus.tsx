@@ -101,7 +101,7 @@ const CharacterStatus = ({
       axios({
         method: "post",
         //@ts-ignore
-        url: `http://localhost:5000/auth/updateStatus`,
+        url: `https://question-and-answer-game-production.up.railway.app/auth/updateStatus`,
         // url: `https://question-and-answer-game-production.up.railway.app/auth/updateStatus`,
         data: {
           agility: agilityPoints,

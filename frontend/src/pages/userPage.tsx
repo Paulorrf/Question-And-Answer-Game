@@ -56,7 +56,7 @@ const UserPage = () => {
         method: "get",
         //@ts-ignore
         // url: `https://question-and-answer-game-production.up.railway.app/auth/${user.sub}`,
-        url: `http://localhost:5000/auth/${user.sub}`,
+        url: `https://question-and-answer-game-production.up.railway.app/auth/${user.sub}`,
       });
 
       //   userInfo.current = userData.data;
