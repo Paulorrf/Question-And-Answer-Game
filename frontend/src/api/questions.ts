@@ -16,7 +16,7 @@ interface Question {
 export async function createQuestionFn(data: any) {
   const questions = await axios({
     method: "post",
-    url: "https://question-and-answer-game-production.up.railway.app/questions",
+    url: "https://question-and-answer-game-production.up.railway.app/questions/create",
     data: {
       data,
     },

@@ -156,13 +156,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, questionSet }) => {
               type="submit"
               className="mr-2 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
             >
-              Submit
+              Enviar
             </button>
             <button
               className="rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
               onClick={closeModal}
             >
-              Cancel
+              Fechar
             </button>
           </div>
         </form>

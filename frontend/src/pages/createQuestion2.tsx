@@ -19,7 +19,8 @@ function CreateQuestion2() {
   initializeStores();
 
   //eslint-disable-next-line
-  const arr2 = [<QuestionOptions />, <CreateQuestionForm />];
+  //@ts-ignore
+  const arr2 = [<QuestionOptions key={0} />, <CreateQuestionForm key={1} />];
 
   //@ts-ignore
   const questions = questionStore((state) => state.questions);

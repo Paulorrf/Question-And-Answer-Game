@@ -14,9 +14,13 @@ export class PortalService {
   async findAllGeneric() {
     try {
       const portals = await this.prisma.portal.findMany({});
+      console.log("entrou");
 
       return portals;
-    } catch (error) {}
+    } catch (error) {
+      console.log("procurou portal erro");
+      console.log(error);
+    }
   }
 
   async findAllSpecific(name: string) {

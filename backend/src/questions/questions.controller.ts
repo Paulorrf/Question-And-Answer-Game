@@ -16,7 +16,7 @@ import { ValidationPipe } from "src/utils/validation.pipe";
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
-  @Post()
+  @Post("/create")
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionsService.create(createQuestionDto);
   }

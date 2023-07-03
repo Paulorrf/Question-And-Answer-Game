@@ -84,6 +84,7 @@ const CreateQuestionForm = () => {
   useEffect(() => {
     //manda dados das questoes pro backend
     if (quantity === totalQuantity) {
+      console.log("entrou-kle");
       mutation.mutate({
         question_set: {
           title: setTitle,

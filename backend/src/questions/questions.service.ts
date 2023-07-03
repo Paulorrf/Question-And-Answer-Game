@@ -16,10 +16,11 @@ export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createQuestionDto: CreateQuestionDto) {
+    console.log("questionnnn");
+    console.log(createQuestionDto.data);
+    console.log("questionnnn");
     try {
-      console.log("questionnnn");
-      console.log(createQuestionDto.data);
-      console.log("questionnnn");
+      console.log("entrou");
       //create a new set for all the questions
       const new_question_set = await this.prisma.question_set.create({
         data: {
@@ -133,32 +134,63 @@ export class QuestionsService {
         },
       });
 
-      // const newPortalsId = portalsId.map(value => value)
+      console.log("portalsId");
+      console.log(portalsId);
+      console.log("portalsId");
+
+      const newPortalsId = portalsId.map((value) => value.id);
 
       /**
        * precisa testar se vai criar varias tags_spec com
        * o id dos portais primarios, testar com dois portais primarios
        */
-      const upsertedPortals = await this.prisma.$transaction(
-        createQuestionDto.data.tags_spec.map((name) =>
-          this.prisma.portal_spec.upsert({
-            where: {
-              name: name,
-            },
 
-            create: {
-              name: name,
-              portal_id: Number(
-                portalsId.map((portal: { id: number }) => portal.id)
-              ),
-            },
-            update: {},
-            select: {
-              id: true,
-            },
-          })
-        )
-      );
+      for (let i = 0; i < newPortalsId.length; i++) {
+        createQuestionDto.data.tags_spec.map(
+          async (name) =>
+            await this.prisma.portal_spec.upsert({
+              where: {
+                name: name,
+              },
+              create: {
+                name: name,
+                portal_id: newPortalsId[i],
+                // portal_id: Number(
+                //   portalsId.map((portal: { id: number }) => portal.id)
+                // ),
+              },
+              update: {},
+              select: {
+                id: true,
+              },
+            })
+        );
+      }
+
+      // const upsertedPortals = await this.prisma.$transaction(
+      //   createQuestionDto.data.tags_spec.map((name) =>
+      //     this.prisma.portal_spec.upsert({
+      //       where: {
+      //         name: name,
+      //       },
+      //       create: {
+      //         name: name,
+      //         portal_id: {
+      //           in:{
+      //             newPortalsId
+      //           }
+      //         }
+      //         // portal_id: Number(
+      //         //   portalsId.map((portal: { id: number }) => portal.id)
+      //         // ),
+      //       },
+      //       update: {},
+      //       select: {
+      //         id: true,
+      //       },
+      //     })
+      //   )
+      // );
 
       const newValues: Array<{
         portal_spec_id: number;
