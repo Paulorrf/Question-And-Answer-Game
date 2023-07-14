@@ -20,10 +20,10 @@ export class PortalController {
     return this.portalService.create(createPortalDto);
   }
 
-  @Get("specific/:name")
-  findAllSpecific(@Param("name") name: string) {
+  @Get("specific/:names")
+  findAllSpecific(@Param("names") names: string) {
     console.log("entrou");
-    return this.portalService.findAllSpecific(name);
+    return this.portalService.findAllSpecific(names);
   }
 
   @Get("generic")

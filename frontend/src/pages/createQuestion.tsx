@@ -54,7 +54,7 @@ const CreateQuestion = () => {
   }: any) {
     const questions = await axios({
       method: "post",
-      url: "https://question-and-answer-game-production.up.railway.app/perguntas/create",
+      url: "perguntas/create",
       data: {
         question,
         answer1,

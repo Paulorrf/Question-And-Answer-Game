@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Modal from "./QuestionModal";
-import axios from "axios";
+// import axios from "axios";
+import axios from "@/axios";
 
 interface UserInfoProps {
   userId: number;
@@ -63,9 +64,7 @@ const UserInfo = ({ userId }: UserInfoProps) => {
     const requestUser = async () => {
       try {
         if (userId) {
-          const response = await axios.get(
-            `https://question-and-answer-game-production.up.railway.app/questions/findbymail/${userId}`
-          );
+          const response = await axios.get(`questions/findbymail/${userId}`);
           setQuestionSetInfo(response.data);
         }
       } catch (error) {

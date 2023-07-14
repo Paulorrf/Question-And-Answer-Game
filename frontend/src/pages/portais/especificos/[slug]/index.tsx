@@ -7,6 +7,7 @@ import Portal from "../../../../assets/portal3.png";
 // import Portal from "../../../../assets/portal_img.png";
 import Image from "next/image";
 import Slider from "react-slick";
+import axios from "@/axios";
 
 type Repo = {
   name: string;
@@ -18,11 +19,12 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({ query }) => {
   console.log("query");
   console.log(query);
-  const res = await fetch(
-    `https://question-and-answer-game-production.up.railway.app/portal/specific/${query.slug}`
-  );
-  const repo = await res.json();
-  return { props: { repo } };
+  // const res = await fetch(
+  //   `https://question-and-answer-game-production.up.railway.app/portal/specific/${query.slug}`
+  // );
+  // const repo = await res.json();
+  const res = await axios.get(`portal/specific/${query.slug}`);
+  return { props: { repo: res.data } };
 };
 
 const Page = ({
@@ -52,7 +54,6 @@ const Page = ({
                 <Link
                   href={`/portais/especificos/${router.query.slug}/${portal.name}`}
                 >
-                  {/* <div className="h-40 w-40 rounded-full border bg-red-600"></div> */}
                   <div className="mx-auto flex justify-center">
                     <Image
                       src={Portal}
@@ -64,45 +65,9 @@ const Page = ({
               </div>
             );
           })}
-          {/* {repo.map((portal, index) => (
-            <div key={index} className="text-center">
-              <h3>{portal.name}</h3>
-
-              <Link href={`/portais/especificos/${portal.name}`}>
-                <Image
-                  src={Portal}
-                  className="h-[250px] w-[220px] object-cover"
-                  alt={`Image ${index + 1}`}
-                />
-              </Link>
-            </div>
-          ))} */}
         </Slider>
       </div>
     </Layout>
-
-    // <Layout>
-    //   <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-center text-white">
-    //     <h2 className="mb-8 text-xl font-bold">PORTAIS ESPECÍFICOS</h2>
-    //     <div className="flex child:mr-10">
-    //       {repo.map((portal) => {
-    //         return (
-    //           <div key={portal.id}>
-    //             <p>{portal.name}</p>
-    //             <Link
-    //               href={`/portais/especificos/${router.query.slug}/${portal.name}`}
-    //             >
-    //               {/* <div className="h-40 w-40 rounded-full border bg-red-600"></div> */}
-    //               <div className="relative">
-    //                 <Image src={Portal} alt="portal" width={200} />
-    //               </div>
-    //             </Link>
-    //           </div>
-    //         );
-    //       })}
-    //     </div>
-    //   </div>
-    // </Layout>
   );
 };
 

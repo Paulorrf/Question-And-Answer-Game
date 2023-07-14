@@ -1,4 +1,5 @@
-import axios from "axios";
+// import axios from "axios";
+import axios from "@/axios";
 
 interface IRegister {
   email: string;
@@ -25,7 +26,7 @@ export async function createUserFn({
 }) {
   const user = await axios({
     method: "post",
-    url: "https://question-and-answer-game-production.up.railway.app/auth/signin",
+    url: "auth/signin",
     data: {
       email: data.email,
       password: data.password,

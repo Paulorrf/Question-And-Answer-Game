@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BsStarFill, BsStarHalf, BsStar } from "react-icons/bs";
-import axios from "axios";
+// import axios from "axios";
+import axios, { cancelTokenSource, isCancel } from "@/axios";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
@@ -37,7 +38,7 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({ query }) => {
   const res = await axios({
     method: "post",
-    url: `https://question-and-answer-game-production.up.railway.app/questions/findTen`,
+    url: `questions/findTen`,
     data: {
       tags: query.items,
     },
@@ -196,13 +197,14 @@ const Page = ({ repo }: any) => {
   }
 
   useEffect(() => {
-    const cancelTokenSource = axios.CancelToken.source();
+    // const cancelTokenSource = axios.CancelToken.source();
+    const cancelTokenSource2 = cancelTokenSource.source();
 
     const fetchData = async () => {
       try {
         const response2 = await axios({
           method: "get",
-          url: `https://question-and-answer-game-production.up.railway.app/auth/${userId}`,
+          url: `auth/${userId}`,
         });
 
         const data2 = response2.data;
@@ -211,19 +213,20 @@ const Page = ({ repo }: any) => {
 
         const response1 = await axios({
           method: "post",
-          url: `https://question-and-answer-game-production.up.railway.app/portal/requirements`,
+          url: `portal/requirements`,
           data: {
             userStatus: data2.character.status,
             portal_name: router.query.slug,
           },
-          cancelToken: cancelTokenSource.token,
+          cancelToken: cancelTokenSource2.token,
         });
 
         const data1 = response1.data;
+        console.log(data1);
 
         setData(data1);
       } catch (error) {
-        if (axios.isCancel(error)) {
+        if (isCancel(error)) {
           console.log("Request canceled:", error.message);
         } else {
           // Handle other errors
@@ -235,7 +238,7 @@ const Page = ({ repo }: any) => {
 
     return () => {
       // Cancel the request when the component unmounts
-      cancelTokenSource.cancel("Request canceled due to component unmount.");
+      cancelTokenSource2.cancel("Request canceled due to component unmount.");
     };
   }, []);
 

@@ -1,11 +1,22 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import useStore from "../store/store";
-import axios from "axios";
+// import axios from "axios";
+import axios from "@/axios";
 import { BsArrowRightSquareFill } from "react-icons/bs";
 import questionQuantityStore from "@/store/questionsQuantityStore";
 import tagsStore from "@/store/tagsStore";
 import nextBtnStore from "@/store/nextBtnStore";
 import setQuestionStore from "@/store/setQuestionStore";
+
+import { useDisclosure } from "@mantine/hooks";
+import { Modal, Button, Group, Checkbox, Grid, TextInput } from "@mantine/core";
+import styled from "@emotion/styled";
 
 interface DifficultyProp {
   name: string;
@@ -25,7 +36,7 @@ interface DifficultyProp {
 function difficultyOption(
   name: string,
   brName: string,
-  changeDifficulty: any,
+  changeDifficulty: (difficulty: string) => void,
   difficulty: string
 ) {
   return (
@@ -42,14 +53,22 @@ function difficultyOption(
 }
 
 //@ts-ignore
-const QuestionOptions = () => {
-  const [qntQuestoes, setQntQuestoes] = useState(10);
+const QuestionOptions = ({
+  setProximo,
+}: {
+  setProximo: Dispatch<SetStateAction<number>>;
+}) => {
   const [genericTags, setGenericTags] = useState<Array<string>>([]);
   const [specificTags, setSpecificTags] = useState<Array<string>>([]);
   const [recommendations, setRecommendations] = useState([]);
   const [recSpec, setRecSpec] = useState([]);
   const [idxGen, setIdxGen] = useState<number>(0);
   const [idxSpec, setIdxSpec] = useState<number>(0);
+  const [error, setError] = useState(false);
+  const [errorTagExist, setErrorTagExist] = useState(false);
+
+  const [allGenericTags, setAllGenericTags] = useState([]);
+  const [allSpecTags, setAllSpecTags] = useState<string[]>([]);
 
   const quantityOptions = [5, 10, 15, 20];
 
@@ -63,18 +82,36 @@ const QuestionOptions = () => {
   const quantity = questionQuantityStore((state) => state.quantity);
   const tagsGeneric = tagsStore((state) => state.genericTags);
   const tagsSpec = tagsStore((state) => state.specificTags);
+  const newTags = tagsStore((state) => state.newTags);
+  const storedRecommendedSpec = tagsStore(
+    (state) => state.storedRecommendedSpec
+  );
+  const setQuestion = setQuestionStore((state) => state.question_set);
 
   //zustand functions
   const changeDifficulty = useStore((state) => state.changeDifficulty);
   const changeQuantity = questionQuantityStore((state) => state.changeQuantity);
   const changeTagsGeneric = tagsStore((state) => state.changeGeneric);
+  const changeGenericArr = tagsStore((state) => state.changeGenericArr);
   const changeTagsSpec = tagsStore((state) => state.changeSpecific);
+  const changeSpecificArr = tagsStore((state) => state.changeSpecificArr);
+  const addNewTag = tagsStore((state) => state.addNewTag);
+  const addStoredRecommendedSpecOne = tagsStore(
+    (state) => state.addStoredRecommendedSpecOne
+  );
+  const addStoredRecommendedSpecArr = tagsStore(
+    (state) => state.addStoredRecommendedSpecArr
+  );
   const changeQuestionSet = setQuestionStore(
     (state) => state.changeQuestionSet
   );
 
   const isActionEnabled = nextBtnStore((state) => state.isActionEnabled);
   const performAction = nextBtnStore((state) => state.performAction);
+
+  const [opened, { open, close }] = useDisclosure(false);
+  // const [openedSpec, { open, close }] = useDisclosure(false);
+  const [openSpecModal, setOpenSpecModal] = useState(false);
 
   console.log("dificuldade");
   console.log(tagsGeneric);
@@ -95,16 +132,58 @@ const QuestionOptions = () => {
   }, [genericTags]);
 
   useEffect(() => {
+    setErrorTagExist(false);
+  }, [tagsSpec]);
+
+  useEffect(() => {
     if (isActionEnabled) {
       performAction(genericTags, specificTags);
     }
     // eslint-disable-next-line
   }, [isActionEnabled, performAction]);
 
+  useEffect(() => {
+    if (tagsGeneric.length > 0 && tagsSpec.length > 0) {
+      setGenericTags(tagsGeneric);
+      setSpecificTags(tagsSpec);
+    }
+  }, [genericTags, specificTags]);
+
+  useEffect(() => {
+    async function getData() {
+      const genericPortals = await axios.get(`portal/generic`);
+      setAllGenericTags(genericPortals.data);
+    }
+
+    getData();
+  }, []);
+
+  useEffect(() => {
+    async function getData() {
+      if (
+        tagsGeneric.length > 0 &&
+        !(allSpecTags.length < storedRecommendedSpec.length)
+      ) {
+        const allGenericTags = [tagsGeneric[0], tagsGeneric[1]];
+        const specificPortals: { data: { id: number; name: string }[] } =
+          await axios.get(`portal/specific/${allGenericTags.join(",")}`);
+
+        const specificPortalsNames = specificPortals.data.map(
+          (portal) => portal.name
+        );
+
+        setAllSpecTags(specificPortalsNames);
+        addStoredRecommendedSpecArr(specificPortalsNames);
+      }
+    }
+
+    getData();
+  }, [tagsGeneric]);
+
   async function handleGenericChange(event: React.FormEvent<HTMLInputElement>) {
     if (event.currentTarget.value !== "") {
       const returnedValues = await axios.get(
-        `https://question-and-answer-game-production.up.railway.app/portal/gletter/${event.currentTarget.value}`
+        `portal/gletter/${event.currentTarget.value}`
       );
       console.log(returnedValues.data);
       setRecommendations(returnedValues.data);
@@ -141,7 +220,7 @@ const QuestionOptions = () => {
       console.log(words);
 
       const returnedValues = await axios.get(
-        `https://question-and-answer-game-production.up.railway.app/portal/sletter/${event.currentTarget.value}/${words}`
+        `portal/sletter/${event.currentTarget.value}/${words}`
       );
       console.log(returnedValues.data);
       setRecSpec(returnedValues.data);
@@ -166,6 +245,7 @@ const QuestionOptions = () => {
   }
 
   function addSpecificTag(name: string) {
+    console.log(name);
     setRecSpec([]);
     changeTagsSpec(name);
     setSpecificTags((prev) => [...prev, name]);
@@ -215,18 +295,63 @@ const QuestionOptions = () => {
     }
   }
 
+  const compareArrays = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((element, index) => element === b[index]);
+
   function handleAddSpecific(event: React.SyntheticEvent) {
     event.preventDefault();
 
-    if (inputRef2.current !== null && inputRef2.current.value !== null) {
+    if (compareArrays(storedRecommendedSpec, newTags)) {
+      setErrorTagExist(true);
+      console.log("entrou");
+    }
+
+    if (
+      inputRef2.current !== null &&
+      inputRef2.current.value !== null &&
+      !compareArrays(storedRecommendedSpec, newTags)
+    ) {
+      setErrorTagExist(false);
       let value = inputRef2.current.value;
+      addStoredRecommendedSpecOne(value);
+      addNewTag(value);
       changeTagsSpec(value);
+      console.log("value");
+      console.log(value);
+      console.log("value");
+      setAllSpecTags((prev) => [...prev, value]);
+      // changeTagsSpec(value);
       setSpecificTags((prev) => [...prev, value]);
       inputRef2.current.value = "";
     }
   }
 
-  // console.log(specificTags);
+  function handleProximo() {
+    if (
+      quantity > 0 &&
+      tagsGeneric.length > 0 &&
+      tagsSpec.length > 0 &&
+      setQuestion.description !== "" &&
+      setQuestion.title !== ""
+    ) {
+      // tagsSpec.map((tag) => {
+      //   changeTagsSpec(tag);
+      // });
+      setProximo((prev: number) => prev + 1);
+    } else {
+      setError(true);
+    }
+  }
+
+  // useEffect(() => {
+  //   genericTags.map((tag) => {
+  //     changeTagsGeneric(tag);
+  //   });
+  // }, [genericTags]);
+
+  console.log(tagsSpec);
+  console.log(allSpecTags);
+  console.log(newTags);
   // console.log(idxGen);
 
   // const handleButtonClick = () => {
@@ -236,9 +361,16 @@ const QuestionOptions = () => {
   //   }
   // };
 
+  // console.log(allGenericTags);
+
   return (
     <div>
       <div className="mb-16">
+        {error && (
+          <p className="text-2xl text-red-600 underline">
+            Por favor preencha todos os campos
+          </p>
+        )}
         <h3 className="mb-4 font-bold">
           {"Escolha a quantidade de questões".toUpperCase()}
         </h3>
@@ -288,6 +420,7 @@ const QuestionOptions = () => {
             ref={inputRefTitle}
             onChange={handleTitleInput}
             placeholder="Adicione um titulo"
+            value={setQuestion.title}
           />
         </div>
       </div>
@@ -299,6 +432,7 @@ const QuestionOptions = () => {
             ref={inputRefDesc}
             onChange={handleDescInput}
             placeholder="Adicione uma descrição"
+            value={setQuestion.description}
           />
         </div>
       </div>
@@ -307,114 +441,163 @@ const QuestionOptions = () => {
           {"Selecione uma das tags".toUpperCase()}
         </h3>
         <div>
-          <div>
-            <p>Generico</p>
-            <div className="flex">
-              <input
-                type="text"
-                className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                ref={inputRef}
-                onChange={handleGenericChange}
-                placeholder="ex: biologia"
-              />
-              {/* <div className="-ml-1" onClick={handleAddGeneric}>
-                <BsArrowRightSquareFill size={32} />
-              </div> */}
-              <div>
-                {genericTags.length > 0 && (
-                  <ul className="flex">
-                    {genericTags.map((tag) => {
-                      return (
-                        <li key={tag}>
-                          {tag}{" "}
-                          <button onClick={() => handleGenericDelete()}>
-                            Delete
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="w-48 bg-white text-center text-black ring-2 ring-zinc-600">
-            {recommendations.length > 0 && (
-              <ul className="flex justify-around p-2 child:mr-2">
-                {recommendations.map(
-                  (
-                    recommendation: { id: number; name: string },
-                    index: number
-                  ) => {
-                    return (
-                      <li
-                        key={recommendation.id}
-                        className="cursor-pointer underline underline-offset-1 hover:font-bold"
-                        onClick={() =>
-                          addGenericTag(recommendation.name, index)
+          <Modal
+            opened={opened}
+            onClose={close}
+            centered
+            title="ESCOLHA NO MÁXIMO DUAS TAGS"
+          >
+            <Checkbox.Group value={tagsGeneric} onChange={changeGenericArr}>
+              <Grid>
+                {allGenericTags.map((tag: { id: number; name: string }) => {
+                  return (
+                    <Grid.Col span={4} key={tag.id}>
+                      <Checkbox
+                        value={tag.name}
+                        label={tag.name}
+                        disabled={
+                          tagsGeneric.length === 2 &&
+                          !tagsGeneric.includes(tag.name)
                         }
-                      >
-                        {recommendation.name}
-                      </li>
-                    );
-                  }
-                )}
-              </ul>
-            )}
-          </div>
-          {genericTags.length > 0 && (
-            <div>
-              <div>
-                <p>Especifico</p>
-                <div className="flex">
-                  <input
-                    type="text"
-                    className="h-8 w-48 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    ref={inputRef2}
-                    onChange={handleSpecificChange}
-                    placeholder="ex: zoologia"
-                  />
-                  <div className="-ml-1" onClick={handleAddSpecific}>
-                    <BsArrowRightSquareFill size={32} />
-                  </div>
-                </div>
-                <div className="flex">
-                  {specificTags.length > 0 && (
-                    <ul className="flex">
-                      {specificTags.map((tag) => {
-                        return (
-                          <li key={tag}>
-                            {tag}{" "}
-                            <button onClick={() => handleSpecificDelete()}>
-                              Delete
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </div>
-              </div>
+                      />
+                    </Grid.Col>
+                  );
+                })}
+              </Grid>
+            </Checkbox.Group>
+          </Modal>
+          <Group position="center">
+            <Button className="btn-primary" onClick={open}>
+              ESCOLHA PORTAIS GENÉRICOS
+            </Button>
+          </Group>
+          {tagsGeneric.length > 0 && (
+            <div className="">
+              <Modal
+                opened={openSpecModal}
+                onClose={() => setOpenSpecModal(false)}
+                title="ESCOLHA PELO MENOS DUAS TAGS"
+                transitionProps={{ transition: "rotate-left" }}
+                trapFocus={false}
+              >
+                <div className="">
+                  <div className="mb-4">
+                    <div className=" flex">
+                      {/* <input
+                        type="text"
+                        className="h-8 w-full border border-black px-2 text-black focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        ref={inputRef2}
+                        onChange={handleSpecificChange}
+                        placeholder="Pesquisar"
+                      /> */}
+                      <TextInput
+                        ref={inputRef2}
+                        placeholder={
+                          tagsSpec.length === 2
+                            ? "Número máximo de tags"
+                            : "Pesquisar"
+                        }
+                        onChange={handleSpecificChange}
+                        disabled={tagsSpec.length === 2}
+                      />
+                      {!(tagsSpec.length === 2) && (
+                        <div className="-ml-1" onClick={handleAddSpecific}>
+                          <BsArrowRightSquareFill size={32} />
+                        </div>
+                      )}
+                      {errorTagExist && (
+                        <p className="pl-4 text-red-600">Tag ja existe!</p>
+                      )}
+                    </div>
 
-              {recSpec.length > 0 && (
-                <div className="w-48 bg-white text-center text-black ring-2 ring-zinc-600">
-                  <ul className="grid grid-flow-col grid-rows-4 gap-4 p-2 child:mr-2">
-                    {recSpec.map((recSpec: { id: number; name: string }) => {
-                      return (
-                        <li
-                          key={recSpec.id}
-                          className="cursor-pointer underline underline-offset-1 hover:font-bold"
-                          onClick={() => addSpecificTag(recSpec.name)}
-                        >
-                          {recSpec.name}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                    <div className="z-20 w-full">
+                      {recSpec.length > 0 && (
+                        <div className="w-full bg-white text-center text-black ring-2 ring-zinc-600">
+                          <ul className="grid grid-flow-col grid-rows-4 gap-4 p-2 child:mr-2">
+                            {recSpec.map(
+                              (recSpec: { id: number; name: string }) => {
+                                return (
+                                  <li
+                                    key={recSpec.id}
+                                    className="cursor-pointer underline underline-offset-1 hover:font-bold"
+                                    onClick={() => addSpecificTag(recSpec.name)}
+                                  >
+                                    {recSpec.name}
+                                  </li>
+                                );
+                              }
+                            )}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    {storedRecommendedSpec.length > 0 && (
+                      <Checkbox.Group
+                        value={tagsSpec}
+                        onChange={changeSpecificArr}
+                      >
+                        <Grid>
+                          {storedRecommendedSpec.map((tag: string) => {
+                            return (
+                              <Grid.Col span={4} key={tag}>
+                                <Checkbox
+                                  value={tag}
+                                  label={tag}
+                                  checked={tagsSpec.includes(tag)}
+                                  disabled={
+                                    tagsSpec.length === 2 &&
+                                    !tagsSpec.includes(tag)
+                                  }
+                                />
+                              </Grid.Col>
+                            );
+                          })}
+                        </Grid>
+                      </Checkbox.Group>
+                    )}
+                  </div>
+                  {/* <div>
+                    {allSpecTags.length > 0 && (
+                      <Checkbox.Group
+                        value={tagsSpec}
+                        onChange={changeSpecificArr}
+                      >
+                        <Grid>
+                          {allSpecTags.map((tag: string) => {
+                            return (
+                              <Grid.Col span={4} key={tag}>
+                                <Checkbox
+                                  value={tag}
+                                  label={tag}
+                                  checked={tagsSpec.includes(tag)}
+                                  disabled={
+                                    tagsSpec.length === 2 &&
+                                    !tagsSpec.includes(tag)
+                                  }
+                                />
+                              </Grid.Col>
+                            );
+                          })}
+                        </Grid>
+                      </Checkbox.Group>
+                    )}
+                  </div> */}
                 </div>
-              )}
+              </Modal>
+
+              <Button
+                className="btn-primary"
+                onClick={() => setOpenSpecModal(true)}
+              >
+                ESCOLHA PORTAIS ESPECÍFICOS
+              </Button>
             </div>
           )}
+          <button className="btn-primary mt-8" onClick={handleProximo}>
+            Proximo
+          </button>
         </div>
       </div>
     </div>

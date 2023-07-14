@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
 import { PrismaService } from "src/prisma/prisma.service";
+import { AnswerQuestionDto } from "./dto/answer-question.dto";
 
 interface CreateProps {
   body: string;
@@ -116,6 +117,10 @@ export class QuestionsService {
         )
       );
 
+      console.log("upsertedNames");
+      console.log(upsertedNames);
+      console.log("upsertedNames");
+
       const toUpper = function (x: string) {
         return x.toUpperCase();
       };
@@ -146,7 +151,7 @@ export class QuestionsService {
        */
 
       for (let i = 0; i < newPortalsId.length; i++) {
-        createQuestionDto.data.tags_spec.map(
+        let values = createQuestionDto.data.tags_spec.map(
           async (name) =>
             await this.prisma.portal_spec.upsert({
               where: {
@@ -155,9 +160,6 @@ export class QuestionsService {
               create: {
                 name: name,
                 portal_id: newPortalsId[i],
-                // portal_id: Number(
-                //   portalsId.map((portal: { id: number }) => portal.id)
-                // ),
               },
               update: {},
               select: {
@@ -165,32 +167,8 @@ export class QuestionsService {
               },
             })
         );
+        console.log("values", values);
       }
-
-      // const upsertedPortals = await this.prisma.$transaction(
-      //   createQuestionDto.data.tags_spec.map((name) =>
-      //     this.prisma.portal_spec.upsert({
-      //       where: {
-      //         name: name,
-      //       },
-      //       create: {
-      //         name: name,
-      //         portal_id: {
-      //           in:{
-      //             newPortalsId
-      //           }
-      //         }
-      //         // portal_id: Number(
-      //         //   portalsId.map((portal: { id: number }) => portal.id)
-      //         // ),
-      //       },
-      //       update: {},
-      //       select: {
-      //         id: true,
-      //       },
-      //     })
-      //   )
-      // );
 
       const newValues: Array<{
         portal_spec_id: number;
@@ -206,24 +184,25 @@ export class QuestionsService {
         }
       }
 
-      // const upsertedPortals2 = await this.prisma.$transaction(
-      //   async (prisma) => {
-      //     for (const portalValues of newValues) {
-      //       const { portal_id, portal_spec_id } = portalValues;
-      //       const idValue = Number(
-      //         String(portal_spec_id).concat(String(portal_id))
-      //       );
-
-      //       await prisma.portal_spec_primary.upsert({
-      //         where: {
-      //           comp_key: idValue,
-      //         },
-      //         create: { comp_key: idValue, portal_id, portal_spec_id },
-      //         update: {},
-      //       });
-      //     }
-      //   }
-      // );
+      const upsertedPortals2 = await this.prisma.$transaction(
+        async (prisma) => {
+          for (const { portal_id, portal_spec_id } of newValues) {
+            await prisma.portal_relation.upsert({
+              where: {
+                portal_id_portal_spec_id: {
+                  portal_id,
+                  portal_spec_id,
+                },
+              },
+              create: {
+                portal_id: portal_id,
+                portal_spec_id: portal_spec_id,
+              },
+              update: {},
+            });
+          }
+        }
+      );
 
       // console.log("11111111");
       // console.log(upsertedPortals2);
@@ -433,18 +412,23 @@ export class QuestionsService {
     }
   }
 
-  async findRightAnswers(answers: any) {
+  async findRightAnswers(answers: AnswerQuestionDto) {
+    console.log("answers");
     console.log(answers);
+    console.log("answers");
 
     try {
-      const questionIds = answers.chosenAnswers.map((question: any) => {
+      //getting the user questions ids
+      const questionIds = answers.chosenAnswers.map((question) => {
         return question.questionId;
       });
 
-      const answerIds = answers.chosenAnswers.map((answer: any) => {
+      //getting the user answers ids
+      const answerIds = answers.chosenAnswers.map((answer) => {
         return answer.answerId;
       });
 
+      //getting the question set information
       //answers[0].questionId
       const set_data = await this.prisma.question.findFirst({
         where: {
@@ -460,6 +444,7 @@ export class QuestionsService {
         },
       });
 
+      //save the question set as answered for said user
       const saveAnsweredSet =
         await this.prisma.history_answered_set_question.create({
           data: {
@@ -468,9 +453,7 @@ export class QuestionsService {
           },
         });
 
-      // console.log("teste");
-      // console.log(teste);
-
+      //get the correct answers id
       const answersReturned = await this.prisma.answer.findMany({
         where: {
           question_id: {
@@ -480,13 +463,15 @@ export class QuestionsService {
         },
       });
 
+      //filter for the correct user answers
       const result = answersReturned.filter(
         (answer, index) => answer.id === answerIds[index]
       );
 
-      console.log("result");
-      console.log(result);
+      // console.log("result");
+      // console.log(result);
 
+      //get the user info for the level up related stuff
       const userData = await this.prisma.user_data.findUnique({
         where: {
           id: answers.userId,
@@ -498,11 +483,17 @@ export class QuestionsService {
         },
       });
 
+      //how much exp each right answered question gives
       const easy = 100;
       const normal = 150;
       const hard = 200;
       const very_hard = 250;
 
+      /**
+       * calculate how many levels up the user got
+       * and the amount of left exp for the next level
+       * as well as the amount needed to go to the next level
+       */
       function calculateLevel(
         experiencePoints: number,
         experienceThreshold: number,
@@ -510,10 +501,8 @@ export class QuestionsService {
       ) {
         const level =
           currentLevel + Math.floor(experiencePoints / experienceThreshold);
-        const remainingExperience =
-          experienceThreshold - (experiencePoints % experienceThreshold);
-        const experienceTowardsNextLevel =
-          experiencePoints % experienceThreshold;
+        const remainingExperience = experiencePoints % experienceThreshold;
+        const experienceTowardsNextLevel = 0;
 
         return {
           level: level,
@@ -522,8 +511,8 @@ export class QuestionsService {
         };
       }
 
+      // increase the threshold by 50 for each level
       function calculateExperienceThreshold(level: number) {
-        // increase the threshold by 50 for each level
         return 100 + (level - 1) * 50;
       }
 
@@ -547,8 +536,14 @@ export class QuestionsService {
           totalExp = 0;
       }
 
-      // const currentLevel = calculateLevel(totalExp, experienceThreshold);
+      //the current exp plus the amount gained from answering right
       const newExperience = userData.experience + totalExp;
+
+      console.log("user data");
+      console.log(newExperience, experienceThreshold, userData.nivel);
+      console.log("user data");
+
+      //after the calculation with the gained exp, how much it leveled up
       const currentLevel = calculateLevel(
         newExperience,
         experienceThreshold,
@@ -571,6 +566,10 @@ export class QuestionsService {
       let updatedUser = {};
       let hasLevelUp = false;
 
+      console.log("newExperience:", newExperience);
+      console.log("userData.experience:", userData.experience);
+      console.log("totalExp:", totalExp);
+
       if (newExperience >= experienceThreshold) {
         const remainingExperience = newExperience - experienceThreshold;
         const nextLevelThreshold = calculateExperienceThreshold(
@@ -578,6 +577,7 @@ export class QuestionsService {
         );
 
         if (remainingExperience >= nextLevelThreshold) {
+          console.log("entrou1");
           const nextLevel = calculateLevel(
             remainingExperience,
             nextLevelThreshold,
@@ -597,8 +597,9 @@ export class QuestionsService {
 
           hasLevelUp = true;
         } else {
-          const updatedExperience =
-            currentLevel.experienceTowardsNextLevel + remainingExperience;
+          console.log("entrou2");
+          // const updatedExperience =
+          //   currentLevel.experienceTowardsNextLevel + remainingExperience;
 
           updatedUser = await this.prisma.user_data.update({
             where: {
@@ -606,7 +607,8 @@ export class QuestionsService {
             },
             data: {
               nivel: currentLevel.level,
-              experience: updatedExperience,
+              experience: currentLevel.remainingExperience,
+              // experience: remainingExperience,
               status_point_remain: userData.status_point_remain + 5,
             },
           });

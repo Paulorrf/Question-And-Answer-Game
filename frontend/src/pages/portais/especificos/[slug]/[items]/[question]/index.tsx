@@ -1,8 +1,8 @@
-import axios from "axios";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import React from "react";
 import QuestionCarousel from "../../../../../../components/QuestionCarousel";
 import Layout from "@/components/Layout";
+import axios from "@/axios";
 
 interface Answer {
   id: number;
@@ -27,11 +27,12 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({ query }) => {
   // console.log("query");
   // console.log(query);
-  const res = await fetch(
-    `https://question-and-answer-game-production.up.railway.app/questions/questions/${query.question}`
-  );
-  const repo = await res.json();
-  return { props: { repo } };
+  // const res = await fetch(
+  //   `https://question-and-answer-game-production.up.railway.app/questions/questions/${query.question}`
+  // );
+  // const repo = await res.json();
+  const res = await axios.get(`questions/questions/${query.question}`);
+  return { props: { repo: res.data } };
 };
 
 const index = ({

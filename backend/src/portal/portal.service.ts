@@ -12,6 +12,7 @@ export class PortalService {
   }
 
   async findAllGeneric() {
+    console.log("ta local fi");
     try {
       const portals = await this.prisma.portal.findMany({});
       console.log("entrou");
@@ -23,17 +24,31 @@ export class PortalService {
     }
   }
 
-  async findAllSpecific(name: string) {
+  async findAllSpecific(names: string) {
     try {
-      const portalId = await this.prisma.portal.findFirst({
+      const upperNames = names.toUpperCase().split(",");
+
+      // const upperNames = names2.map((name) => name.toUpperCase());
+      const portalId = await this.prisma.portal.findMany({
         where: {
-          name: name.toUpperCase(),
+          name: { in: upperNames },
+        },
+        select: {
+          id: true,
         },
       });
 
+      console.log("names");
+      console.log(portalId);
+      console.log("names");
+
+      const portalIds = portalId.map((portal) => portal.id);
+
       const portals = await this.prisma.portal_spec.findMany({
         where: {
-          portal_id: portalId.id,
+          portal_id: {
+            in: portalIds,
+          },
         },
         take: 10,
       });

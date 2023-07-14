@@ -74,6 +74,9 @@ export class UsersService {
   }
 
   async getStatus(id: number) {
+    console.log("id");
+    console.log(id);
+    console.log("id");
     try {
       const status = await this.prisma.user_data.findFirst({
         where: {
@@ -103,43 +106,6 @@ export class UsersService {
       luck: number;
       strength: number;
     }
-
-    // function reduceStatusPoints(amount: number, currentStatus: Status): Status {
-    //   const remainingPoints = amount;
-
-    //   const statusKeys = Object.keys(currentStatus) as Array<keyof Status>;
-
-    //   // Shuffle the status keys randomly
-    //   const shuffledKeys = shuffleArray(statusKeys);
-
-    //   const updatedStatus: Status = {
-    //     agility: currentStatus.agility,
-    //     intelligence: currentStatus.intelligence,
-    //     luck: currentStatus.luck,
-    //     strength: currentStatus.strength,
-    //   };
-
-    //   let pointsLeft = remainingPoints;
-
-    //   for (const key of shuffledKeys) {
-    //     // Check if there are still points left to reduce
-    //     if (pointsLeft === 0) {
-    //       break;
-    //     }
-
-    //     // Generate a random reduction value between 0 and the remaining points
-    //     const maxReduction = Math.min(pointsLeft, updatedStatus[key]);
-    //     const reduction = Math.floor(Math.random() * (maxReduction + 1));
-
-    //     // Reduce the status by the random reduction value
-    //     updatedStatus[key] -= reduction;
-
-    //     // Update the remaining points
-    //     pointsLeft -= reduction;
-    //   }
-
-    //   return updatedStatus;
-    // }
 
     function reduceStatusPoints(amount: number, currentStatus: Status): Status {
       const possibleStatus = ["agility", "luck", "strength", "intelligence"];

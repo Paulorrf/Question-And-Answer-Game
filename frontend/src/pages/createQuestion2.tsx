@@ -1,5 +1,4 @@
-import ReactDOM from "react-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import QuestionOptions from "../components/QuestionOptions";
 
 import CreateQuestionForm from "@/components/CreateQuestionForm";
@@ -18,22 +17,10 @@ function CreateQuestion2() {
 
   initializeStores();
 
-  //eslint-disable-next-line
-  //@ts-ignore
-  const arr2 = [<QuestionOptions key={0} />, <CreateQuestionForm key={1} />];
-
-  //@ts-ignore
-  const questions = questionStore((state) => state.questions);
-
-  const setActionEnabled = nextBtnStore((state) => state.setActionEnabled);
-
-  function handleProximo() {
-    setProximo((prev: number) => prev + 1);
-    setActionEnabled(true);
-  }
-
-  // console.log(tagsGeneric);
-  // console.log(tagsSpec);
+  const arr2 = [
+    <QuestionOptions key={0} setProximo={setProximo} />,
+    <CreateQuestionForm key={1} setProximo={setProximo} />,
+  ];
 
   return (
     <Layout>
@@ -41,12 +28,6 @@ function CreateQuestion2() {
         <h2 className="mb-8 text-center text-2xl font-bold">Criar Pergunta</h2>
 
         {proximo === 0 ? arr2[proximo] : arr2[proximo]}
-
-        {proximo === 0 && (
-          <button className="btn-primary mt-8" onClick={handleProximo}>
-            Proximo
-          </button>
-        )}
       </div>
     </Layout>
   );

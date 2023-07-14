@@ -1,13 +1,10 @@
-import { useState, useEffect } from "react";
-import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createQuestionFn } from "@/api/questions";
 
-import { MdDelete } from "react-icons/md";
-
 import { decode } from "jsonwebtoken";
 import questionStore from "@/store/questionsStore";
-import useStore from "../store/store";
 import questionQuantityStore from "@/store/questionsQuantityStore";
 import tagsStore from "@/store/tagsStore";
 import setQuestionStore from "@/store/setQuestionStore";
@@ -42,13 +39,15 @@ interface Questions {
   user_id: Number | undefined;
 }
 
-const CreateQuestionForm = () => {
-  // const [difficulty, setDifficulty] = useState("easy");
+const CreateQuestionForm = ({
+  setProximo,
+}: {
+  setProximo: Dispatch<SetStateAction<number>>;
+}) => {
   const [answer, setAnswer] = useState(1);
   const [quantity, setQuantity] = useState(0);
 
   const router = useRouter();
-  // const [questions, setQuestions] = useState<Questions[]>([]);
 
   const totalQuantity = questionQuantityStore((state) => state.quantity);
 
@@ -58,28 +57,13 @@ const CreateQuestionForm = () => {
     (state) => state.question_set.difficulty
   );
 
-  //@ts-ignore
   const addQuestion = questionStore((state) => state.addQuestion);
   const questions = questionStore((state) => state.questions);
 
   const tags_primary = tagsStore((state) => state.genericTags);
   const tags_spec = tagsStore((state) => state.specificTags);
 
-  //@ts-ignore
-  // const difficulty = useStore((state: string) => state.difficulty);
-
-  if (typeof window !== "undefined") {
-    //@ts-ignore
-    const user_id = decode(localStorage?.getItem("user")).sub;
-  }
-
-  // console.log("dificuldade");
-  // console.log(totalQuantity);
-  // console.log(quantity);
-  // console.log("dificuldade");
-  console.log("dificuldade");
-  console.log(questions);
-  console.log("dificuldade");
+  // console.log(tags_spec);
 
   useEffect(() => {
     //manda dados das questoes pro backend
@@ -188,11 +172,22 @@ const CreateQuestionForm = () => {
     );
   }
 
+  function handlePrevious() {
+    setProximo((prev: number) => prev - 1);
+  }
+
+  console.log("questions");
+  console.log(tags_primary);
+  console.log(tags_spec);
+  // console.log(quantity);
+  // console.log(totalQuantity);
+  console.log("questions");
+
   return quantity === totalQuantity ? (
     <p>Criando o questionário...</p>
   ) : (
     <div key="123">
-      <h2 className="mb-2">{`Questão ${quantity} de ${totalQuantity}`}</h2>
+      <h2 className="mb-2">{`Questão ${quantity + 1} de ${totalQuantity}`}</h2>
       <form
         id="create-question-form"
         className="flex flex-col items-center"
@@ -227,7 +222,6 @@ const CreateQuestionForm = () => {
 
         <div>
           <p>Adicionar uma descrição para a resposta correta </p>
-
           <textarea
             className="mb-4 resize-none rounded border-2 border-black text-black"
             placeholder="Questão"
@@ -238,33 +232,15 @@ const CreateQuestionForm = () => {
             required
           />
         </div>
-
-        {/* <div className="mt-2">
-          <p>Selecione até 5 tags</p>
-
-          <ul className="flex flex-col items-center justify-center text-black">
-            {fields.map((field, index) => (
-              <li key={field.id} className="mb-2 flex items-center">
-                <input
-                  className="w-16 border border-black"
-                  {...register(`tags.${index}.value`)}
-                />
-
-                <button type="button" onClick={() => remove(index)}>
-                  <MdDelete color="white" size="20" />
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <button type="button" onClick={() => append({ tag: "" })}>
-            Novo
-          </button>
-        </div> */}
-
         <div className="mb-8 mt-4 flex items-center justify-center">
+          {questions.length <= 0 && (
+            <button className="btn-primary mr-4" onClick={handlePrevious}>
+              Voltar
+            </button>
+          )}
+
           <button type="submit" className="btn-primary mr-4">
-            {quantity === totalQuantity ? "Próximo" : "Criar Pergunta"}
+            {quantity < totalQuantity - 1 ? "Próximo" : "Criar Pergunta"}
           </button>
         </div>
       </form>

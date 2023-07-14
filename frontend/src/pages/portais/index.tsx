@@ -6,14 +6,17 @@ import Portal from "../../assets/portal3.png";
 import Image from "next/image";
 import Slider from "react-slick";
 
+import axios from "@/axios";
+
 export const getStaticProps: GetStaticProps<{
   portais: Array<{ id: number; name: string }>;
 }> = async () => {
-  const res = await fetch(
-    "https://question-and-answer-game-production.up.railway.app/portal/generic"
-  );
-  const portais = await res.json();
-  return { props: { portais } };
+  // const res = await fetch(
+  //   "https://question-and-answer-game-production.up.railway.app/portal/generic"
+  // );
+  const res = await axios.get("/portal/generic");
+  // const portais = await res.json();
+  return { props: { portais: res.data } };
 };
 
 const Portais = ({

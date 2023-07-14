@@ -11,12 +11,13 @@ import { QuestionsService } from "./questions.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
 import { ValidationPipe } from "src/utils/validation.pipe";
+import { AnswerQuestionDto } from "./dto/answer-question.dto";
 
 @Controller("questions")
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
-  @Post("/create")
+  @Post("create")
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionsService.create(createQuestionDto);
   }
@@ -27,7 +28,7 @@ export class QuestionsController {
   }
 
   @Post("rightAnswers")
-  findRightAnswers(@Body() answers: any) {
+  findRightAnswers(@Body() answers: AnswerQuestionDto) {
     return this.questionsService.findRightAnswers(answers);
   }
 

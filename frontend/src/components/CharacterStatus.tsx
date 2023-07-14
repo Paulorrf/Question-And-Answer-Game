@@ -1,4 +1,5 @@
-import axios from "axios";
+// import axios from "axios";
+import axios from "@/axios";
 import React, { useState, useEffect } from "react";
 import {
   AiOutlinePlus,
@@ -101,7 +102,7 @@ const CharacterStatus = ({
       axios({
         method: "post",
         //@ts-ignore
-        url: `https://question-and-answer-game-production.up.railway.app/auth/updateStatus`,
+        url: `auth/updateStatus`,
         // url: `https://question-and-answer-game-production.up.railway.app/auth/updateStatus`,
         data: {
           agility: agilityPoints,
