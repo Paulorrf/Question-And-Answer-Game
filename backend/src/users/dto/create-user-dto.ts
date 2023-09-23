@@ -1,9 +1,10 @@
 export class CreateUserDto {
   email: string;
-  password: string;
   name: string;
-  race: "humano" | "elfo" | "orc";
-  status: {
+  access_tk: string;
+  refresh_tk: string;
+  race?: "humano" | "elfo" | "orc";
+  status?: {
     strength: number;
     intelligence: number;
     agility: number;

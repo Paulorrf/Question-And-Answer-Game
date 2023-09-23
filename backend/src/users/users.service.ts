@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateUserDto } from "./dto/create-user-dto";
-import * as bcrypt from "bcrypt";
 import { UpdateStatusDto } from "./dto/update-status-dto";
 import { LostStatus } from "./dto/lostStatus-user-dto";
 
@@ -9,34 +8,42 @@ import { LostStatus } from "./dto/lostStatus-user-dto";
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  private readonly salt = 10;
-  //
-
   async create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-    let idRace: number;
-    if (createUserDto.race === "orc") {
-      idRace = 1;
-    } else if (createUserDto.race === "humano") {
-      idRace = 3;
-    } else {
-      idRace = 2;
+    //check if user exist
+    const user = await this.prisma.user_data.findUnique({
+      where: {
+        email: createUserDto.email,
+      },
+    });
+
+    if (user) {
+      return user;
     }
 
-    //
-    try {
-      const hashedPass = await bcrypt.hash(createUserDto.password, this.salt);
+    console.log(createUserDto);
+    let idRace: number;
+    let idStatus: number;
+    if (createUserDto.race === "orc") {
+      idRace = 1;
+      idStatus = 2;
+    } else if (createUserDto.race === "humano") {
+      idRace = 3;
+      idStatus = 3;
+    } else {
+      idRace = 2;
+      idStatus = 4;
+    }
 
+    try {
       const savedUser = await this.prisma.user_data.create({
         data: {
           email: createUserDto.email,
-          password: hashedPass,
           name: createUserDto.name,
           display_name: createUserDto.name,
           token: {
             create: {
-              access_tk: "",
-              referesh_tk: "",
+              access_tk: createUserDto.access_tk ?? "",
+              refresh_tk: createUserDto.refresh_tk ?? "",
             },
           },
           character: {
@@ -52,15 +59,20 @@ export class UsersService {
                   id: idRace,
                 },
               },
-
               status: {
-                create: {
-                  agility: createUserDto.status.agility,
-                  intelligence: createUserDto.status.intelligence,
-                  luck: createUserDto.status.luck,
-                  strength: createUserDto.status.strength,
+                connect: {
+                  id: idStatus,
                 },
               },
+
+              // status: {
+              //   create: {
+              //     agility: createUserDto.status.agility,
+              //     intelligence: createUserDto.status.intelligence,
+              //     luck: createUserDto.status.luck,
+              //     strength: createUserDto.status.strength,
+              //   },
+              // },
             },
           },
         },

@@ -124,10 +124,10 @@ model tag {
 }
 
 model token {
-  id          Int         @id @default(autoincrement())
-  access_tk   String?     @db.VarChar(255)
-  referesh_tk String?     @db.VarChar(255)
-  user_data   user_data[]
+  id         Int         @id @default(autoincrement())
+  access_tk  String?     @db.VarChar(255)
+  refresh_tk String?     @db.VarChar(255)
+  user_data  user_data[]
 }
 
 model user_data {
@@ -138,7 +138,6 @@ model user_data {
   character_id                  Int?
   tokens_id                     Int?
   display_name                  String?                         @db.VarChar(255)
-  password                      String?                         @db.VarChar(255)
   experience                    Int?                            @default(0)
   status_point_remain           Int?                            @default(0)
   history_answered_question     history_answered_question[]

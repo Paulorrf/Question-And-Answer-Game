@@ -1,11 +1,25 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateTagDto } from "./dto/create-tag.dto";
 import { UpdateTagDto } from "./dto/update-tag.dto";
+import Redis from "ioredis";
 
 @Injectable()
 export class TagsService {
-  constructor(private prisma: PrismaService) {}
+  private readonly client: Redis;
+
+  constructor(
+    private prisma: PrismaService,
+    @Inject("REDIS_CLIENT") private readonly redisClient: Redis
+  ) {}
+
+  async teste() {
+    return this.redisClient.set("chave", "valor");
+  }
+
+  async getValueByKey() {
+    return this.redisClient.get("chave");
+  }
 
   async create(createTagDto: CreateTagDto) {
     try {

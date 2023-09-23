@@ -13,14 +13,27 @@ import {
 import { AuthGoogleService } from "./auth-google.service";
 import { CreateAuthGoogleDto } from "./dto/create-auth-google.dto";
 import { UpdateAuthGoogleDto } from "./dto/update-auth-google.dto";
-// import { Request } from "@nestjs/common";
 import { Response } from "express";
-
 import { AuthGuard } from "@nestjs/passport";
+import { SessionStoresService } from "src/session-stores/session-stores.service";
+import { UsersService } from "src/users/users.service";
+
+interface IUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture: string;
+  accessToken: string;
+  refreshToken: string;
+}
 
 @Controller("auth-google")
 export class AuthGoogleController {
-  constructor(private readonly authGoogleService: AuthGoogleService) {}
+  constructor(
+    private readonly authGoogleService: AuthGoogleService,
+    private readonly sessionStoresService: SessionStoresService,
+    private readonly usersService: UsersService
+  ) {}
 
   @Post()
   create(@Body() createAuthGoogleDto: CreateAuthGoogleDto) {
@@ -35,10 +48,18 @@ export class AuthGoogleController {
 
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
-  // @Get("google/callback")
-  async googleAuthRedirect(@Req() req, @Res() res: Response) {
+  async googleAuthRedirect(@Req() req: { user: IUser }, @Res() res: Response) {
     try {
       const user = req.user; // User data obtained from Google OAuth
+
+      //saves user in the db
+      this.usersService.create({
+        email: req.user.email,
+        name: req.user.firstName,
+        access_tk: req.user.accessToken,
+        refresh_tk: req.user.refreshToken,
+      });
+
       const userJson = JSON.stringify(user);
       const oneDayInSeconds = 60 * 60 * 24; // One day in seconds
 
@@ -54,11 +75,13 @@ export class AuthGoogleController {
         path: "/", // Specify the path where the cookie is accessible
       });
 
-      // Redirect the user back to your frontend
+      //create a session for the user
+      this.sessionStoresService.create(req.user);
+
+      // Redirect the user back to frontend
       return res.redirect("http://localhost:3000/success");
     } catch (error) {
       console.error(error);
-      // Handle errors gracefully and return an error response
       return res.status(500).json({ error: "OAuth callback error" });
     }
   }

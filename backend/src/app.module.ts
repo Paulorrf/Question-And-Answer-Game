@@ -13,6 +13,7 @@ import { PortalModule } from "./portal/portal.module";
 import { AuthGoogleService } from "./auth-google/auth-google.service";
 import { AuthGoogleModule } from "./auth-google/auth-google.module";
 import { RedisModule } from './redis/redis.module';
+import { SessionStoresModule } from './session-stores/session-stores.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RedisModule } from './redis/redis.module';
     AuthGoogleModule,
     ConfigModule.forRoot(),
     RedisModule,
+    SessionStoresModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AuthGoogleService],
