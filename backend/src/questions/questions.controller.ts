@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from "@nestjs/common";
 import { QuestionsService } from "./questions.service";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
 import { ValidationPipe } from "src/utils/validation.pipe";
 import { AnswerQuestionDto } from "./dto/answer-question.dto";
+import { ReportQuestion } from "./dto/report-question.dto";
 
 @Controller("questions")
 export class QuestionsController {
@@ -32,6 +34,11 @@ export class QuestionsController {
     return this.questionsService.findRightAnswers(answers);
   }
 
+  @Post("reportSet")
+  reportQuestionSet(@Body() reportValues: ReportQuestion) {
+    return this.questionsService.ReportQuestion(reportValues);
+  }
+
   @Get("set/:id")
   findOneSetQuestion(@Param("id") id: string) {
     return this.questionsService.findOneSetQuestion(+id);
@@ -40,6 +47,20 @@ export class QuestionsController {
   @Get("findbymail/:id")
   findQuestionsByUserEmail(@Param("id") id: number) {
     return this.questionsService.findQuestionsByUserEmail(+id);
+  }
+
+  @Get("pagination")
+  questionsPagination(
+    @Query("page") page: number,
+    @Query("size") size: number,
+    @Query("userId") userId: number
+  ) {
+    return this.questionsService.questionsPagination(page, size, userId);
+  }
+
+  @Get("setnumber")
+  questionSetNumber(@Query("userId") userId: number) {
+    return this.questionsService.questionSetNumber(userId);
   }
 
   @Get("questions/:id")

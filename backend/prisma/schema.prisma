@@ -49,6 +49,7 @@ model question_set {
   question_number               Int?
   history_answered_set_question history_answered_set_question[]
   question                      question[]
+  question_set_report           question_set_report[]
   question_set_tag              question_set_tag[]
 }
 
@@ -61,15 +62,14 @@ model classes {
 }
 
 model history_answered_question {
-  id               Int          @id @default(autoincrement())
-  user_data_id     Int?
-  question_id      Int?
-  chosen_answer_id Int?
-  portal_spec_id   Int?
-  answer           answer?      @relation(fields: [chosen_answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  portal_spec      portal_spec? @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  question         question?    @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_data        user_data?   @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data_id     Int
+  question_id      Int
+  chosen_answer_id Int
+  answer           answer    @relation(fields: [chosen_answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question         question  @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data        user_data @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_data_id, question_id])
 }
 
 model history_answered_set_question {
@@ -89,14 +89,13 @@ model portal {
 }
 
 model portal_spec {
-  id                        Int                         @id @default(autoincrement())
-  name                      String?                     @unique @db.VarChar(255)
-  portal_id                 Int?
-  history_answered_question history_answered_question[]
-  portal_relation           portal_relation[]
-  portal                    portal?                     @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  portal_spec_primary       portal_spec_primary[]
-  user_right_answer         user_right_answer[]
+  id                  Int                   @id @default(autoincrement())
+  name                String?               @unique @db.VarChar(255)
+  portal_id           Int?
+  portal_relation     portal_relation[]
+  portal              portal?               @relation(fields: [portal_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  portal_spec_primary portal_spec_primary[]
+  user_right_answer   user_right_answer[]
 }
 
 model question_set_tag {
@@ -145,6 +144,7 @@ model user_data {
   history_answered_question     history_answered_question[]
   history_answered_set_question history_answered_set_question[]
   question                      question[]
+  question_set_report           question_set_report[]
   character                     character?                      @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   token                         token?                          @relation(fields: [tokens_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user_right_answer             user_right_answer[]
@@ -186,6 +186,22 @@ model portal_relation {
   portal_spec    portal_spec? @relation(fields: [portal_spec_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([portal_id, portal_spec_id], map: "unique_portal_combination")
+}
+
+model question_set_report {
+  id                Int            @id @default(autoincrement())
+  report_reasons_id Int
+  question_set_id   Int
+  user_data_id      Int
+  question_set      question_set   @relation(fields: [question_set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  report_reasons    report_reasons @relation(fields: [report_reasons_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user_data         user_data      @relation(fields: [user_data_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model report_reasons {
+  id                  Int                   @id @default(autoincrement())
+  reason              String?
+  question_set_report question_set_report[]
 }
 
 enum difficulty {

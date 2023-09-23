@@ -16,7 +16,7 @@ export class AnswerController {
   constructor(private readonly answerService: AnswerService) {}
 
   @Post()
-  create(@Body() createAnswerDto: CreateAnswerDto) {
+  create(@Body() createAnswerDto: CreateAnswerDto[]) {
     return this.answerService.answerQuestion(createAnswerDto);
   }
 

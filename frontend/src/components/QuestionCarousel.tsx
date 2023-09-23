@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Result from "./Result";
 import DeathModal from "./DeathModal";
+import axios from "@/axios";
+import { decode } from "jsonwebtoken";
 
 type Answer = {
   body: string;
@@ -65,9 +67,18 @@ const Carousel: React.FC<CarouselProps> = ({ questions }) => {
     setCurrentQuestion((prevQuestion) => prevQuestion - 1);
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     // Use chosenAnswers array to send data to server or perform any desired action
-    // console.log("Chosen answers:", chosenAnswers);
+    console.log("Chosen answers:", chosenAnswers);
+    //@ts-ignore
+    let userId = Number(decode(localStorage?.getItem("user")).sub);
+
+    const dataWithUserId = chosenAnswers.map((item) => ({ ...item, userId }));
+    const user = await axios({
+      method: "post",
+      url: "answer",
+      data: dataWithUserId,
+    });
     setShowResults(true);
   };
 

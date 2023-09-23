@@ -1,17 +1,31 @@
 import axios, { cancelTokenSource, isCancel } from "@/axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { decode } from "jsonwebtoken";
 import { BsStarFill } from "react-icons/bs";
 import { useRouter } from "next/router";
+import {
+  Button,
+  Checkbox,
+  Flex,
+  Group,
+  Modal,
+  Rating,
+  TextInput,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { FaSadTear } from "react-icons/fa";
+import ReportQuestionSet from "./ReportQuestionSet";
 
 const Result = ({ chosenAnswers, questions, difficulty }: any) => {
   const [correctAnswers, setCorrectAnswers] = useState<any>([]);
   const [answers, setAnswers] = useState<any>([]);
-  const [rating, setRating] = useState(-1);
-  const [hoveredRating, setHoveredRating] = useState(-1);
   const [hasRated, SetHasRated] = useState(false);
   const [hasLeveledUp, setHasLeveledUp] = useState();
   const [wrongQuestionsCount, setWrongQuestionsCount] = useState(0);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [reported, setReported] = useState(false);
+
+  const [rating, setRating] = useState(0);
 
   const router = useRouter();
 
@@ -38,8 +52,6 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
         const resp = response.data.result.map((item: any) => item.id);
         const ans = chosenAnswers.map((item: any) => item.answerId);
 
-        console.log("resp.data");
-        console.log(response.data);
         setHasLeveledUp(response.data);
 
         setAnswers(ans);
@@ -52,7 +64,7 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
           0
         );
 
-        if(difficulty === "very_hard") {
+        if (difficulty === "very_hard") {
           const response2 = await axios({
             method: "post",
             url: `auth/losestatus`,
@@ -69,7 +81,6 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
         // Process the response
       } catch (error) {
         if (isCancel(error)) {
-          //   console.log("Request canceled:", error.message);
         } else {
           // Handle other errors
         }
@@ -118,41 +129,18 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
   }
 
   async function handleSaveRating() {
-    console.log("questions");
-    console.log(questions);
-
     try {
       const response = await axios.patch(
         `questions/rating/${questions[0].question_set_id}/rating`,
         { rating }
       );
       SetHasRated(true);
-      // console.log("Rating updated successfully:", response.data);
       return response.data;
     } catch (error) {
-      // console.error("Error updating rating:", error);
+      console.error("Error updating rating:", error);
       throw error;
     }
   }
-
-  const handleStarHover = (index: number) => {
-    if (rating === -1) {
-      setHoveredRating(index);
-    }
-  };
-
-  const handleStarLeave = () => {
-    if (rating === -1) {
-      setHoveredRating(-1);
-    }
-  };
-
-  const handleStarClick = (index: number) => {
-    setRating(index);
-  };
-
-  //@ts-ignore
-  console.log(wrongQuestionsCount);
 
   return (
     <div className="mx-auto mt-16 w-96 text-center">
@@ -181,26 +169,13 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
             </div>
           ) : (
             <div className="flex items-center justify-center">
-              <div className="flex space-x-2">
-                {[1, 2, 3, 4, 5].map((index) => (
-                  <BsStarFill
-                    key={index}
-                    className={`star text-gray-400 transition-colors ${
-                      (hoveredRating >= index || rating >= index) &&
-                      "text-yellow-500"
-                    }`}
-                    onMouseEnter={() => handleStarHover(index)}
-                    onMouseLeave={handleStarLeave}
-                    onClick={() => handleStarClick(index)}
-                  />
-                ))}
-              </div>
+              <Rating value={rating} onChange={setRating} />
               <div>
                 <button
                   className={`ml-8 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 ${
-                    rating === -1 ? "cursor-not-allowed opacity-50" : ""
+                    rating === 0 ? "cursor-not-allowed opacity-50" : ""
                   }`}
-                  disabled={rating === -1}
+                  disabled={rating === 0}
                   onClick={handleSaveRating}
                 >
                   AVALIAR
@@ -209,6 +184,33 @@ const Result = ({ chosenAnswers, questions, difficulty }: any) => {
             </div>
           )}
         </div>
+      </div>
+      <div className="mb-2">
+        {!reported && (
+          <>
+            <Modal opened={opened} onClose={close} title="REPORTAR">
+              <ReportQuestionSet
+                closeModal={close}
+                setReported={setReported}
+                question_set_id={questions[0].question_set_id}
+              />
+            </Modal>
+
+            <Group position="center">
+              <Button
+                color="red"
+                variant="filled"
+                className="bg-red-600"
+                uppercase
+                // className="btn-primary"
+                rightIcon={<FaSadTear size="1.6rem" />}
+                onClick={open}
+              >
+                Reportar
+              </Button>
+            </Group>
+          </>
+        )}
       </div>
       <div className="flex h-[600px] flex-col gap-2 overflow-y-auto pr-2">
         {answers.map((answerID: number, index: number) => {

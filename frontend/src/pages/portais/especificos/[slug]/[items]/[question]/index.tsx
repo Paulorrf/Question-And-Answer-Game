@@ -38,7 +38,7 @@ export const getServerSideProps: GetServerSideProps<{
 const index = ({
   repo,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  console.log(repo);
+  // console.log(repo);
   return (
     <Layout>
       <div>

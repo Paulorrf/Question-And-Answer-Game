@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Query } from "@nestjs/common";
 import { CreateQuestionDto } from "./dto/create-question.dto";
 import { UpdateQuestionDto } from "./dto/update-question.dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { AnswerQuestionDto } from "./dto/answer-question.dto";
+import { ReportQuestion } from "./dto/report-question.dto";
 
 interface CreateProps {
   body: string;
@@ -10,18 +11,13 @@ interface CreateProps {
   description_right_answer: string;
   user_id: number;
 }
-//
 
 @Injectable()
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createQuestionDto: CreateQuestionDto) {
-    console.log("questionnnn");
-    console.log(createQuestionDto.data);
-    console.log("questionnnn");
     try {
-      console.log("entrou");
       //create a new set for all the questions
       const new_question_set = await this.prisma.question_set.create({
         data: {
@@ -30,17 +26,11 @@ export class QuestionsService {
           difficulty: createQuestionDto.data.question_set.difficulty,
           situation: "active",
         },
-        // data: {
-        //   description: createQuestionDto.question_set.description || "",
-        //   title: createQuestionDto.question_set.title || "",
-        //   difficulty: createQuestionDto.question_set.difficulty || "easy",
-        //   situation: createQuestionDto.question_set.situation,
-        // },
       });
 
       //create an array of questions + set_id
       const allQuestions = createQuestionDto.data.questions.map(
-        (question_subj: any) => {
+        (question_subj) => {
           return {
             body: question_subj.body,
             situation: "active",
@@ -50,10 +40,6 @@ export class QuestionsService {
           };
         }
       );
-
-      console.log(`allQuestions`);
-      console.log(allQuestions);
-      console.log(`allQuestions`);
 
       //array of ids
       const createQuestions = await this.prisma.$transaction(
@@ -91,10 +77,6 @@ export class QuestionsService {
         }
       }
 
-      console.log("answersArr");
-      console.log(answersArr);
-      console.log("answersArr");
-
       //save answer to each specific question
       const createsQuestions2 = await this.prisma.answer.createMany({
         data: answersArr,
@@ -117,10 +99,6 @@ export class QuestionsService {
         )
       );
 
-      console.log("upsertedNames");
-      console.log(upsertedNames);
-      console.log("upsertedNames");
-
       const toUpper = function (x: string) {
         return x.toUpperCase();
       };
@@ -138,10 +116,6 @@ export class QuestionsService {
           id: true,
         },
       });
-
-      console.log("portalsId");
-      console.log(portalsId);
-      console.log("portalsId");
 
       const newPortalsId = portalsId.map((value) => value.id);
 
@@ -167,7 +141,6 @@ export class QuestionsService {
               },
             })
         );
-        console.log("values", values);
       }
 
       const newValues: Array<{
@@ -203,10 +176,6 @@ export class QuestionsService {
           }
         }
       );
-
-      // console.log("11111111");
-      // console.log(upsertedPortals2);
-      // console.log("11111111");
 
       const allSetQuestionsTags = upsertedNames.map((tagId: { id: number }) => {
         return {
@@ -258,32 +227,6 @@ export class QuestionsService {
         },
       });
 
-      // const questions = await this.prisma.question.findMany({
-      //   where: {
-      //     user_data_id: userId,
-      //   },
-      //   select: {
-      //     body: true,
-      //     description_right_answer: true,
-      //     situation: true,
-      //     answer: {
-      //       select: {
-      //         body: true,
-      //         is_correct: true,
-      //       },
-      //     },
-      //     question_set: {
-      //       select: {
-      //         description: true,
-      //         title: true,
-      //         difficulty: true,
-      //       },
-      //     },
-      //   },
-
-      // });
-
-      console.log(questions);
       return questions;
     } catch (error) {
       console.log(error);
@@ -292,10 +235,128 @@ export class QuestionsService {
     }
   }
 
+  async questionsPagination(
+    @Query("page") page: number,
+    @Query("size") size: number,
+    @Query("userId") userId: number
+  ) {
+    const skip = (page - 1) * size;
+
+    try {
+      const questions = await this.prisma.question_set.findMany({
+        where: {
+          question: {
+            some: {
+              user_data_id: Number(userId),
+            },
+          },
+        },
+        skip,
+        take: Number(size),
+
+        select: {
+          description: true,
+          question: {
+            select: {
+              body: true,
+              situation: true,
+              answer: true,
+            },
+          },
+        },
+      });
+      return questions;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async questionSetNumber(@Query("userId") userId: number) {
+    try {
+      const distinctQuestionSetCount = await this.prisma
+        .$queryRaw<number>`SELECT COUNT(DISTINCT question_set_id) FROM question WHERE user_data_id = ${userId}::integer`;
+
+      const count = Number(distinctQuestionSetCount[0].count);
+
+      return count;
+    } catch (error) {
+      console.log(error);
+      console.log("error");
+    }
+  }
+
+  async ReportQuestion(reportValues: ReportQuestion) {
+    try {
+      const report_ids = await this.prisma.report_reasons.findMany({
+        where: {
+          reason: {
+            in: reportValues.report_reasons,
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      const report_ids_only = report_ids.map((report) => report.id);
+
+      const createdReports = await this.prisma.$transaction(
+        report_ids_only.map((report_id) =>
+          this.prisma.question_set_report.create({
+            data: {
+              question_set_id: reportValues.question_set_id,
+              report_reasons_id: report_id,
+              user_data_id: reportValues.userId,
+            },
+          })
+        )
+      );
+
+      const countedReports = await this.prisma.$queryRaw`
+        SELECT COUNT(DISTINCT user_data_id) AS count_of_different_reports
+        FROM question_set_report where question_set_id = ${createdReports[0].question_set_id};
+      `;
+
+      const numberOfReports = Number(
+        countedReports[0].count_of_different_reports
+          .toString()
+          .replace(/\D/g, "")
+      );
+
+      if (numberOfReports >= 3) {
+        console.log("truuue");
+        const transaction = await this.prisma.$transaction([
+          // Update questions with the specified question_set_id to have "inactive" situation
+          this.prisma.question.updateMany({
+            where: {
+              question_set_id: Number(createdReports[0].question_set_id),
+            },
+            data: {
+              situation: "inactive",
+            },
+          }),
+
+          // Update the corresponding question_set to have "inactive" situation
+          this.prisma.question_set.update({
+            where: {
+              id: Number(createdReports[0].question_set_id),
+            },
+            data: {
+              situation: "inactive",
+            },
+          }),
+        ]);
+      }
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
   async findTenQuestions(tags: any) {
-    console.log("tags");
-    console.log(tags);
-    console.log("tags");
     try {
       let arr = [];
       if (tags.tags instanceof Array) {
@@ -303,7 +364,6 @@ export class QuestionsService {
       } else {
         arr.push(tags.tags);
       }
-      // console.log(`meu arr ${arr}`);
       const tags_ids = await this.prisma.tag.findMany({
         where: {
           name: {
@@ -314,8 +374,6 @@ export class QuestionsService {
 
       //getting only the ids
       let new_tags_ids = tags_ids.map((tag) => tag.id);
-
-      console.log(new_tags_ids);
 
       const ten_questions_ids = await this.prisma.question_set_tag.findMany({
         where: {
@@ -330,17 +388,25 @@ export class QuestionsService {
         (question) => question.question_set_id
       );
 
-      console.log("teste");
-      console.log(set_tag_ids);
-
       const ten_questions = await this.prisma.question_set.findMany({
         where: {
           id: {
             in: set_tag_ids,
           },
         },
+        include: {
+          question: {
+            select: {
+              user_data: {
+                select: {
+                  display_name: true,
+                  id: true,
+                },
+              },
+            },
+          },
+        },
       });
-      console.log(ten_questions);
 
       return ten_questions;
     } catch (error) {
@@ -363,8 +429,6 @@ export class QuestionsService {
           },
         },
       });
-
-      console.log(questions);
 
       const questions_ids = questions.map((question) => question.id);
 
@@ -391,7 +455,6 @@ export class QuestionsService {
       }
 
       return questions;
-      // return {questions, difficulty:questions.[0]};
     } catch (error) {
       console.log(error);
       return "deu ruim ao achar as questoes";
@@ -413,10 +476,6 @@ export class QuestionsService {
   }
 
   async findRightAnswers(answers: AnswerQuestionDto) {
-    console.log("answers");
-    console.log(answers);
-    console.log("answers");
-
     try {
       //getting the user questions ids
       const questionIds = answers.chosenAnswers.map((question) => {
@@ -467,9 +526,6 @@ export class QuestionsService {
       const result = answersReturned.filter(
         (answer, index) => answer.id === answerIds[index]
       );
-
-      // console.log("result");
-      // console.log(result);
 
       //get the user info for the level up related stuff
       const userData = await this.prisma.user_data.findUnique({
@@ -539,10 +595,6 @@ export class QuestionsService {
       //the current exp plus the amount gained from answering right
       const newExperience = userData.experience + totalExp;
 
-      console.log("user data");
-      console.log(newExperience, experienceThreshold, userData.nivel);
-      console.log("user data");
-
       //after the calculation with the gained exp, how much it leveled up
       const currentLevel = calculateLevel(
         newExperience,
@@ -550,25 +602,8 @@ export class QuestionsService {
         userData.nivel
       );
 
-      console.log("currentLevel");
-      console.log(currentLevel);
-
-      // const updatedUser = await this.prisma.user_data.update({
-      //   where: {
-      //     id: answers.userId,
-      //   },
-      //   data: {
-      //     nivel: currentLevel.level,
-      //     experience:
-      //       currentLevel.experienceTowardsNextLevel + userData.experience,
-      //   },
-      // });
       let updatedUser = {};
       let hasLevelUp = false;
-
-      console.log("newExperience:", newExperience);
-      console.log("userData.experience:", userData.experience);
-      console.log("totalExp:", totalExp);
 
       if (newExperience >= experienceThreshold) {
         const remainingExperience = newExperience - experienceThreshold;
@@ -597,10 +632,6 @@ export class QuestionsService {
 
           hasLevelUp = true;
         } else {
-          console.log("entrou2");
-          // const updatedExperience =
-          //   currentLevel.experienceTowardsNextLevel + remainingExperience;
-
           updatedUser = await this.prisma.user_data.update({
             where: {
               id: answers.userId,
@@ -608,7 +639,6 @@ export class QuestionsService {
             data: {
               nivel: currentLevel.level,
               experience: currentLevel.remainingExperience,
-              // experience: remainingExperience,
               status_point_remain: userData.status_point_remain + 5,
             },
           });
@@ -626,18 +656,6 @@ export class QuestionsService {
           },
         });
       }
-
-      // console.log("updatedUser");
-      // console.log(updatedUser);
-
-      // console.log(answersReturned);
-      // console.log(answerIds);
-
-      // console.log("questoes acertadas");
-      // console.log(result);
-      // return { ...result, hasLevelUp };
-      //@ts-ignore
-      // return result;
       return {
         result,
         hasLevelUp,
@@ -664,16 +682,9 @@ export class QuestionsService {
   }
 
   async updateRating(questionSetId: number, newRating: number) {
-    console.log("questionSetId");
-    console.log(questionSetId);
-    console.log("newRating");
-    console.log(newRating);
-    //
-
     const questionSet = await this.prisma.question_set.findFirst({
       where: { id: Number(questionSetId) },
       select: { id: true, rating: true },
-      //
     });
 
     if (!questionSet) {

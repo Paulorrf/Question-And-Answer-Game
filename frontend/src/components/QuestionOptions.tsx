@@ -6,7 +6,6 @@ import React, {
   SetStateAction,
 } from "react";
 import useStore from "../store/store";
-// import axios from "axios";
 import axios from "@/axios";
 import { BsArrowRightSquareFill } from "react-icons/bs";
 import questionQuantityStore from "@/store/questionsQuantityStore";
@@ -16,16 +15,10 @@ import setQuestionStore from "@/store/setQuestionStore";
 
 import { useDisclosure } from "@mantine/hooks";
 import { Modal, Button, Group, Checkbox, Grid, TextInput } from "@mantine/core";
-import styled from "@emotion/styled";
 
 interface DifficultyProp {
   name: string;
   brName: string;
-}
-
-interface QuestionProps {
-  difficulty: string;
-  setDifficulty: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface DifficultyProp {
@@ -60,10 +53,7 @@ const QuestionOptions = ({
 }) => {
   const [genericTags, setGenericTags] = useState<Array<string>>([]);
   const [specificTags, setSpecificTags] = useState<Array<string>>([]);
-  const [recommendations, setRecommendations] = useState([]);
   const [recSpec, setRecSpec] = useState([]);
-  const [idxGen, setIdxGen] = useState<number>(0);
-  const [idxSpec, setIdxSpec] = useState<number>(0);
   const [error, setError] = useState(false);
   const [errorTagExist, setErrorTagExist] = useState(false);
 
@@ -72,7 +62,6 @@ const QuestionOptions = ({
 
   const quantityOptions = [5, 10, 15, 20];
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const inputRef2 = useRef<HTMLInputElement>(null);
   const inputRefDesc = useRef<HTMLInputElement>(null);
   const inputRefTitle = useRef<HTMLInputElement>(null);
@@ -91,7 +80,6 @@ const QuestionOptions = ({
   //zustand functions
   const changeDifficulty = useStore((state) => state.changeDifficulty);
   const changeQuantity = questionQuantityStore((state) => state.changeQuantity);
-  const changeTagsGeneric = tagsStore((state) => state.changeGeneric);
   const changeGenericArr = tagsStore((state) => state.changeGenericArr);
   const changeTagsSpec = tagsStore((state) => state.changeSpecific);
   const changeSpecificArr = tagsStore((state) => state.changeSpecificArr);
@@ -110,7 +98,6 @@ const QuestionOptions = ({
   const performAction = nextBtnStore((state) => state.performAction);
 
   const [opened, { open, close }] = useDisclosure(false);
-  // const [openedSpec, { open, close }] = useDisclosure(false);
   const [openSpecModal, setOpenSpecModal] = useState(false);
 
   console.log("dificuldade");
@@ -180,25 +167,12 @@ const QuestionOptions = ({
     getData();
   }, [tagsGeneric]);
 
-  async function handleGenericChange(event: React.FormEvent<HTMLInputElement>) {
-    if (event.currentTarget.value !== "") {
-      const returnedValues = await axios.get(
-        `portal/gletter/${event.currentTarget.value}`
-      );
-      console.log(returnedValues.data);
-      setRecommendations(returnedValues.data);
-    } else {
-      setRecommendations([]);
-    }
-  }
-
   const handleTitleInput = () => {
     if (inputRefTitle.current?.value !== null) {
       changeQuestionSet({
         title: inputRefTitle.current?.value!,
         description: inputRefDesc.current?.value ?? "",
       });
-      // setInputValue(inputRef.current.value);
     }
   };
 
@@ -208,15 +182,14 @@ const QuestionOptions = ({
         title: inputRefTitle.current?.value! ?? "",
         description: inputRefDesc.current?.value!,
       });
-      // setInputValue(inputRef.current.value);
     }
   };
 
   async function handleSpecificChange(
     event: React.FormEvent<HTMLInputElement>
   ) {
-    if (event.currentTarget.value !== "" && genericTags.length > 0) {
-      const words = genericTags.join();
+    if (event.currentTarget.value !== "" && tagsGeneric.length > 0) {
+      const words = tagsGeneric.join();
       console.log(words);
 
       const returnedValues = await axios.get(
@@ -226,21 +199,6 @@ const QuestionOptions = ({
       setRecSpec(returnedValues.data);
     } else {
       setRecSpec([]);
-    }
-  }
-
-  function addGenericTag(name: string, index: number) {
-    setRecommendations([]);
-    //@ts-ignore
-    setIdxGen((prev) => {
-      let val = (prev ??= 0);
-      return val + 1;
-    });
-    changeTagsGeneric(name);
-    setGenericTags((prev) => [...prev, name]);
-    if (inputRef.current) {
-      inputRef.current.value = "";
-      inputRef.current.focus();
     }
   }
 
@@ -255,44 +213,9 @@ const QuestionOptions = ({
     }
   }
 
-  function handleGenericDelete() {
-    const genUpdated = [...genericTags];
-    if (idxGen) {
-      genUpdated.splice(idxGen - 1, 1);
-      setIdxGen((prev) => {
-        let val = (prev ??= 0);
-        return prev <= 0 ? 0 : val - 1;
-      });
-      setGenericTags(genUpdated);
-    }
-  }
-  function handleSpecificDelete() {
-    const specUpdated = [...specificTags];
-    if (idxGen) {
-      specUpdated.splice(idxGen - 1, 1);
-      setIdxSpec((prev) => {
-        let val = (prev ??= 0);
-        return prev <= 0 ? 0 : val - 1;
-      });
-      setSpecificTags(specUpdated);
-    }
-  }
-
-  // function handleSpecificDelete(index: number) {
-  //   const specUpdated = [...specificTags];
-  //   specUpdated.splice(index, 1);
-  //   setSpecificTags(specUpdated);
-  // }
-
-  function handleAddGeneric(event: React.SyntheticEvent) {
-    event.preventDefault();
-
-    if (inputRef.current !== null && inputRef.current.value !== null) {
-      let value = inputRef.current.value;
-      changeTagsGeneric(value);
-      setGenericTags((prev) => [...prev, value]);
-      inputRef.current.value = "";
-    }
+  function closeSpecModal() {
+    setOpenSpecModal(false);
+    setRecSpec([]);
   }
 
   const compareArrays = (a: string[], b: string[]) =>
@@ -303,7 +226,6 @@ const QuestionOptions = ({
 
     if (compareArrays(storedRecommendedSpec, newTags)) {
       setErrorTagExist(true);
-      console.log("entrou");
     }
 
     if (
@@ -316,11 +238,7 @@ const QuestionOptions = ({
       addStoredRecommendedSpecOne(value);
       addNewTag(value);
       changeTagsSpec(value);
-      console.log("value");
-      console.log(value);
-      console.log("value");
       setAllSpecTags((prev) => [...prev, value]);
-      // changeTagsSpec(value);
       setSpecificTags((prev) => [...prev, value]);
       inputRef2.current.value = "";
     }
@@ -334,34 +252,16 @@ const QuestionOptions = ({
       setQuestion.description !== "" &&
       setQuestion.title !== ""
     ) {
-      // tagsSpec.map((tag) => {
-      //   changeTagsSpec(tag);
-      // });
       setProximo((prev: number) => prev + 1);
     } else {
       setError(true);
     }
   }
 
-  // useEffect(() => {
-  //   genericTags.map((tag) => {
-  //     changeTagsGeneric(tag);
-  //   });
-  // }, [genericTags]);
-
   console.log(tagsSpec);
   console.log(allSpecTags);
-  console.log(newTags);
+  console.log(inputRef2?.current?.value);
   // console.log(idxGen);
-
-  // const handleButtonClick = () => {
-  //   if (inputRef.current) {
-  //     inputRef.current.value = '';
-  //     inputRef.current.focus();
-  //   }
-  // };
-
-  // console.log(allGenericTags);
 
   return (
     <div>
@@ -475,7 +375,8 @@ const QuestionOptions = ({
             <div className="">
               <Modal
                 opened={openSpecModal}
-                onClose={() => setOpenSpecModal(false)}
+                onClose={closeSpecModal}
+                // onClose={() => setOpenSpecModal(false)}
                 title="ESCOLHA PELO MENOS DUAS TAGS"
                 transitionProps={{ transition: "rotate-left" }}
                 trapFocus={false}
@@ -511,25 +412,28 @@ const QuestionOptions = ({
                     </div>
 
                     <div className="z-20 w-full">
-                      {recSpec.length > 0 && (
-                        <div className="w-full bg-white text-center text-black ring-2 ring-zinc-600">
-                          <ul className="grid grid-flow-col grid-rows-4 gap-4 p-2 child:mr-2">
-                            {recSpec.map(
-                              (recSpec: { id: number; name: string }) => {
-                                return (
-                                  <li
-                                    key={recSpec.id}
-                                    className="cursor-pointer underline underline-offset-1 hover:font-bold"
-                                    onClick={() => addSpecificTag(recSpec.name)}
-                                  >
-                                    {recSpec.name}
-                                  </li>
-                                );
-                              }
-                            )}
-                          </ul>
-                        </div>
-                      )}
+                      {recSpec.length > 0 &&
+                        inputRef2?.current?.value !== "" && (
+                          <div className="w-full bg-white text-center text-black ring-2 ring-zinc-600">
+                            <ul className="grid grid-flow-col grid-rows-4 gap-4 p-2 child:mr-2">
+                              {recSpec.map(
+                                (recSpec: { id: number; name: string }) => {
+                                  return (
+                                    <li
+                                      key={recSpec.id}
+                                      className="cursor-pointer underline underline-offset-1 hover:font-bold"
+                                      onClick={() =>
+                                        addSpecificTag(recSpec.name)
+                                      }
+                                    >
+                                      {recSpec.name}
+                                    </li>
+                                  );
+                                }
+                              )}
+                            </ul>
+                          </div>
+                        )}
                     </div>
                   </div>
                   <div>

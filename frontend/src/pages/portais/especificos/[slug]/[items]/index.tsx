@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { BsStarFill, BsStarHalf, BsStar } from "react-icons/bs";
-// import axios from "axios";
 import axios, { cancelTokenSource, isCancel } from "@/axios";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { decode } from "jsonwebtoken";
 import Layout from "@/components/Layout";
-import ModalStatus from "../../../../../components/ModalStatus";
+import { useDisclosure } from "@mantine/hooks";
+import { Button, Group, Modal, Rating } from "@mantine/core";
+import ModalData from "@/components/ModalData";
 
 type Repo = {
   id: number;
@@ -17,6 +18,38 @@ type Repo = {
   rating: number;
   difficulty: string;
   situation: string;
+};
+
+type Item = {
+  answered_number: number;
+  description: string;
+  difficulty: string;
+  id: number;
+  question: [
+    {
+      user_data: {
+        display_name: string;
+        id: number;
+      };
+    }
+  ];
+  question_number: number;
+  rating: number;
+  situation: string;
+  title: string;
+};
+
+type Data = {
+  availables: string[];
+  portalStatus: {
+    agility_required: number;
+    difficulty: string;
+    id: number;
+    intelligence_required: number;
+    luck_required: number;
+    portal_name: string;
+    strength_required: number;
+  }[];
 };
 
 const difficultyMap: Record<string, string> = {
@@ -77,7 +110,23 @@ const RatingDisplay = ({ rating }: { rating: number }) => {
   return <div className="flex gap-2">{renderStars()}</div>;
 };
 
-function question(item: any, path: any, data: any) {
+function convertNumber(number: number) {
+  var roundedNumber = Math.floor(number); // Round down the number to the nearest integer
+  var decimalPart = number - roundedNumber; // Extract the decimal part of the number
+
+  if (decimalPart >= 0.3 && decimalPart <= 0.5) {
+    decimalPart = 0.5;
+  } else if (decimalPart >= 0.6 && decimalPart <= 0.9) {
+    decimalPart = 1;
+  } else {
+    decimalPart = 0;
+  }
+
+  return roundedNumber + decimalPart;
+}
+
+function question(item: Item, path: any, data: any) {
+  console.log(item);
   const difficulty = difficultyMap[item.difficulty];
   const difficultyColor = difficultyColorMap[item.difficulty]; // Get the color class based on the difficulty level
   const condition =
@@ -113,16 +162,24 @@ function question(item: any, path: any, data: any) {
                 <h2 className={difficultyColor}>{difficulty}</h2>
               </div>
             </div>
-            <p>{item.body}</p>
+            {/* <p>{item.body}</p> */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-bold">
                   Quantidade de perguntas: {item.question_number}
                 </h2>
               </div>
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <RatingDisplay rating={item.rating} />
                 <p className="ml-2">{item.rating}</p>
+              </div> */}
+              <div className="flex items-center">
+                <Rating
+                  fractions={2}
+                  defaultValue={convertNumber(item.rating)}
+                  readOnly
+                />
+                <p className="ml-2">{convertNumber(item.rating)}</p>
               </div>
             </div>
           </div>
@@ -149,7 +206,7 @@ function question(item: any, path: any, data: any) {
                 <h2 className={difficultyColor}>{difficulty}</h2>
               </div>
             </div>
-            <p>{item.body}</p>
+            {/* <p>{item.body}</p> */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-bold">
@@ -164,36 +221,44 @@ function question(item: any, path: any, data: any) {
           </div>
         </div>
       )}
+      <p className="mb-2 mt-2 px-2 font-bold">
+        Criado por:
+        <Link href={`/user/${item.question[0].user_data.id}`}>
+          <span className="ml-2 text-sky-500">
+            {item.question[0].user_data.display_name.toUpperCase()}
+          </span>
+        </Link>
+      </p>
       <hr className="mb-4" />
     </div>
   );
 }
 
 const Page = ({ repo }: any) => {
-  const [data, setData] = useState<any>();
-  const [isOpen, setIsOpen] = useState(false);
+  const [data, setData] = useState<Data | undefined>(undefined);
   const [newStatus, setNewStatus] = useState<any>();
-
-  const handleOpenModal = () => {
-    setIsOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsOpen(false);
-  };
+  const [opened, { open, close }] = useDisclosure(false);
 
   const router = useRouter();
 
   const path = router.asPath;
 
-  let userStatus: any;
+  // let userStatus: any;
   let userId: any;
 
   if (typeof window !== "undefined") {
-    //@ts-ignore
-    userStatus = decode(localStorage?.getItem("user")).status;
-    //@ts-ignore
-    userId = decode(localStorage?.getItem("user")).sub;
+    // userStatus = decode(localStorage?.getItem("user")).status;
+    const userFromLocalStorage = localStorage?.getItem("user") ?? ""; // Use an empty string as a default value if localStorage.getItem("user") is null
+    const decodedUser = decode(userFromLocalStorage)?.sub;
+
+    console.log(decodedUser);
+
+    if (decodedUser === "" || decodedUser === undefined) {
+      // setIsLogged(false);
+      router.push("/register");
+    } else {
+      userId = decodedUser;
+    }
   }
 
   useEffect(() => {
@@ -222,7 +287,6 @@ const Page = ({ repo }: any) => {
         });
 
         const data1 = response1.data;
-        console.log(data1);
 
         setData(data1);
       } catch (error) {
@@ -247,18 +311,26 @@ const Page = ({ repo }: any) => {
       <div className="mt-8 overflow-hidden text-white">
         <div className="fixed left-0 top-0 z-10 h-screen w-screen"></div>
         <div className="relative z-20 mx-auto mt-16 max-h-screen w-3/4 overflow-y-auto px-8 child:mb-2">
-          <button className="btn-primary" onClick={() => setIsOpen(true)}>
-            Status Necessários Por Dificuldade
-          </button>
-          <ModalStatus
-            isOpen={isOpen}
-            onClose={handleCloseModal}
-            portalStatusArray={data?.portalStatus}
-            availables={data?.availables}
-            userStatus={newStatus}
-          />
+          <Modal
+            opened={opened}
+            onClose={close}
+            title="Status Necessários Por Dificuldade"
+            centered
+            size="auto"
+          >
+            <ModalData
+              portalStatusArray={data?.portalStatus}
+              availables={data?.availables}
+              userStatus={newStatus}
+            />
+          </Modal>
+          <Group className="mb-2">
+            <Button className="btn-primary" onClick={open}>
+              Status Necessários Por Dificuldade
+            </Button>
+          </Group>
           {data &&
-            repo.map((item: any) => {
+            repo.map((item: Item) => {
               return question(item, path, data);
             })}
         </div>

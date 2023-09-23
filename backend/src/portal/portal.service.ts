@@ -82,14 +82,15 @@ export class PortalService {
 
   async findSpecificByLetter(word: string, generic: string) {
     try {
-      const names = generic.split(",");
-      const names2 = names.map((value) => value.toUpperCase());
-      // console.log(names2);
+      const genericNames = generic.split(",");
+      const genericNamesUpperCase = genericNames.map((value) =>
+        value.toUpperCase()
+      );
 
       const genericIds = await this.prisma.portal.findMany({
         where: {
           name: {
-            in: names2,
+            in: genericNamesUpperCase,
           },
         },
         select: {
@@ -97,7 +98,6 @@ export class PortalService {
         },
       });
 
-      // console.log(genericIds);
       const genericIds2 = genericIds.map((item) => item.id);
 
       const foundPortal = await this.prisma.portal_spec.findMany({

@@ -19,10 +19,7 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({ query }) => {
   console.log("query");
   console.log(query);
-  // const res = await fetch(
-  //   `https://question-and-answer-game-production.up.railway.app/portal/specific/${query.slug}`
-  // );
-  // const repo = await res.json();
+
   const res = await axios.get(`portal/specific/${query.slug}`);
   return { props: { repo: res.data } };
 };

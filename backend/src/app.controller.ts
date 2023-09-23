@@ -34,23 +34,16 @@ export class AppController {
     return this.usersService.findOneById(+id);
   }
 
-  @Post("auth/signin")
-  async signin(@Request() req) {
-    // console.log("eaeaiejidjajds");
-    // console.log("req");
-    // console.log(req.body);
-    // console.log("req");
-    return this.usersService.create(req.body);
-  }
+  // @Post("auth/signin")
+  // async signin(@Request() req) {
+  //   return this.usersService.create(req.body);
+  // }
 
-  @UseGuards(LocalAuthGuard)
-  @Post("auth/login")
-  async login(@Request() req) {
-    console.log("req user");
-    console.log(req.user);
-    console.log("req user");
-    return this.authService.login(req.user);
-  }
+  // @UseGuards(LocalAuthGuard)
+  // @Post("auth/login")
+  // async login(@Request() req) {
+  //   return this.authService.login(req.user);
+  // }
 
   @Get("auth/:id")
   getStatus(@Param("id") id: string) {
