@@ -48,26 +48,52 @@ export class AuthGoogleController {
 
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
-  async googleAuthRedirect(@Req() req: { user: IUser }, @Res() res: Response) {
+  async googleAuthRedirect(@Req() req: { user: any }, @Res() res: Response) {
     try {
       const user = req.user; // User data obtained from Google OAuth
 
-      //saves user in the db
-      this.usersService.create({
+      console.log("user::: ", user);
+
+      //saves user in the db if doesn't exist
+      const userDataFromDB = await this.usersService.create({
         email: req.user.email,
         name: req.user.firstName,
-        access_tk: req.user.accessToken,
+        // access_tk: req.user.accessToken,
         refresh_tk: req.user.refreshToken,
       });
 
-      const userJson = JSON.stringify(user);
+      console.log("refresh_tk::: ", req.user.refreshToken);
+
+      const currentTimestamp = new Date(); // Current timestamp
+      currentTimestamp.setHours(currentTimestamp.getHours() + 1);
+
+      //transforms to string
+      const accessExpiresISO = currentTimestamp.toISOString();
+
+      //create a session for the user
+      const sessionID = await this.sessionStoresService.create({
+        ...userDataFromDB,
+        accessToken: req.user.accessToken,
+        // refreshToken: req.user.refreshToken,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        picture: req.user.picture,
+        access_expires: accessExpiresISO,
+      });
+
+      // const userJson = JSON.stringify(user.email);
+
       const oneDayInSeconds = 60 * 60 * 24; // One day in seconds
+      const thirtyDaysInSeconds = oneDayInSeconds * 30; // Thirty days in seconds
 
       const expirationDate = new Date();
-      expirationDate.setTime(expirationDate.getTime() + oneDayInSeconds * 1000); // Convert seconds to milliseconds
+      expirationDate.setTime(
+        expirationDate.getTime() + thirtyDaysInSeconds * 1000
+      );
 
       // Set the 'userData' cookie with the calculated expiration date
-      res.cookie("userData", userJson, {
+      res.cookie("userData", sessionID, {
         httpOnly: false, // Set to false to allow server-side access
         secure: false, // Set to false for testing on localhost (use true in production with HTTPS)
         expires: expirationDate,
@@ -75,11 +101,8 @@ export class AuthGoogleController {
         path: "/", // Specify the path where the cookie is accessible
       });
 
-      //create a session for the user
-      this.sessionStoresService.create(req.user);
-
       // Redirect the user back to frontend
-      return res.redirect("http://localhost:3000/success");
+      return res.redirect("http://localhost:3000/");
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "OAuth callback error" });

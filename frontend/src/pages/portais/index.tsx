@@ -1,28 +1,65 @@
 import Link from "next/link";
 import React, { useState } from "react";
-import type { InferGetStaticPropsType, GetStaticProps } from "next";
+import type {
+  InferGetStaticPropsType,
+  GetStaticProps,
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+} from "next";
 import Layout from "@/components/Layout";
 import Portal from "../../assets/portal3.png";
 import Image from "next/image";
 import Slider from "react-slick";
+import { getCookie, hasCookie } from "cookies-next";
 
 import axios from "@/axios";
+import { checkAuthentication } from "@/utils/authUtil";
 
-export const getStaticProps: GetStaticProps<{
-  portais: Array<{ id: number; name: string }>;
-}> = async () => {
-  // const res = await fetch(
-  //   "https://question-and-answer-game-production.up.railway.app/portal/generic"
-  // );
-  const res = await axios.get("/portal/generic");
-  // const portais = await res.json();
-  return { props: { portais: res.data } };
-};
+type PortaisProps = Array<{ id: number; name: string }>;
+
+export const getServerSideProps = (async (context) => {
+  const sessionCookie = context.req.cookies["userData"];
+  console.log(sessionCookie);
+
+  //cookie not set
+  if (sessionCookie === undefined) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  const userIsLoggedIn = await checkAuthentication(sessionCookie);
+
+  console.log("userlogged: ", userIsLoggedIn);
+
+  if (!userIsLoggedIn) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const res = await axios.get("/portal/generic");
+    const portais = res.data;
+    return { props: { portais } };
+  } catch (error) {
+    console.error("Error fetching portal data:", error);
+    return { props: { portais: [] } };
+  }
+}) satisfies GetServerSideProps<{
+  portais: PortaisProps;
+}>;
 
 const Portais = ({
   portais,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
-  console.log(portais);
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  // console.log(portais);
 
   const settings = {
     dots: false,
@@ -36,7 +73,7 @@ const Portais = ({
     <Layout>
       <div className="mx-auto mt-36 w-[1200px] text-white">
         <Slider {...settings}>
-          {portais.map((portal, index) => (
+          {portais.map((portal: any, index: number) => (
             <div key={index} className="text-center">
               <h3>{portal.name.toUpperCase()}</h3>
 
@@ -53,48 +90,6 @@ const Portais = ({
       </div>
     </Layout>
   );
-
-  // return (
-  //   <Layout>
-  //     <div className="relative">
-  //       <div className="absolute left-2/4 top-1/4 -translate-x-2/4 -translate-y-1/4 text-center text-white">
-  //         <div className="overflow-hidden">
-  //           <ul
-  //             className="flex transition-transform duration-300 ease-in-out"
-  //             style={{ transform: `translateX(${translateX})` }}
-  //           >
-  //             {portais.map((portal) => (
-  //               <li key={portal.id} className="w-56">
-  //                 <p>{portal.name}</p>
-  //                 <Link href={`/portais/especificos/${portal.name}`}>
-  //                   <Image src={Portal} alt="portal" />
-  //                 </Link>
-  //               </li>
-  //             ))}
-  //           </ul>
-  //         </div>
-  //       </div>
-  //       <div className="absolute right-0 top-1/2 -translate-y-1/2 transform">
-  //         {currentSlide !== 0 && (
-  //           <button
-  //             className="rounded-full bg-gray-500 p-2 text-white"
-  //             onClick={handlePrevSlide}
-  //           >
-  //             Prev
-  //           </button>
-  //         )}
-  //         {currentSlide !== portais.length - slidesToShow && (
-  //           <button
-  //             className="rounded-full bg-gray-500 p-2 text-white"
-  //             onClick={handleNextSlide}
-  //           >
-  //             Next
-  //           </button>
-  //         )}
-  //       </div>
-  //     </div>
-  //   </Layout>
-  // );
 };
 
 export default Portais;

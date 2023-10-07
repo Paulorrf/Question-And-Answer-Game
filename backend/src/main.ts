@@ -10,12 +10,14 @@ async function bootstrap() {
   // });
   const corsOptions: any = {
     // origin: "http://localhost:3000",
-    origin: "*",
+    // origin: "*",
+    origin: "http://localhost:3000",
+    credentials: true,
     // You can set other CORS options here
   };
+  app.use(cookieParser());
   app.enableCors(corsOptions);
   app.use(helmet());
-  app.use(cookieParser());
   await app.listen(5000);
 }
 bootstrap();

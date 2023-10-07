@@ -4,6 +4,9 @@ import { GiSpikedDragonHead } from "react-icons/gi";
 import { decode } from "jsonwebtoken";
 import { useRouter } from "next/router";
 import { MdLogout } from "react-icons/md";
+import { useAuthentication } from "@/customHooks/useAuthentication";
+import { logoutUser } from "@/api/logout";
+import { deleteCookie } from "cookies-next";
 
 interface UserProp {
   email: string;
@@ -20,39 +23,30 @@ interface UserProp {
 }
 
 const Navbar = () => {
-  const [accessTk, setAccessTk] = useState<String | null | undefined>();
-  const [isUserIdReady, setIsUserIdReady] = useState(false);
+  const userIsLogged = useAuthentication();
+
   const router = useRouter();
 
   const user = useRef<UserProp | undefined>(undefined);
 
-  // console.log(localStorage?.getItem("user"));
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setAccessTk(localStorage.getItem("user"));
-    }
-  }, []);
+  function logout() {
+    const sessionCookie: string | undefined = document.cookie.replace(
+      /(?:(?:^|.*;\s*)userData\s*\=\s*([^;]*).*$)|^.*$/,
+      "$1"
+    );
 
-  useEffect(() => {
-    if (accessTk !== undefined) {
-      //@ts-ignore
-      const decodedToken = decode(localStorage?.getItem("user"));
-      if (decodedToken && decodedToken.sub) {
-        //@ts-ignore
-        user.current = decodedToken;
-        setIsUserIdReady(true);
-      }
-    }
-  }, [accessTk]);
+    if (sessionCookie && userIsLogged) {
+      //delete session from redis
+      logoutUser(sessionCookie);
 
-  function handleLogout() {
-    localStorage.clear();
-    setAccessTk(undefined);
-    user.current = undefined;
-    router.push("/");
+      //delete cookie from browser
+      deleteCookie("userData");
+
+      //send to homepage
+      // router.push("/");
+      window.location.href = "/";
+    }
   }
-
-  // console.log(user);
 
   return (
     <div className="relative z-30 bg-black/75">
@@ -73,7 +67,7 @@ const Navbar = () => {
           </li>
         )}
 
-        {!user.current && (
+        {!userIsLogged && (
           <>
             <li className="group flex items-center  hover:underline">
               <div className="invisible z-40 mr-2 text-black group-hover:visible">
@@ -81,12 +75,12 @@ const Navbar = () => {
               </div>
               <Link href="/login">Login</Link>
             </li>
-            <li className="group flex items-center  hover:underline">
+            {/* <li className="group flex items-center  hover:underline">
               <div className="invisible z-40 mr-2 text-black group-hover:visible">
                 <GiSpikedDragonHead color="white" size={20} />
               </div>
               <Link href="/register">Criar conta</Link>
-            </li>
+            </li> */}
           </>
         )}
 
@@ -107,12 +101,13 @@ const Navbar = () => {
                 <p className=" hover:underline">{user.current.name}</p>
               </div>
             </Link>
-
-            <div className="flex items-center text-white hover:scale-125 ">
-              <button onClick={handleLogout}>
-                <MdLogout size={20} />
-              </button>
-            </div>
+          </li>
+        )}
+        {userIsLogged && (
+          <li className="flex items-center text-white hover:scale-125 ">
+            <button onClick={logout}>
+              <MdLogout size={20} />
+            </button>
           </li>
         )}
       </ul>

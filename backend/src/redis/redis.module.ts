@@ -6,10 +6,7 @@ import Redis from "ioredis";
   providers: [
     {
       provide: "REDIS_CLIENT", // Provide a token for the Redis client
-      useValue: new Redis({
-        host: "localhost",
-        port: 6379,
-      }),
+      useValue: new Redis(process.env.REDIS_URL),
     },
   ],
   exports: ["REDIS_CLIENT"],

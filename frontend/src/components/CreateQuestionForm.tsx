@@ -176,12 +176,12 @@ const CreateQuestionForm = ({
     setProximo((prev: number) => prev - 1);
   }
 
-  console.log("questions");
-  console.log(tags_primary);
-  console.log(tags_spec);
-  // console.log(quantity);
-  // console.log(totalQuantity);
-  console.log("questions");
+  // console.log("questions");
+  // console.log(tags_primary);
+  // console.log(tags_spec);
+  // // console.log(quantity);
+  // // console.log(totalQuantity);
+  // console.log("questions");
 
   return quantity === totalQuantity ? (
     <p>Criando o questionário...</p>

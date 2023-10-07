@@ -29,10 +29,10 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get("auth/:id")
-  findOneById(@Param("id") id: string) {
-    return this.usersService.findOneById(+id);
-  }
+  // @Get("auth/:id")
+  // findOneById(@Param("id") id: string) {
+  //   return this.usersService.findOneById(+id);
+  // }
 
   // @Post("auth/signin")
   // async signin(@Request() req) {

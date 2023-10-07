@@ -65,6 +65,13 @@ export class AuthService {
     }
   }
 
+  async checkAuth(sessionID: any) {
+    console.log("sessionID");
+    console.log(sessionID);
+    console.log("sessionID");
+    return true;
+  }
+
   async getTokens(userId: string, email: string) {
     const userStatus = await this.prisma.user_data.findFirst({
       where: {

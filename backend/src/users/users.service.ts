@@ -7,12 +7,16 @@ import { LostStatus } from "./dto/lostStatus-user-dto";
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
-
+  //
   async create(createUserDto: CreateUserDto) {
     //check if user exist
     const user = await this.prisma.user_data.findUnique({
       where: {
         email: createUserDto.email,
+      },
+      select: {
+        id: true,
+        nivel: true,
       },
     });
 
@@ -20,9 +24,11 @@ export class UsersService {
       return user;
     }
 
-    console.log(createUserDto);
+    //races are created manually in the db
     let idRace: number;
+    //status are created manually in the db for each race
     let idStatus: number;
+
     if (createUserDto.race === "orc") {
       idRace = 1;
       idStatus = 2;
@@ -42,7 +48,7 @@ export class UsersService {
           display_name: createUserDto.name,
           token: {
             create: {
-              access_tk: createUserDto.access_tk ?? "",
+              // access_tk: createUserDto.access_tk ?? "",
               refresh_tk: createUserDto.refresh_tk ?? "",
             },
           },
