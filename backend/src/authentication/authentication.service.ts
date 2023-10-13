@@ -23,6 +23,7 @@ export class AuthenticationService {
     const currentTimestamp = new Date();
     const accessExpiresISO = currentTimestamp.toISOString();
 
+    //
     // Check if the access token has expired
     if (expirationTime > currentTimestamp) {
       //access token still valid
