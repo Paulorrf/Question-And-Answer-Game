@@ -1,6 +1,4 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { CreateAuthenticationDto } from "./dto/create-authentication.dto";
-import { UpdateAuthenticationDto } from "./dto/update-authentication.dto";
 import { Redis } from "ioredis";
 
 @Injectable()
@@ -9,12 +7,7 @@ export class AuthenticationService {
 
   async checkAuth(sessionID: string) {
     const sessionIdWithoutQuotes = sessionID.replace(/['"]+/g, "");
-    console.log("sessionIdWithoutQuotes: ", sessionIdWithoutQuotes);
-
-    /**
-     * accessToken: string;
-  refreshToken: string;
-     */
+    // console.log("sessionIdWithoutQuotes: ", sessionIdWithoutQuotes);
 
     const expirationTimeString = await this.redisClient.hget(
       sessionIdWithoutQuotes,
@@ -35,6 +28,7 @@ export class AuthenticationService {
       //access token still valid
       return true;
     } else {
+      //set new time for the access token
       currentTimestamp.setHours(currentTimestamp.getHours() + 1);
       this.redisClient.hset(
         sessionIdWithoutQuotes,
@@ -43,28 +37,14 @@ export class AuthenticationService {
       );
       return true;
     }
-
-    // console.log("token: ", token);
-
-    // return token;
-
-    // const exists = await this.redisClient.exists(sessionIdWithoutQuotes);
-
-    // console.log("exists: ", exists === 1);
-    // return exists === 1;
   }
 
-  // async getDataRedis() {
-  //   return await this.redisClient.
-  // }
-
   async logoutUser(sessionID: string) {
-    console.log("sessionID: ", sessionID);
+    // console.log("sessionID: ", sessionID);
     const sessionIDValue = Object.keys(sessionID)[0];
 
     const sessionIdWithoutQuotes = sessionIDValue.replace(/['"]+/g, "");
-    // const sessionIdWithoutQuotes = Object.keys(sessionID)[0];
-    console.log("sessionIdWithoutQuotes: ", sessionIdWithoutQuotes);
+    // console.log("sessionIdWithoutQuotes: ", sessionIdWithoutQuotes);
 
     const numberOfFieldsDeleted = await this.redisClient.del(
       sessionIdWithoutQuotes
@@ -72,13 +52,5 @@ export class AuthenticationService {
 
     //means that 1 or more fields got deleted
     return numberOfFieldsDeleted > 0;
-  }
-
-  update(id: number, updateAuthenticationDto: UpdateAuthenticationDto) {
-    return `This action updates a #${id} authentication`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} authentication`;
   }
 }
