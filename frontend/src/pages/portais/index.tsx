@@ -14,12 +14,12 @@ import { getCookie, hasCookie } from "cookies-next";
 
 import axios from "@/axios";
 import { checkAuthentication } from "@/utils/authUtil";
+import { checkCharacter } from "@/utils/checkCharacter";
 
 type PortaisProps = Array<{ id: number; name: string }>;
 
 export const getServerSideProps = (async (context) => {
   const sessionCookie = context.req.cookies["userData"];
-  console.log(sessionCookie);
 
   //cookie not set
   if (sessionCookie === undefined) {
@@ -33,7 +33,19 @@ export const getServerSideProps = (async (context) => {
 
   const userIsLoggedIn = await checkAuthentication(sessionCookie);
 
-  console.log("userlogged: ", userIsLoggedIn);
+  //if the user created an account, but didnt created a character
+  if (userIsLoggedIn) {
+    const characterExist = await checkCharacter(sessionCookie);
+
+    if (!characterExist) {
+      return {
+        redirect: {
+          destination: "/createCharacter",
+          permanent: false,
+        },
+      };
+    }
+  }
 
   if (!userIsLoggedIn) {
     return {

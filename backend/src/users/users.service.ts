@@ -7,7 +7,7 @@ import { LostStatus } from "./dto/lostStatus-user-dto";
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
-  //
+
   async create(createUserDto: CreateUserDto) {
     //check if user exist
     const user = await this.prisma.user_data.findUnique({
@@ -24,23 +24,24 @@ export class UsersService {
       return user;
     }
 
-    //races are created manually in the db
-    let idRace: number;
-    //status are created manually in the db for each race
-    let idStatus: number;
+    // //races are created manually in the db
+    // let idRace: number;
+    // //status are created manually in the db for each race
+    // let idStatus: number;
 
-    if (createUserDto.race === "orc") {
-      idRace = 1;
-      idStatus = 2;
-    } else if (createUserDto.race === "humano") {
-      idRace = 3;
-      idStatus = 3;
-    } else {
-      idRace = 2;
-      idStatus = 4;
-    }
+    // if (createUserDto.race === "orc") {
+    //   idRace = 1;
+    //   idStatus = 2;
+    // } else if (createUserDto.race === "humano") {
+    //   idRace = 3;
+    //   idStatus = 3;
+    // } else {
+    //   idRace = 2;
+    //   idStatus = 4;
+    // }
 
     try {
+      //character is created in the races.service.ts
       const savedUser = await this.prisma.user_data.create({
         data: {
           email: createUserDto.email,
@@ -52,35 +53,20 @@ export class UsersService {
               refresh_tk: createUserDto.refresh_tk ?? "",
             },
           },
-          character: {
-            // create: {
-            //   classes: {
-            //     create: {
-            //       nome: createUserDto.race,
-            //     },
-            //   },
-            create: {
-              classes: {
-                connect: {
-                  id: idRace,
-                },
-              },
-              status: {
-                connect: {
-                  id: idStatus,
-                },
-              },
-
-              // status: {
-              //   create: {
-              //     agility: createUserDto.status.agility,
-              //     intelligence: createUserDto.status.intelligence,
-              //     luck: createUserDto.status.luck,
-              //     strength: createUserDto.status.strength,
-              //   },
-              // },
-            },
-          },
+          // character: {
+          // create: {
+          //   classes: {
+          //     connect: {
+          //       id: idRace,
+          //     },
+          //   },
+          //   status: {
+          //     connect: {
+          //       id: idStatus,
+          //     },
+          //   },
+          // },
+          // },
         },
       });
 

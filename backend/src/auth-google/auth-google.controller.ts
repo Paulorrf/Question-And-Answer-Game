@@ -17,6 +17,7 @@ import { Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 import { SessionStoresService } from "src/session-stores/session-stores.service";
 import { UsersService } from "src/users/users.service";
+import { PrismaService } from "src/prisma/prisma.service";
 
 interface IUser {
   email: string;
@@ -32,7 +33,8 @@ export class AuthGoogleController {
   constructor(
     private readonly authGoogleService: AuthGoogleService,
     private readonly sessionStoresService: SessionStoresService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private prisma: PrismaService
   ) {}
 
   @Post()
@@ -50,9 +52,7 @@ export class AuthGoogleController {
   @UseGuards(AuthGuard("google"))
   async googleAuthRedirect(@Req() req: { user: any }, @Res() res: Response) {
     try {
-      const user = req.user; // User data obtained from Google OAuth
-
-      console.log("user::: ", user);
+      //const user = req.user; // User data obtained from Google OAuth
 
       //saves user in the db if doesn't exist
       const userDataFromDB = await this.usersService.create({
@@ -62,7 +62,7 @@ export class AuthGoogleController {
         refresh_tk: req.user.refreshToken,
       });
 
-      console.log("refresh_tk::: ", req.user.refreshToken);
+      // console.log("refresh_tk::: ", req.user.refreshToken);
 
       const currentTimestamp = new Date(); // Current timestamp
       currentTimestamp.setHours(currentTimestamp.getHours() + 1);
@@ -101,8 +101,21 @@ export class AuthGoogleController {
         path: "/", // Specify the path where the cookie is accessible
       });
 
-      // Redirect the user back to frontend
-      return res.redirect("http://localhost:3000/");
+      const hasCharacter = await this.prisma.user_data.findUnique({
+        where: {
+          id: userDataFromDB.id,
+        },
+        select: {
+          character_id: true,
+        },
+      });
+
+      //if user has a character, send to home, otherwise send to createCharacter route
+      if (hasCharacter.character_id) {
+        return res.redirect("http://localhost:3000/");
+      } else {
+        return res.redirect("http://localhost:3000/createCharacter");
+      }
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "OAuth callback error" });

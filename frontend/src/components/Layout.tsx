@@ -13,8 +13,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
     return <p>loading</p>;
   }
 
-  console.log("userIsValid: ", userIsValid);
-
   const unprotectedRoutes = ["/", "/login"];
 
   // Check if the current route is unprotected or if the user is logged in
@@ -23,7 +21,6 @@ const Layout = ({ children }: { children: ReactNode }) => {
 
   // If the route is not allowed, redirect to the login page
   if (!isRouteAllowed && router.pathname !== "/login") {
-    console.log("entrouuuu");
     router.push("/login");
     return <Loading isLogged={userIsValid} />;
   }

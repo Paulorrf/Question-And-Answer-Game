@@ -15,6 +15,7 @@ import { AuthGoogleModule } from "./auth-google/auth-google.module";
 import { RedisModule } from "./redis/redis.module";
 import { SessionStoresModule } from "./session-stores/session-stores.module";
 import { AuthenticationModule } from "./authentication/authentication.module";
+import { RacesModule } from './races/races.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthenticationModule } from "./authentication/authentication.module";
     RedisModule,
     SessionStoresModule,
     AuthenticationModule,
+    RacesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, AuthGoogleService],
